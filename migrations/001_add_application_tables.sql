@@ -124,3 +124,59 @@ CREATE POLICY "Allow admin and staff update access to career applications" ON ca
             AND (raw_user_meta_data->>'role' = 'admin' OR raw_user_meta_data->>'role' = 'staff')
         )
     );
+
+-- Policies for INSERT
+CREATE POLICY "Allow admin and staff insert access to driver applications" ON driver_applications
+    FOR INSERT WITH CHECK (
+        EXISTS (
+            SELECT 1 FROM auth.users 
+            WHERE email = auth.jwt() ->> 'email' 
+            AND (raw_user_meta_data->>'role' = 'admin' OR raw_user_meta_data->>'role' = 'staff')
+        )
+    );
+
+CREATE POLICY "Allow admin and staff insert access to laundry partner applications" ON laundry_partner_applications
+    FOR INSERT WITH CHECK (
+        EXISTS (
+            SELECT 1 FROM auth.users 
+            WHERE email = auth.jwt() ->> 'email' 
+            AND (raw_user_meta_data->>'role' = 'admin' OR raw_user_meta_data->>'role' = 'staff')
+        )
+    );
+
+CREATE POLICY "Allow admin and staff insert access to career applications" ON career_applications
+    FOR INSERT WITH CHECK (
+        EXISTS (
+            SELECT 1 FROM auth.users 
+            WHERE email = auth.jwt() ->> 'email' 
+            AND (raw_user_meta_data->>'role' = 'admin' OR raw_user_meta_data->>'role' = 'staff')
+        )
+    );
+
+-- Policies for DELETE
+CREATE POLICY "Allow admin and staff delete access to driver applications" ON driver_applications
+    FOR DELETE USING (
+        EXISTS (
+            SELECT 1 FROM auth.users 
+            WHERE email = auth.jwt() ->> 'email' 
+            AND (raw_user_meta_data->>'role' = 'admin' OR raw_user_meta_data->>'role' = 'staff')
+        )
+    );
+
+CREATE POLICY "Allow admin and staff delete access to laundry partner applications" ON laundry_partner_applications
+    FOR DELETE USING (
+        EXISTS (
+            SELECT 1 FROM auth.users 
+            WHERE email = auth.jwt() ->> 'email' 
+            AND (raw_user_meta_data->>'role' = 'admin' OR raw_user_meta_data->>'role' = 'staff')
+        )
+    );
+
+CREATE POLICY "Allow admin and staff delete access to career applications" ON career_applications
+    FOR DELETE USING (
+        EXISTS (
+            SELECT 1 FROM auth.users 
+            WHERE email = auth.jwt() ->> 'email' 
+            AND (raw_user_meta_data->>'role' = 'admin' OR raw_user_meta_data->>'role' = 'staff')
+        )
+    );
