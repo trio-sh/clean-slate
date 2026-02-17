@@ -19,7 +19,7 @@ const CareerApplicationPage = () => {
     resume_url: '',
     availability: '',
     salary_expectation: '',
-    references: '',
+    applicant_references: '',
     message: ''
   });
   
@@ -286,8 +286,8 @@ const CareerApplicationPage = () => {
                     References
                   </label>
                   <textarea
-                    name="references"
-                    value={formData.references}
+                    name="applicant_references"
+                    value={formData.applicant_references}
                     onChange={handleChange}
                     rows={3}
                     className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-amani-500 focus:border-transparent resize-none"

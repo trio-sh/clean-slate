@@ -50,7 +50,7 @@ CREATE TABLE IF NOT EXISTS career_applications (
     resume_url TEXT,
     availability TEXT,
     salary_expectation DECIMAL(10, 2),
-    references TEXT,
+    applicant_references TEXT,
     message TEXT,
     status VARCHAR(20) DEFAULT 'pending' CHECK (status IN ('pending', 'reviewed', 'approved', 'rejected')),
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),

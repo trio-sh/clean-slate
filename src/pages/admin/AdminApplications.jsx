@@ -501,7 +501,7 @@ const AdminApplications = () => {
                       <div><span className="font-medium">Position Applied:</span> {selectedApplication.position_applied}</div>
                       <div><span className="font-medium">Salary Expectation:</span> ${selectedApplication.salary_expectation || 'N/A'}</div>
                       <div><span className="font-medium">Availability:</span> {selectedApplication.availability || 'N/A'}</div>
-                      <div><span className="font-medium">References:</span> {selectedApplication.references || 'N/A'}</div>
+                      <div><span className="font-medium">References:</span> {selectedApplication.applicant_references || 'N/A'}</div>
                       {selectedApplication.resume_url && (
                         <div className="md:col-span-2">
                           <span className="font-medium">Resume:</span>
