@@ -1,0 +1,370 @@
+import { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
+
+import { 
+  Shirt, Search, Plus, Minus, ShoppingCart, Filter,
+  Sparkles, Clock, CheckCircle2, Info, ChevronDown
+} from 'lucide-react';
+import { useServicesStore, useCartStore, useAppStore } from '../../stores';
+
+const ServicesPage = () => {
+  const { categories, services, fetchServices, loading } = useServicesStore();
+  const { addItem, items } = useCartStore();
+  const { mode } = useAppStore();
+  const [selectedCategory, setSelectedCategory] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [quantities, setQuantities] = useState({});
+
+  useEffect(() => {
+    fetchServices();
+  }, [fetchServices]);
+
+  const categoryIcons = {
+    'shirts-blouses': '👔',
+    'pants-shorts': '👖',
+    'skirts': '👗',
+    'dresses': '👗',
+    'jackets': '🧥',
+    'sweaters': '🧶',
+    'wedding-formal': '👰',
+    'suits': '🤵',
+    'tie-scarf': '🧣',
+    'coats-winter': '🧥',
+    'bedding': '🛏️',
+    'culinary-linen': '🍽️',
+    'laundry': '🧺',
+  };
+
+  const filteredServices = services.filter(service => {
+    const matchesCategory = !selectedCategory || service.category_id === selectedCategory;
+    const matchesSearch = !searchQuery || 
+      service.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      service.description?.toLowerCase().includes(searchQuery.toLowerCase());
+    return matchesCategory && matchesSearch;
+  });
+
+  const groupedServices = filteredServices.reduce((acc, service) => {
+    const categoryName = categories.find(c => c.id === service.category_id)?.name || 'Other';
+    if (!acc[categoryName]) acc[categoryName] = [];
+    acc[categoryName].push(service);
+    return acc;
+  }, {});
+
+  const updateQuantity = (serviceId, delta) => {
+    setQuantities(prev => ({
+      ...prev,
+      [serviceId]: Math.max(0, (prev[serviceId] || 0) + delta)
+    }));
+  };
+
+  const handleAddToCart = (service) => {
+    const qty = quantities[service.id] || 1;
+    addItem({
+      id: service.id,
+      name: service.name,
+      price: service.base_price || service.price || 0,
+      quantity: qty,
+      type: 'service'
+    });
+    setQuantities(prev => ({ ...prev, [service.id]: 0 }));
+  };
+
+  const getItemInCart = (serviceId) => {
+    return items.find(item => item.id === serviceId);
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-amani-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-gray-600">Loading services...</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <section className="bg-gradient-to-br from-navy-900 to-amani-900 py-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-center"
+          >
+            <span className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-full px-4 py-2 mb-6">
+              <Sparkles className="w-4 h-4 text-amani-400" />
+              <span className="text-white font-medium">Premium Quality</span>
+            </span>
+            <h1 className="text-4xl md:text-5xl font-display font-bold text-white mb-4">
+              Our Services
+            </h1>
+            <p className="text-xl text-gray-300 max-w-2xl mx-auto">
+              Professional cleaning for all your garments. Select items below to add to your order.
+            </p>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Quick Info Bar */}
+      <section className="bg-white border-b border-gray-100">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <div className="flex flex-wrap items-center justify-center gap-6 text-sm">
+            <span className="flex items-center gap-2 text-gray-600">
+              <Clock className="w-4 h-4 text-amani-500" />
+              48-72 Hour Turnaround
+            </span>
+            <span className="flex items-center gap-2 text-gray-600">
+              <CheckCircle2 className="w-4 h-4 text-green-500" />
+              Quality Guaranteed
+            </span>
+            <span className="flex items-center gap-2 text-amani-600 font-medium">
+              <Sparkles className="w-4 h-4" />
+              15% Off First Order!
+            </span>
+          </div>
+        </div>
+      </section>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="flex flex-col lg:flex-row gap-8">
+          {/* Sidebar Filters */}
+          <aside className="lg:w-72 flex-shrink-0">
+            <div className="sticky top-32 space-y-6">
+              {/* Search */}
+              <div className="card p-4">
+                <label className="block text-sm font-medium text-navy-700 mb-2">
+                  Search Services
+                </label>
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Search..."
+                    className="input pl-10"
+                  />
+                </div>
+              </div>
+
+              {/* Categories */}
+              <div className="card p-4">
+                <h3 className="font-semibold text-navy-900 mb-4 flex items-center gap-2">
+                  <Filter className="w-5 h-5" />
+                  Categories
+                </h3>
+                <div className="space-y-2">
+                  <button
+                    onClick={() => setSelectedCategory(null)}
+                    className={`w-full text-left px-3 py-2 rounded-lg transition-colors ${
+                      !selectedCategory 
+                        ? 'bg-amani-100 text-amani-700 font-medium' 
+                        : 'text-gray-600 hover:bg-gray-100'
+                    }`}
+                  >
+                    All Services
+                  </button>
+                  {categories.map(category => (
+                    <button
+                      key={category.id}
+                      onClick={() => setSelectedCategory(category.id)}
+                      className={`w-full text-left px-3 py-2 rounded-lg transition-colors flex items-center gap-2 ${
+                        selectedCategory === category.id 
+                          ? 'bg-amani-100 text-amani-700 font-medium' 
+                          : 'text-gray-600 hover:bg-gray-100'
+                      }`}
+                    >
+                      <span>{categoryIcons[category.slug] || '📦'}</span>
+                      {category.name}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Cart Summary */}
+              {items.length > 0 && (
+                <div className="card p-4 bg-amani-50 border-amani-200">
+                  <h3 className="font-semibold text-navy-900 mb-3 flex items-center gap-2">
+                    <ShoppingCart className="w-5 h-5 text-amani-600" />
+                    Your Cart
+                  </h3>
+                  <div className="space-y-2 mb-4">
+                    {items.slice(0, 3).map(item => (
+                      <div key={item.id} className="flex justify-between text-sm">
+                        <span className="text-gray-600 truncate">{item.quantity}x {item.name}</span>
+                        <span className="text-navy-900 font-medium">${((item.price || 0) * item.quantity).toFixed(2)}</span>
+                      </div>
+                    ))}
+                    {items.length > 3 && (
+                      <p className="text-sm text-gray-500">+{items.length - 3} more items</p>
+                    )}
+                  </div>
+                  <Link to="/order" className="btn-primary w-full text-center text-sm">
+                    View Cart & Checkout
+                  </Link>
+                </div>
+              )}
+            </div>
+          </aside>
+
+          {/* Services Grid */}
+          <main className="flex-1">
+            {Object.keys(groupedServices).length === 0 ? (
+              <div className="card p-12 text-center">
+                <Shirt className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                <h3 className="text-xl font-semibold text-navy-900 mb-2">No services found</h3>
+                <p className="text-gray-600">Try adjusting your search or filters.</p>
+              </div>
+            ) : (
+              Object.entries(groupedServices).map(([categoryName, categoryServices]) => (
+                <motion.div
+                  key={categoryName}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="mb-8"
+                >
+                  <h2 className="text-2xl font-display font-bold text-navy-900 mb-6 flex items-center gap-3">
+                    <span className="text-2xl">
+                      {categoryIcons[categories.find(c => c.name === categoryName)?.slug] || '📦'}
+                    </span>
+                    {categoryName}
+                  </h2>
+                  
+                  <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {categoryServices.map(service => {
+                      const cartItem = getItemInCart(service.id);
+                      const qty = quantities[service.id] || 0;
+                      
+                      return (
+                        <div
+                          key={service.id}
+                          className="card p-5 hover:shadow-lg transition-all duration-300 group"
+                        >
+                          <div className="flex justify-between items-start mb-3">
+                            <div className="flex-1">
+                              <h3 className="font-semibold text-navy-900 group-hover:text-amani-600 transition-colors">
+                                {service.name}
+                              </h3>
+                              {service.description && (
+                                <p className="text-sm text-gray-500 mt-1">{service.description}</p>
+                              )}
+                            </div>
+                            <span className="text-lg font-bold text-amani-600">
+                              ${(service.base_price || service.price || 0).toFixed(2)}
+                            </span>
+                          </div>
+
+                          {service.unit && (
+                            <p className="text-xs text-gray-400 mb-3">Per {service.unit}</p>
+                          )}
+
+                          <div className="flex items-center gap-3">
+                            <div className="flex items-center border border-gray-200 rounded-lg">
+                              <button
+                                onClick={() => updateQuantity(service.id, -1)}
+                                className="p-2 hover:bg-gray-100 rounded-l-lg transition-colors"
+                                disabled={qty === 0}
+                              >
+                                <Minus className="w-4 h-4" />
+                              </button>
+                              <span className="w-10 text-center font-medium">{qty}</span>
+                              <button
+                                onClick={() => updateQuantity(service.id, 1)}
+                                className="p-2 hover:bg-gray-100 rounded-r-lg transition-colors"
+                              >
+                                <Plus className="w-4 h-4" />
+                              </button>
+                            </div>
+                            <button
+                              onClick={() => handleAddToCart(service)}
+                              disabled={qty === 0}
+                              className={`flex-1 btn-primary text-sm py-2 ${
+                                qty === 0 ? 'opacity-50 cursor-not-allowed' : ''
+                              }`}
+                            >
+                              <ShoppingCart className="w-4 h-4 mr-1" />
+                              Add
+                            </button>
+                          </div>
+
+                          {cartItem && (
+                            <p className="text-xs text-green-600 mt-2 flex items-center gap-1">
+                              <CheckCircle2 className="w-3 h-3" />
+                              {cartItem.quantity} in cart
+                            </p>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </motion.div>
+              ))
+            )}
+
+            {/* Laundry Section */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mt-12"
+            >
+              <div className="card p-8 bg-gradient-to-br from-amani-50 to-blue-50 border-amani-100">
+                <div className="flex flex-col md:flex-row md:items-center gap-6">
+                  <div className="flex-1">
+                    <h2 className="text-2xl font-display font-bold text-navy-900 mb-3 flex items-center gap-3">
+                      <span className="text-3xl">🧺</span>
+                      Wash & Fold Laundry
+                    </h2>
+                    <p className="text-gray-600 mb-4">
+                      Perfect for everyday laundry. We wash, dry, and neatly fold your clothes.
+                      Minimum order: 23lb or $64.01 flat rate.
+                    </p>
+                    <div className="grid sm:grid-cols-2 gap-4">
+                      <div className="bg-white rounded-xl p-4">
+                        <h4 className="font-semibold text-navy-900">Regular</h4>
+                        <p className="text-2xl font-bold text-amani-600">$2.39<span className="text-sm font-normal text-gray-500">/lb</span></p>
+                        <p className="text-sm text-gray-500">For household laundry</p>
+                      </div>
+                      <div className="bg-white rounded-xl p-4">
+                        <h4 className="font-semibold text-navy-900">Commercial</h4>
+                        <p className="text-2xl font-bold text-amani-600">$2.25<span className="text-sm font-normal text-gray-500">/lb</span></p>
+                        <p className="text-sm text-gray-500">For business clients</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="md:w-48 text-center">
+                    <Link to="/order" className="btn-primary w-full inline-flex items-center justify-center gap-2">
+                      Order Laundry
+                      <ShoppingCart className="w-4 h-4" />
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+
+            {/* Info Box */}
+            <div className="mt-8 p-6 bg-blue-50 border border-blue-200 rounded-xl">
+              <div className="flex gap-4">
+                <Info className="w-6 h-6 text-blue-600 flex-shrink-0 mt-0.5" />
+                <div>
+                  <h4 className="font-semibold text-blue-900 mb-2">Price Notes</h4>
+                  <ul className="text-sm text-blue-800 space-y-1">
+                    <li>• Prices shown are starting prices. Complex items may cost more.</li>
+                    <li>• "Starting from" items are assessed individually.</li>
+                    <li>• Same day service available for an additional fee.</li>
+                    <li>• 10% senior discount available in-store.</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </main>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default ServicesPage;

@@ -1,0 +1,465 @@
+import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
+import { useState, useEffect, useRef } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { 
+  Menu, X, ShoppingCart, User, MapPin, Phone, Mail, 
+  Facebook, Instagram, Twitter, ChevronDown, Sparkles,
+  Shirt, Clock, Truck, Star, Leaf, Bell, CheckCircle, Trash2
+} from 'lucide-react';
+import { useAuthStore, useCartStore, useAppStore, useNotificationStore } from '../../stores';
+import { format } from 'date-fns';
+
+const CustomerLayout = () => {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [showNotifications, setShowNotifications] = useState(false);
+  const notifRef = useRef(null);
+  
+  const { user, isAuthenticated, logout } = useAuthStore();
+  const { getItemCount } = useCartStore();
+  const { mode, demoEnabled } = useAppStore();
+  const { notifications, unreadCount, markAsRead, markAllAsRead, removeNotification, loadNotifications } = useNotificationStore();
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  // Load notifications for logged-in customers
+  useEffect(() => {
+    if (isAuthenticated && user?.id) {
+      loadNotifications(user.id);
+      
+      // Poll for new notifications every 30 seconds
+      const interval = setInterval(() => {
+        loadNotifications(user.id);
+      }, 30000);
+      
+      return () => clearInterval(interval);
+    }
+  }, [isAuthenticated, user?.id, loadNotifications]);
+
+  // Close notification dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (notifRef.current && !notifRef.current.contains(event.target)) {
+        setShowNotifications(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const handleNotificationClick = (notification) => {
+    if (!notification.is_read && !notification.read) {
+      markAsRead(notification.id);
+    }
+    if (notification.link) {
+      navigate(notification.link);
+      setShowNotifications(false);
+    }
+  };
+
+  const getNotificationTypeColor = (type) => {
+    switch (type) {
+      case 'alert': return 'bg-red-100 text-red-600';
+      case 'order': return 'bg-blue-100 text-blue-600';
+      case 'promo': return 'bg-purple-100 text-purple-600';
+      case 'reminder': return 'bg-amber-100 text-amber-600';
+      default: return 'bg-gray-100 text-gray-600';
+    }
+  };
+
+  const navigation = [
+    { name: 'Home', href: '/' },
+    { name: 'Services', href: '/services' },
+    { name: 'Pricing', href: '/pricing' },
+    { name: 'Subscriptions', href: '/subscriptions' },
+    { name: 'Track Order', href: '/track' },
+    { name: 'Drive With Us', href: '/drive-with-us' },
+  ];
+
+  const isActive = (href) => location.pathname === href;
+
+  return (
+    <div className={`min-h-screen flex flex-col ${demoEnabled && mode === 'demo' ? 'pt-8' : ''}`}>
+      {/* Header */}
+      <header className="sticky top-0 z-40 bg-white/90 backdrop-blur-lg border-b border-gray-100">
+        {/* Top bar */}
+        <div className="hidden md:block bg-navy-900 text-white">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2">
+            <div className="flex justify-between items-center text-sm">
+              <div className="flex items-center gap-6">
+                <a href="tel:437-215-6321" className="flex items-center gap-2 hover:text-amani-400 transition-colors">
+                  <Phone className="w-4 h-4" />
+                  437-215-6321
+                </a>
+                <a href="mailto:amaniscleaners@gmail.com" className="flex items-center gap-2 hover:text-amani-400 transition-colors">
+                  <Mail className="w-4 h-4" />
+                  amaniscleaners@gmail.com
+                </a>
+              </div>
+              <div className="flex items-center gap-4">
+                <span className="flex items-center gap-2">
+                  <Leaf className="w-4 h-4 text-green-400" />
+                  Proudly Canadian Since 2013
+                </span>
+                <span className="text-amani-400 font-medium">🍁 15% Off First Order!</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Main header */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-20">
+            {/* Logo */}
+            <Link to="/" className="flex items-center gap-3">
+              <img 
+                src="/logo.png" 
+                alt="Amani's Cleaners" 
+                className="h-20 w-auto object-contain"
+              />
+            </Link>
+
+            {/* Desktop Navigation */}
+            <nav className="hidden md:flex items-center gap-1">
+              {navigation.map((item) => (
+                <Link
+                  key={item.name}
+                  to={item.href}
+                  className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
+                    isActive(item.href)
+                      ? 'text-amani-600 bg-amani-50'
+                      : 'text-navy-600 hover:text-amani-600 hover:bg-gray-50'
+                  }`}
+                >
+                  {item.name}
+                </Link>
+              ))}
+            </nav>
+
+            {/* Right section */}
+            <div className="flex items-center gap-2 sm:gap-4">
+              {/* Cart */}
+              <button
+                onClick={() => navigate('/order')}
+                className="relative p-3 rounded-xl hover:bg-gray-100 transition-colors"
+              >
+                <ShoppingCart className="w-6 h-6 text-navy-700" />
+                {getItemCount() > 0 && (
+                  <span className="absolute -top-1 -right-1 w-5 h-5 bg-amani-500 text-white text-xs font-bold rounded-full flex items-center justify-center">
+                    {getItemCount()}
+                  </span>
+                )}
+              </button>
+
+              {/* Notifications - Only show for logged in customers */}
+              {isAuthenticated && (
+                <div className="relative" ref={notifRef}>
+                  <button
+                    onClick={() => setShowNotifications(!showNotifications)}
+                    className="relative p-3 rounded-xl hover:bg-gray-100 transition-colors"
+                  >
+                    <Bell className="w-6 h-6 text-navy-700" />
+                    {unreadCount > 0 && (
+                      <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center">
+                        {unreadCount > 9 ? '9+' : unreadCount}
+                      </span>
+                    )}
+                  </button>
+
+                  {/* Notification Dropdown */}
+                  <AnimatePresence>
+                    {showNotifications && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 10 }}
+                        className="absolute right-0 top-full mt-2 w-80 sm:w-96 bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden z-50"
+                      >
+                        <div className="p-4 border-b border-gray-100 flex items-center justify-between">
+                          <h3 className="font-semibold text-navy-900">Notifications</h3>
+                          {unreadCount > 0 && (
+                            <button
+                              onClick={() => markAllAsRead(user?.id)}
+                              className="text-xs text-amani-600 hover:text-amani-700"
+                            >
+                              Mark all as read
+                            </button>
+                          )}
+                        </div>
+                        
+                        <div className="max-h-96 overflow-y-auto">
+                          {notifications.length === 0 ? (
+                            <div className="p-8 text-center text-gray-500">
+                              <Bell className="w-12 h-12 mx-auto mb-3 opacity-30" />
+                              <p>No notifications yet</p>
+                            </div>
+                          ) : (
+                            notifications.slice(0, 10).map(notif => (
+                              <div
+                                key={notif.id}
+                                className={`p-4 border-b border-gray-50 hover:bg-gray-50 cursor-pointer transition-colors ${
+                                  !notif.is_read && !notif.read ? 'bg-blue-50/50' : ''
+                                }`}
+                                onClick={() => handleNotificationClick(notif)}
+                              >
+                                <div className="flex items-start gap-3">
+                                  <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${getNotificationTypeColor(notif.type)}`}>
+                                    <Bell className="w-4 h-4" />
+                                  </div>
+                                  <div className="flex-1 min-w-0">
+                                    <p className="font-medium text-navy-900 text-sm">{notif.title}</p>
+                                    <p className="text-gray-600 text-xs mt-0.5 line-clamp-2">{notif.message}</p>
+                                    <p className="text-gray-400 text-xs mt-1">
+                                      {notif.created_at ? format(new Date(notif.created_at), 'MMM d, h:mm a') : 
+                                       notif.timestamp ? format(new Date(notif.timestamp), 'MMM d, h:mm a') : ''}
+                                    </p>
+                                  </div>
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      removeNotification(notif.id);
+                                    }}
+                                    className="p-1 hover:bg-gray-200 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity"
+                                  >
+                                    <Trash2 className="w-4 h-4 text-gray-400" />
+                                  </button>
+                                </div>
+                              </div>
+                            ))
+                          )}
+                        </div>
+
+                        {notifications.length > 10 && (
+                          <div className="p-3 border-t border-gray-100 text-center">
+                            <Link
+                              to="/account"
+                              onClick={() => setShowNotifications(false)}
+                              className="text-sm text-amani-600 hover:text-amani-700"
+                            >
+                              View all notifications
+                            </Link>
+                          </div>
+                        )}
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              )}
+
+              {/* Auth */}
+              {isAuthenticated ? (
+                <div className="relative group">
+                  <button className="flex items-center gap-2 px-4 py-2 rounded-xl hover:bg-gray-100 transition-colors">
+                    <div className="w-8 h-8 bg-amani-100 rounded-full flex items-center justify-center">
+                      <span className="text-amani-600 font-semibold text-sm">
+                        {user?.first_name?.[0]}{user?.last_name?.[0]}
+                      </span>
+                    </div>
+                    <ChevronDown className="w-4 h-4 text-gray-500" />
+                  </button>
+                  <div className="absolute right-0 top-full mt-2 w-48 bg-white rounded-xl shadow-xl border border-gray-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                    <div className="p-3 border-b border-gray-100">
+                      <p className="font-medium text-navy-900">{user?.first_name} {user?.last_name}</p>
+                      <p className="text-sm text-gray-500">{user?.email}</p>
+                    </div>
+                    <div className="p-2">
+                      <Link to="/account" className="block px-3 py-2 rounded-lg text-navy-700 hover:bg-gray-50">My Account</Link>
+                      {user?.role !== 'customer' && (
+                        <Link to={`/${user?.role}`} className="block px-3 py-2 rounded-lg text-navy-700 hover:bg-gray-50">
+                          {user?.role === 'admin' ? 'Admin Panel' : user?.role === 'driver' ? 'Driver Dashboard' : 'Staff Dashboard'}
+                        </Link>
+                      )}
+                      <button onClick={logout} className="w-full text-left px-3 py-2 rounded-lg text-red-600 hover:bg-red-50">
+                        Sign Out
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex items-center gap-2">
+                  <Link to="/login" className="btn-ghost text-sm">Sign In</Link>
+                  <Link to="/order" className="btn-primary text-sm">
+                    <Sparkles className="w-4 h-4" />
+                    Order Now
+                  </Link>
+                </div>
+              )}
+
+              {/* Mobile menu button */}
+              <button
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                className="md:hidden p-2 rounded-lg hover:bg-gray-100"
+              >
+                {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Mobile Navigation */}
+        <AnimatePresence>
+          {mobileMenuOpen && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              className="md:hidden border-t border-gray-100"
+            >
+              <div className="px-4 py-4 space-y-1">
+                {navigation.map((item) => (
+                  <Link
+                    key={item.name}
+                    to={item.href}
+                    onClick={() => setMobileMenuOpen(false)}
+                    className={`block px-4 py-3 rounded-xl font-medium ${
+                      isActive(item.href)
+                        ? 'text-amani-600 bg-amani-50'
+                        : 'text-navy-700 hover:bg-gray-50'
+                    }`}
+                  >
+                    {item.name}
+                  </Link>
+                ))}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </header>
+
+      {/* Main Content */}
+      <main className="flex-1">
+        <Outlet />
+      </main>
+
+      {/* Footer */}
+      <footer className="bg-navy-900 text-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
+            {/* Brand */}
+            <div>
+              <div className="flex items-center gap-3 mb-6">
+                <div className="bg-white p-3 rounded-xl shadow-lg">
+                  <img 
+                    src="/logo.png" 
+                    alt="Amani's Cleaners" 
+                    className="h-14 w-auto object-contain"
+                  />
+                </div>
+              </div>
+              <p className="text-gray-400 mb-6">
+                Proudly Canadian owned since 2013. Premium laundry and dry cleaning services for the Greater Toronto Area.
+              </p>
+              <div className="flex gap-4">
+                <a href="#" className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-amani-500 transition-colors">
+                  <Facebook className="w-5 h-5" />
+                </a>
+                <a href="#" className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-amani-500 transition-colors">
+                  <Instagram className="w-5 h-5" />
+                </a>
+                <a href="#" className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-amani-500 transition-colors">
+                  <Twitter className="w-5 h-5" />
+                </a>
+              </div>
+            </div>
+
+            {/* Quick Links */}
+            <div>
+              <h4 className="font-semibold text-lg mb-6">Quick Links</h4>
+              <ul className="space-y-3">
+                {navigation.map((item) => (
+                  <li key={item.name}>
+                    <Link to={item.href} className="text-gray-400 hover:text-amani-400 transition-colors">
+                      {item.name}
+                    </Link>
+                  </li>
+                ))}
+                <li>
+                  <Link to="/partner" className="text-gray-400 hover:text-amani-400 transition-colors">
+                    Become a Laundry Partner
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/driver" className="text-gray-400 hover:text-amani-400 transition-colors">
+                    Become a Driver
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/careers" className="text-gray-400 hover:text-amani-400 transition-colors">
+                    Careers
+                  </Link>
+                </li>
+              </ul>
+            </div>
+
+            {/* Service Areas */}
+            <div>
+              <h4 className="font-semibold text-lg mb-6">Service Areas</h4>
+              <ul className="space-y-2 text-gray-400 text-sm">
+                <li>Toronto</li>
+                <li>North York</li>
+                <li>Brampton</li>
+                <li>Mississauga</li>
+                <li>Vaughan</li>
+                <li>Richmond Hill</li>
+                <li>Markham</li>
+                <li>+ More GTA regions</li>
+              </ul>
+            </div>
+
+            {/* Contact */}
+            <div>
+              <h4 className="font-semibold text-lg mb-6">Contact Us</h4>
+              <ul className="space-y-4">
+                <li className="flex items-start gap-3">
+                  <MapPin className="w-5 h-5 text-amani-500 mt-0.5" />
+                  <div>
+                    <p className="text-gray-400 text-sm">325 Weston Road, Unit 5D</p>
+                    <p className="text-gray-400 text-sm">Toronto, ON M6N 3P1</p>
+                  </div>
+                </li>
+                <li className="flex items-center gap-3">
+                  <Phone className="w-5 h-5 text-amani-500" />
+                  <div>
+                    <a href="tel:437-215-6321" className="text-gray-400 hover:text-amani-400 text-sm">437-215-6321</a>
+                    <span className="text-gray-600 mx-2">/</span>
+                    <a href="tel:647-764-5658" className="text-gray-400 hover:text-amani-400 text-sm">647-764-5658</a>
+                  </div>
+                </li>
+                <li className="flex items-center gap-3">
+                  <Mail className="w-5 h-5 text-amani-500" />
+                  <a href="mailto:amaniscleaners@gmail.com" className="text-gray-400 hover:text-amani-400 text-sm">
+                    amaniscleaners@gmail.com
+                  </a>
+                </li>
+                <li className="flex items-center gap-3">
+                  <Clock className="w-5 h-5 text-amani-500" />
+                  <div className="text-gray-400 text-sm">
+                    <p>Pickup: 7AM-11AM, 6PM-10PM</p>
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          {/* Bottom */}
+          <div className="mt-12 pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-4">
+            <p className="text-gray-500 text-sm">
+              © {new Date().getFullYear()} Amani's Cleaners. All rights reserved. 🍁
+            </p>
+            <div className="flex items-center gap-4 text-sm text-gray-500">
+              <span className="flex items-center gap-2">
+                <Star className="w-4 h-4 text-yellow-500" />
+                4.9/5 Google Rating
+              </span>
+              <span className="flex items-center gap-2">
+                <Truck className="w-4 h-4 text-amani-500" />
+                Free Pickup & Delivery
+              </span>
+            </div>
+          </div>
+        </div>
+      </footer>
+    </div>
+  );
+};
+
+export default CustomerLayout;
