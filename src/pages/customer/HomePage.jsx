@@ -403,15 +403,15 @@ const HomePage = () => {
           >
             <span className="inline-block text-amani-600 font-semibold mb-4">SERVICE AREAS</span>
             <h2 className="text-4xl font-display font-bold text-navy-900 mb-4">
-              Serving the Greater Toronto Area
+              Serving Southern Ontario & Beyond
             </h2>
             <p className="text-gray-600 max-w-2xl mx-auto">
-              We proudly serve these regions with free pickup and delivery.
+              We proudly serve 40+ cities and communities across the GTA and surrounding areas with free pickup and delivery.
             </p>
           </motion.div>
 
           <div className="flex flex-wrap justify-center gap-3">
-            {['Toronto', 'North York', 'Brampton', 'Mississauga', 'Etobicoke', 'Caledon', 'Vaughan', 'King', 'Richmond Hill', 'Markham', 'Aurora', 'Stouffville', 'Scarborough', 'Oshawa', 'Whitby', 'Ajax', 'Pickering'].map((area, i) => (
+            {['Toronto', 'North York', 'Brampton', 'Mississauga', 'Etobicoke', 'Caledon', 'Vaughan', 'King', 'Richmond Hill', 'Markham', 'Aurora', 'Stouffville', 'Scarborough', 'Oshawa', 'Whitby', 'Ajax', 'Pickering', 'Newmarket', 'East Gwillimbury', 'Georgina', 'Bradford', 'Innisfil', 'Barrie', 'Orangeville', 'Milton', 'Oakville', 'Burlington', 'Hamilton', 'Halton Hills', 'Georgetown', 'Kleinburg', 'Woodbridge', 'Thornhill', 'Maple', 'Concord', 'Nobleton', 'Claremont', 'Port Perry', 'Uxbridge', 'Bowmanville', 'Courtice', 'Newcastle'].map((area, i) => (
               <motion.span
                 key={area}
                 initial={{ opacity: 0, scale: 0.8 }}
