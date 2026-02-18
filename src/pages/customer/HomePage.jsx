@@ -411,7 +411,7 @@ const HomePage = () => {
           </motion.div>
 
           <div className="flex flex-wrap justify-center gap-3">
-            {['Toronto', 'North York', 'Brampton', 'Mississauga', 'Etobicoke', 'Caledon', 'Vaughan', 'King', 'Richmond Hill', 'Markham', 'Aurora', 'Stouffville', 'Scarborough'].map((area, i) => (
+            {['Toronto', 'North York', 'Brampton', 'Mississauga', 'Etobicoke', 'Caledon', 'Vaughan', 'King', 'Richmond Hill', 'Markham', 'Aurora', 'Stouffville', 'Scarborough', 'Oshawa', 'Whitby', 'Ajax', 'Pickering'].map((area, i) => (
               <motion.span
                 key={area}
                 initial={{ opacity: 0, scale: 0.8 }}
@@ -425,10 +425,6 @@ const HomePage = () => {
               </motion.span>
             ))}
           </div>
-          
-          <p className="text-center text-red-500 font-medium mt-6">
-            Note: We do not currently serve Durham Region
-          </p>
         </div>
       </section>
     </div>
