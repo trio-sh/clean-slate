@@ -525,7 +525,6 @@ export const db = {
       const index = idb.transaction('users').store.index('email');
       return index.get(email);
     }
-    // Use SECURITY DEFINER RPC to bypass RLS on public.users
     const { data, error } = await supabase.rpc('get_user_by_email', { p_email: email });
     if (error && error.code !== 'PGRST116') throw error;
     return data?.[0] || null;
@@ -550,7 +549,7 @@ export const db = {
   // AUTHENTICATION METHODS
   // ============================================
 
-  // Register new user with email and password
+  // Register new user — insert directly, no Supabase Auth
   async registerWithEmail(userData) {
     const { email, password, first_name, last_name, phone } = userData;
     const normalizedPhone = phone ? normalizePhone(phone) : '';
@@ -567,105 +566,69 @@ export const db = {
         password_hash: password, role: 'customer',
         is_active: true, is_verified: false, first_order_discount_used: false,
       });
-      return { user: newUser, session: null };
+      return { user: newUser };
     }
 
-    const existingEmail = await this.getUserByEmail(email);
-    if (existingEmail) throw new Error('Email already registered');
-    if (phone) {
-      const existingPhone = await this.getUserByPhone(phone);
-      if (existingPhone) throw new Error('Phone number already registered');
-    }
-
-    // Sign up in Supabase Auth first (plain password — Supabase handles bcrypt)
-    const { data: authData, error: authError } = await supabase.auth.signUp({
-      email,
-      password,
+    const { data, error } = await supabase.rpc('register_user', {
+      p_email:      email,
+      p_password:   password,
+      p_first_name: first_name,
+      p_last_name:  last_name,
+      p_phone:      normalizedPhone || null,
     });
-    if (authError) throw new Error(authError.message || 'Registration failed');
-
-    // Insert into public.users (store plain password for reference, trigger keeps auth in sync)
-    const newUser = await this.create('users', {
-      email, phone: normalizedPhone || null, first_name, last_name,
-      password_hash: password, role: 'customer',
-      is_active: true, is_verified: false, first_order_discount_used: false,
-    });
-
-    return { user: newUser, session: authData?.session || null };
+    if (error) throw new Error(error.message || 'Registration failed');
+    return { user: data };
   },
 
-  // Login with email and password
+  // Login with email — direct DB compare, no Supabase Auth
   async loginWithEmail(email, password) {
     if (getMode() === 'demo') {
       const user = await this.getUserByEmail(email);
       if (!user) throw new Error('Invalid email or password');
       if (user.password_hash !== password) throw new Error('Invalid email or password');
-      return { user, session: null };
+      return { user };
     }
-
-    const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
-      email,
-      password,
+    const { data, error } = await supabase.rpc('login_with_email', {
+      p_email: email, p_password: password,
     });
-    if (authError) throw new Error('Invalid email or password');
-
-    const user = await this.getUserByEmail(email);
-    if (!user) throw new Error('Invalid email or password');
-
-    return { user, session: authData.session };
+    if (error) throw new Error('Invalid email or password');
+    return { user: data };
   },
 
-  // Login with phone and password (custom auth)
+  // Login with phone — direct DB compare, no Supabase Auth
   async loginWithPhone(phone, password) {
     if (getMode() === 'demo') {
       const user = await this.getUserByPhone(phone);
       if (!user) throw new Error('Invalid phone number or password');
       if (user.password_hash !== password) throw new Error('Invalid phone number or password');
-      return { user, session: null };
+      return { user };
     }
-
-    const userByPhone = await this.getUserByPhone(phone);
-    if (!userByPhone) throw new Error('Invalid phone number or password');
-
-    const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
-      email:    userByPhone.email,
-      password,
+    const { data, error } = await supabase.rpc('login_with_phone', {
+      p_phone: normalizePhone(phone), p_password: password,
     });
-    if (authError) throw new Error('Invalid phone number or password');
-
-    return { user: userByPhone, session: authData.session };
+    if (error) throw new Error('Invalid phone number or password');
+    return { user: data };
   },
 
-  // Update user password
+  // Update password — plain text, direct update
   async updatePassword(userId, newPassword) {
     if (getMode() === 'demo') {
       return this.update('users', userId, { password_hash: newPassword });
     }
-    
-    // Update in Supabase Auth
-    const { error: authError } = await supabase.auth.updateUser({
-      password: newPassword
+    const { data, error } = await supabase.rpc('update_user_password', {
+      p_user_id: userId, p_password: newPassword,
     });
-    
-    if (authError) throw authError;
-    
-    // Also update hash in users table for phone login
-    return this.update('users', userId, { password_hash: passwordHash });
+    if (error) throw error;
+    return data;
   },
 
-  // Logout — clear Supabase localStorage session so auth.uid() resets to null
+  // Logout — session is in Zustand/localStorage, nothing else to clear
   async logout() {
-    if (supabase) {
-      await supabase.auth.signOut();
-    }
     return true;
   },
-  // Restore session from localStorage on app boot
-  // Call this once in your root component (App.jsx) on mount
+  // Session is persisted by Zustand — nothing to restore from Supabase
   async restoreSession() {
-    if (getMode() !== 'live' || !supabase) return null;
-    const { data } = await supabase.auth.getSession();
-    return data?.session || null;
+    return null;
   },
 
   // Check if email exists
