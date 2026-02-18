@@ -245,8 +245,7 @@ export const smsTemplates = {
     lines.push(`Track: ${getOrigin()}/track/${order.reference_code}`);
     lines.push(`Questions? Call us anytime.`);
 
-    return lines.join('
-');
+    return lines.join('\n');
   },
   
   pickupReminder: (referenceCode, pickupTime) =>
