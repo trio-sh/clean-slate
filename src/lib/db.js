@@ -507,7 +507,7 @@ export const db = {
     
     let query = supabase
       .from('orders')
-      .select('*, user:users(*), items:order_items(*)')
+      .select('*, user:users!orders_user_id_fkey(*), items:order_items(*)')
       .order('created_at', { ascending: false });
     if (filters.status)      query = query.eq('status', filters.status);
     if (filters.user_id)     query = query.eq('user_id', filters.user_id);
