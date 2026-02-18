@@ -9,7 +9,7 @@ import {
   Star, Check, X, Tag, Percent, Zap
 } from 'lucide-react';
 import { useCartStore, useAuthStore, useOrderStore, useAppStore } from '../../stores';
-import { downloadInvoice, downloadReceipt, generateOrderQRCode, formatPhone, notificationService, notificationTemplates } from '../../lib/utils';
+import { downloadInvoice, downloadReceipt, generateOrderQRCode, formatPhone, notificationService, notificationTemplates, sendSMS, smsTemplates } from '../../lib/utils';
 import db from '../../lib/db';
 import toast from 'react-hot-toast';
 
@@ -381,6 +381,20 @@ const OrderPage = () => {
           await notificationService.broadcastToRole('admin', notification);
         } catch (e) {
           console.error('Failed to notify staff:', e);
+        }
+
+        // Auto-send SMS order summary to customer
+        const customerPhone = result.order.customer_phone || orderData.customer_phone;
+        if (customerPhone) {
+          try {
+            // Attach items so the template can build the breakdown
+            const orderWithItems = { ...result.order, items: orderData.items };
+            const smsMessage = smsTemplates.orderSummary(orderWithItems);
+            await sendSMS(customerPhone, smsMessage);
+            console.log('📱 Order summary SMS sent to', customerPhone);
+          } catch (e) {
+            console.error('Failed to send order SMS:', e);
+          }
         }
         
         setOrderReference(result.order.reference_code);
