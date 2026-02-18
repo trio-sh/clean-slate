@@ -39,6 +39,12 @@ const config = {
 };
 
 // ============================================
+// APP ORIGIN HELPER
+// Always resolves to the current deployment's base URL
+// ============================================
+const getOrigin = () => typeof window !== 'undefined' ? window.location.origin : '';
+
+// ============================================
 // QR CODE GENERATION
 // Uses qrcode library or generates via API
 // ============================================
@@ -197,8 +203,8 @@ export const sendSMS = async (to, message, forceLive = false) => {
 // Pre-built SMS templates
 export const smsTemplates = {
   // Order Lifecycle
-  orderConfirmation: (referenceCode, pickupDate, pickupTime) => 
-    (() => { const origin = typeof window !== 'undefined' ? window.location.origin : 'https://amanicleaners.com'; return `Amani's Cleaners: Your order #${referenceCode} is confirmed! Pickup: ${pickupDate} (${pickupTime}). Track: ${origin}/track/${referenceCode}`; })(),
+  orderConfirmation: (referenceCode, pickupDate, pickupTime) =>
+    `Amani's Cleaners: Your order #${referenceCode} is confirmed! Pickup: ${pickupDate} (${pickupTime}). Track: ${getOrigin()}/track/${referenceCode}`,
 
   // Full order summary with item breakdown (sent automatically on order placement)
   orderSummary: (order) => {
@@ -236,8 +242,7 @@ export const smsTemplates = {
     }
 
     lines.push(`Payment: ${order.payment_method || 'TBD'}`);
-    const origin = typeof window !== 'undefined' ? window.location.origin : 'https://amanicleaners.com';
-    lines.push(`Track: ${origin}/track/${order.reference_code}`);
+    lines.push(`Track: ${getOrigin()}/track/${order.reference_code}`);
     lines.push(`Questions? Call us anytime.`);
 
     return lines.join('
@@ -248,13 +253,13 @@ export const smsTemplates = {
     `Amani's Cleaners: Reminder - Your laundry pickup is today (${pickupTime}). Order #${referenceCode}. We'll be there soon!`,
   
   pickedUp: (referenceCode) =>
-    (() => { const o = typeof window !== 'undefined' ? window.location.origin : 'https://amanicleaners.com'; return `Amani's Cleaners: We've picked up your items! Order #${referenceCode}. We'll notify you when ready. Track: ${o}/track/${referenceCode}`; })(),
+    `Amani's Cleaners: We've picked up your items! Order #${referenceCode}. We'll notify you when ready. Track: ${getOrigin()}/track/${referenceCode}`,
   
   processing: (referenceCode) =>
     `Amani's Cleaners: Your order #${referenceCode} is being cleaned and processed. We'll let you know when it's ready!`,
   
   ready: (referenceCode, deliveryDate, deliveryTime) =>
-    (() => { const o = typeof window !== 'undefined' ? window.location.origin : 'https://amanicleaners.com'; return `Amani's Cleaners: Great news! Your order #${referenceCode} is ready! Delivery: ${deliveryDate} (${deliveryTime}). Track: ${o}/track/${referenceCode}`; })(),
+    `Amani's Cleaners: Great news! Your order #${referenceCode} is ready! Delivery: ${deliveryDate} (${deliveryTime}). Track: ${getOrigin()}/track/${referenceCode}`,
   
   outForDelivery: (referenceCode, driverName) =>
     `Amani's Cleaners: ${driverName} is on the way with your order #${referenceCode}! You'll receive it shortly. 🚗`,
@@ -264,7 +269,7 @@ export const smsTemplates = {
 
   // Account & Auth
   loginCredentials: (email, tempPassword) =>
-    (() => { const o = typeof window !== 'undefined' ? window.location.origin : 'https://amanicleaners.com'; return `Amani's Cleaners: Your account is ready!\nEmail: ${email}\nTemp Password: ${tempPassword}\nLogin: ${o}/login\nPlease change your password after login.`; })(),
+    `Amani's Cleaners: Your account is ready!\nEmail: ${email}\nTemp Password: ${tempPassword}\nLogin: ${getOrigin()}/login\nPlease change your password after login.`,
   
   quickSignIn: (loginLink) =>
     `Amani's Cleaners: Click to sign in securely: ${loginLink}\nThis link expires in 15 minutes.`,
@@ -286,24 +291,24 @@ export const smsTemplates = {
     `Amani's Cleaners: Payment failed for order #${referenceCode}. Please update your payment method or contact us at 437-215-6321.`,
 
   // Order Summary
-  orderSummary: (referenceCode, items, total) =>
-    (() => { const o = typeof window !== 'undefined' ? window.location.origin : 'https://amanicleaners.com'; return `Amani's Cleaners Order #${referenceCode}\n${items}\nTotal: $${total}\nTrack: ${o}/track/${referenceCode}`; })(),
+  orderSummaryShort: (referenceCode, items, total) =>
+    `Amani's Cleaners Order #${referenceCode}\n${items}\nTotal: $${total}\nTrack: ${getOrigin()}/track/${referenceCode}`,
 
   // Promotions
   welcomeOffer: (customerName, discountCode, discountAmount) =>
-    `Hi ${customerName}! Welcome to Amani's Cleaners! 🍁 Use code ${discountCode} for ${discountAmount} off your first order. Book now: ${typeof window !== 'undefined' ? window.location.origin : 'https://amanicleaners.com'}\`,
+    `Hi ${customerName}! Welcome to Amani's Cleaners! 🍁 Use code ${discountCode} for ${discountAmount} off your first order. Book now: ${getOrigin()}`,
   
   loyaltyReward: (customerName, points, reward) =>
     `${customerName}, you've earned ${points} loyalty points! 🎉 You've unlocked: ${reward}. Use on your next order!`,
   
   seasonalPromo: (promoName, discount, validUntil) =>
-    `Amani's Cleaners ${promoName}! ${discount} on all services. Valid until ${validUntil}. Book now: ${typeof window !== 'undefined' ? window.location.origin : 'https://amanicleaners.com'}\`,
+    `Amani's Cleaners ${promoName}! ${discount} on all services. Valid until ${validUntil}. Book now: ${getOrigin()}`,
   
   referralBonus: (customerName, referralCode, bonus) =>
     `${customerName}, share the love! Give friends ${bonus} off with code ${referralCode}. You'll earn ${bonus} too when they order!`,
   
   flashSale: (discount, hours) =>
-    `⚡ FLASH SALE! ${discount} off all orders for the next ${hours} hours! Use code FLASH. Book now: ${typeof window !== 'undefined' ? window.location.origin : 'https://amanicleaners.com'}\`,
+    `⚡ FLASH SALE! ${discount} off all orders for the next ${hours} hours! Use code FLASH. Book now: ${getOrigin()}`,
 
   // Custom/Staff Messages
   customMessage: (customerName, message) =>
@@ -313,7 +318,7 @@ export const smsTemplates = {
     `Hi ${customerName}! Reminder: ${service} scheduled for ${date} at ${time}. See you soon! - Amani's Cleaners`,
   
   feedbackRequest: (customerName, referenceCode) =>
-    `Hi ${customerName}! How was your experience with order #${referenceCode}? We'd love your feedback: ${typeof window !== 'undefined' ? window.location.origin : 'https://amanicleaners.com'}/feedback/${referenceCode}`,
+    `Hi ${customerName}! How was your experience with order #${referenceCode}? We'd love your feedback: ${getOrigin()}/feedback/${referenceCode}`,
 
   // Staff/Driver
   newOrderAlert: (referenceCode, pickupAddress, pickupTime) =>
@@ -622,7 +627,7 @@ export const generateInvoiceHTML = async (order, includeQR = true) => {
         <img src="${qrCodeUrl}" alt="QR Code">
         <div>
           <p><strong>Scan to Track Order</strong></p>
-          <p>Scan this QR code to view your order status online or visit ${typeof window !== 'undefined' ? window.location.origin : 'https://amanicleaners.com'}/track/${order.reference_code}</p>
+          <p>Scan this QR code to view your order status online or visit ${getOrigin()}/track/${order.reference_code}</p>
         </div>
       </div>
       ` : ''}
