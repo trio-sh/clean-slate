@@ -8,7 +8,7 @@ import {
 } from 'lucide-react';
 import db from '../../lib/db';
 import { useAuthStore } from '../../stores';
-import { sendSMS, sendEmail, notificationService } from '../../lib/utils';
+import { sendSMS, smsTemplates, sendEmail, notificationService } from '../../lib/utils';
 import toast from 'react-hot-toast';
 
 const SubscriptionsPage = () => {
@@ -93,15 +93,20 @@ const SubscriptionsPage = () => {
       // Generate Stripe payment link (mock for now)
       const stripePaymentLink = `https://checkout.stripe.com/pay/cs_test_${Math.random().toString(36).substr(2, 10)}`;
 
-      // Send SMS with payment link
+      // Send SMS with full subscription details + payment link
       if (user.phone) {
         try {
-          const smsResult = await sendSMS(
-            user.phone,
-            `Amani's Cleaners: Your subscription to ${plan.name} is ready! Pay here: ${stripePaymentLink} - Thank you for choosing us!`
+          const customerName = `${user.first_name} ${user.last_name}`.trim();
+          const smsMessage = smsTemplates.subscriptionConfirmation(
+            customerName,
+            plan,
+            subscriptionData.start_date,
+            subscriptionData.end_date,
+            stripePaymentLink
           );
+          const smsResult = await sendSMS(user.phone, smsMessage);
           if (smsResult.success) {
-            toast.success('Payment link sent via SMS!');
+            toast.success('Subscription details sent via SMS!');
           }
         } catch (smsError) {
           console.error('SMS failed:', smsError);

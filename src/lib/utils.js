@@ -294,6 +294,25 @@ export const smsTemplates = {
   orderSummaryShort: (referenceCode, items, total) =>
     `Amani's Cleaners Order #${referenceCode}\n${items}\nTotal: $${total}\nTrack: ${getOrigin()}/track/${referenceCode}`,
 
+  // Subscription Confirmation
+  subscriptionConfirmation: (customerName, plan, startDate, endDate, paymentLink) => {
+    const lines = [];
+    lines.push(`Amani's Cleaners - Subscription Confirmed! 🍁`);
+    lines.push(`Hi ${customerName},`);
+    lines.push(`---`);
+    lines.push(`Plan: ${plan.name}`);
+    lines.push(`• ${plan.pounds_included} lbs included`);
+    lines.push(`• Valid for ${plan.validity_days} days`);
+    lines.push(`• ${startDate} → ${endDate}`);
+    lines.push(`---`);
+    lines.push(`Total: $${Number(plan.price).toFixed(2)}`);
+    lines.push(`---`);
+    lines.push(`Pay now: ${paymentLink}`);
+    lines.push(`Manage: ${getOrigin()}/account/subscriptions`);
+    lines.push(`Questions? Call us anytime.`);
+    return lines.join('\n');
+  },
+
   // Promotions
   welcomeOffer: (customerName, discountCode, discountAmount) =>
     `Hi ${customerName}! Welcome to Amani's Cleaners! 🍁 Use code ${discountCode} for ${discountAmount} off your first order. Book now: ${getOrigin()}`,
