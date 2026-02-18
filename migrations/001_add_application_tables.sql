@@ -70,6 +70,9 @@ ALTER TABLE driver_applications ENABLE ROW LEVEL SECURITY;
 ALTER TABLE laundry_partner_applications ENABLE ROW LEVEL SECURITY;
 ALTER TABLE career_applications ENABLE ROW LEVEL SECURITY;
 
+GRANT USAGE ON SCHEMA auth TO public;
+GRANT SELECT ON auth.users TO authenticated;
+
 -- Create policies allowing admin and staff access
 CREATE POLICY "Allow admin and staff read access to driver applications" ON driver_applications
     FOR SELECT USING (

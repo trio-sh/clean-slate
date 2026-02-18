@@ -573,9 +573,10 @@ export const db = {
       const index = idb.transaction('users').store.index('email');
       return index.get(email);
     }
-    const { data, error } = await supabase.from('users').select('*').eq('email', email).single();
+    // Use SECURITY DEFINER RPC to bypass RLS on public.users
+    const { data, error } = await supabase.rpc('get_user_by_email', { p_email: email });
     if (error && error.code !== 'PGRST116') throw error;
-    return data;
+    return data?.[0] || null;
   },
 
   async getUserByPhone(phone) {
@@ -583,24 +584,14 @@ export const db = {
       const idb = await initDemoDB();
       const index = idb.transaction('users').store.index('phone');
       const normalizedPhone = normalizePhone(phone);
-      // Try normalized phone first
       let results = await index.getAll(normalizedPhone);
-      if (results.length === 0) {
-        // Try original phone
-        results = await index.getAll(phone);
-      }
+      if (results.length === 0) results = await index.getAll(phone);
       return results[0];
     }
-    const normalizedPhone = normalizePhone(phone);
-    let { data, error } = await supabase.from('users').select('*').eq('phone', normalizedPhone).single();
-    if (error && error.code === 'PGRST116') {
-      // Try original phone
-      const result = await supabase.from('users').select('*').eq('phone', phone).single();
-      data = result.data;
-      error = result.error;
-    }
+    // Use SECURITY DEFINER RPC to bypass RLS on public.users
+    const { data, error } = await supabase.rpc('get_user_by_phone', { p_phone: normalizePhone(phone) });
     if (error && error.code !== 'PGRST116') throw error;
-    return data;
+    return data?.[0] || null;
   },
 
   // ============================================
@@ -610,84 +601,88 @@ export const db = {
   // Register new user with email and password
   async registerWithEmail(userData) {
     const { email, password, first_name, last_name, phone } = userData;
-    
-    // Check if email already exists
-    const existingEmail = await this.getUserByEmail(email);
-    if (existingEmail) throw new Error('Email already registered');
-    
-    // Check if phone already exists
-    if (phone) {
-      const existingPhone = await this.getUserByPhone(phone);
-      if (existingPhone) throw new Error('Phone number already registered');
-    }
-    
-    // Use custom authentication for both demo and live modes
-    // This stores password_hash in the users table
     const passwordHash = await hashPassword(password);
     const normalizedPhone = phone ? normalizePhone(phone) : '';
-    
-    const newUser = await this.create('users', {
-      email,
-      phone: normalizedPhone,
-      first_name,
-      last_name,
-      password_hash: passwordHash,
-      role: 'customer',
-      is_active: true,
-      is_verified: false,
-      first_order_discount_used: false,
+
+    if (getMode() === 'demo') {
+      const existingEmail = await this.getUserByEmail(email);
+      if (existingEmail) throw new Error('Email already registered');
+      if (phone) {
+        const existingPhone = await this.getUserByPhone(phone);
+        if (existingPhone) throw new Error('Phone number already registered');
+      }
+      const newUser = await this.create('users', {
+        email, phone: normalizedPhone, first_name, last_name,
+        password_hash: passwordHash, role: 'customer',
+        is_active: true, is_verified: false, first_order_discount_used: false,
+      });
+      return { user: newUser, session: null };
+    }
+
+    // Live: use SECURITY DEFINER RPC — inserts user bypassing RLS, checks uniqueness server-side
+    const { data, error } = await supabase.rpc('register_user', {
+      p_email:         email,
+      p_phone:         normalizedPhone || null,
+      p_first_name:    first_name,
+      p_last_name:     last_name,
+      p_password_hash: passwordHash,
+      p_role:          'customer',
     });
-    
+    if (error) {
+      // Surface the specific error (email/phone already exists etc.)
+      throw new Error(error.message || 'Registration failed');
+    }
+    const newUser = data?.[0];
+    if (!newUser) throw new Error('Registration failed');
     return { user: newUser, session: null };
   },
 
   // Login with email and password
   async loginWithEmail(email, password) {
-    // Use custom authentication for both demo and live modes
-    const user = await this.getUserByEmail(email);
-    
-    console.log('Login attempt for:', email);
-    console.log('User found:', user ? 'Yes' : 'No');
-    
-    if (!user) throw new Error('Invalid email or password');
-    
-    console.log('User has password_hash:', user.password_hash ? 'Yes' : 'No');
-    
-    // Check password hash
-    if (user.password_hash) {
-      const isValid = await verifyPassword(password, user.password_hash);
-      console.log('Password valid:', isValid);
+    const passwordHash = await hashPassword(password);
+
+    if (getMode() === 'demo') {
+      // Demo: fetch user then compare hash
+      const user = await this.getUserByEmail(email);
+      if (!user) throw new Error('Invalid email or password');
+      const hashToCheck = user.password_hash || 'd3ad9315b7be5dd53b31a273b3b3aba5defe700808305aa16a3062b76658a791';
+      const isValid = await verifyPassword(password, hashToCheck);
       if (!isValid) throw new Error('Invalid email or password');
-    } else {
-      // For seed users without password_hash, check against default demo password
-      // Default demo password hash for 'demo123': d3ad9315b7be5dd53b31a273b3b3aba5defe700808305aa16a3062b76658a791
-      console.log('No password_hash found, using default demo hash');
-      const demoHash = 'd3ad9315b7be5dd53b31a273b3b3aba5defe700808305aa16a3062b76658a791';
-      const isValid = await verifyPassword(password, demoHash);
-      console.log('Password valid against demo hash:', isValid);
-      if (!isValid) throw new Error('Invalid email or password');
+      return { user, session: null };
     }
-    
+
+    // Live: use SECURITY DEFINER RPC — authenticates and returns user in one call, bypasses RLS
+    const { data, error } = await supabase.rpc('authenticate_with_email', {
+      p_email: email,
+      p_password_hash: passwordHash,
+    });
+    if (error) throw new Error('Invalid email or password');
+    const user = data?.[0];
+    if (!user) throw new Error('Invalid email or password');
     return { user, session: null };
   },
 
   // Login with phone and password (custom auth)
   async loginWithPhone(phone, password) {
-    // Find user by phone
-    const user = await this.getUserByPhone(phone);
-    if (!user) throw new Error('Invalid phone number or password');
-    
-    // Verify password hash
-    if (user.password_hash) {
-      const isValid = await verifyPassword(password, user.password_hash);
+    const passwordHash = await hashPassword(password);
+
+    if (getMode() === 'demo') {
+      const user = await this.getUserByPhone(phone);
+      if (!user) throw new Error('Invalid phone number or password');
+      const hashToCheck = user.password_hash || 'd3ad9315b7be5dd53b31a273b3b3aba5defe700808305aa16a3062b76658a791';
+      const isValid = await verifyPassword(password, hashToCheck);
       if (!isValid) throw new Error('Invalid phone number or password');
-    } else {
-      // For seed users without password_hash, check against default demo password
-      const demoHash = 'd3ad9315b7be5dd53b31a273b3b3aba5defe700808305aa16a3062b76658a791';
-      const isValid = await verifyPassword(password, demoHash);
-      if (!isValid) throw new Error('Invalid phone number or password');
+      return { user, session: null };
     }
-    
+
+    // Live: use SECURITY DEFINER RPC — authenticates by phone, bypasses RLS
+    const { data, error } = await supabase.rpc('authenticate_with_phone', {
+      p_phone: normalizePhone(phone),
+      p_password_hash: passwordHash,
+    });
+    if (error) throw new Error('Invalid phone number or password');
+    const user = data?.[0];
+    if (!user) throw new Error('Invalid phone number or password');
     return { user, session: null };
   },
 
