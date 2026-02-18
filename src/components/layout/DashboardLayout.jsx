@@ -6,7 +6,7 @@ import {
   Menu, X, Bell, Search, ChevronDown, User,
   MapPin, ClipboardList, BarChart3, UserCog, Wrench,
   Calendar, Clock, CheckCircle, AlertCircle, ChevronRight,
-  Trash2, Eye, Megaphone, MessageSquare, CreditCard
+  Trash2, Eye, Megaphone, MessageSquare, CreditCard, Building2
 } from 'lucide-react';
 import { useAuthStore, useAppStore, useNotificationStore, useSearchStore } from '../../stores';
 import { format } from 'date-fns';
@@ -82,6 +82,7 @@ const DashboardLayout = ({ type }) => {
           { name: 'Orders', href: '/staff/orders', icon: Package },
           { name: 'Processing', href: '/staff/processing', icon: ClipboardList },
           { name: 'Applications', href: '/staff/applications', icon: Users },
+          { name: 'Depots', href: '/staff/depots', icon: Building2 },
           { name: 'Messaging', href: '/staff/messaging', icon: MessageSquare },
         ];
       case 'admin':
@@ -92,6 +93,7 @@ const DashboardLayout = ({ type }) => {
           { name: 'Drivers', href: '/admin/drivers', icon: Truck },
           { name: 'Staff', href: '/admin/staff', icon: UserCog },
           { name: 'Applications', href: '/admin/applications', icon: Users },
+          { name: 'Depots', href: '/admin/depots', icon: Building2 },
           { name: 'Check-ins', href: '/admin/checkins', icon: Clock },
           { name: 'Subscriptions', href: '/admin/subscriptions', icon: CreditCard },
           { name: 'Services', href: '/admin/services', icon: Wrench },
@@ -99,6 +101,12 @@ const DashboardLayout = ({ type }) => {
           { name: 'Notifications', href: '/admin/notifications', icon: Megaphone },
           { name: 'Reports', href: '/admin/reports', icon: BarChart3 },
           { name: 'Settings', href: '/admin/settings', icon: Settings },
+        ];
+      case 'partner':
+        return [
+          { name: 'Dashboard', href: '/partner-portal', icon: LayoutDashboard },
+          { name: 'My Orders', href: '/partner-portal/orders', icon: Package },
+          { name: 'Depot Info', href: '/partner-portal/depot', icon: Building2 },
         ];
       default:
         return [];
@@ -110,18 +118,20 @@ const DashboardLayout = ({ type }) => {
 
   const getRoleLabel = () => {
     switch (type) {
-      case 'driver': return 'Driver Portal';
-      case 'staff': return 'Staff Portal';
-      case 'admin': return 'Admin Panel';
+      case 'driver':  return 'Driver Portal';
+      case 'staff':   return 'Staff Portal';
+      case 'admin':   return 'Admin Panel';
+      case 'partner': return 'Partner Portal';
       default: return 'Dashboard';
     }
   };
 
   const getRoleColor = () => {
     switch (type) {
-      case 'driver': return 'from-purple-500 to-indigo-600';
-      case 'staff': return 'from-emerald-500 to-teal-600';
-      case 'admin': return 'from-amani-500 to-maple-500';
+      case 'driver':  return 'from-purple-500 to-indigo-600';
+      case 'staff':   return 'from-emerald-500 to-teal-600';
+      case 'admin':   return 'from-amani-500 to-maple-500';
+      case 'partner': return 'from-green-500 to-emerald-600';
       default: return 'from-gray-500 to-gray-600';
     }
   };

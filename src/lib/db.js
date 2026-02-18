@@ -52,11 +52,11 @@ function normalizePhone(phone) {
 
 // IndexedDB configuration (for demo mode)
 const DB_NAME = 'amani_cleaners_demo';
-const DB_VERSION = 2; // Increased version to trigger upgrade
+const DB_VERSION = 3; // Bumped to add application stores + depot indexes
 
 const initDemoDB = async () => {
   return openDB(DB_NAME, DB_VERSION, {
-    upgrade(db) {
+    upgrade(db, oldVersion, newVersion, transaction) {
       // Users store
       if (!db.objectStoreNames.contains('users')) {
         const usersStore = db.createObjectStore('users', { keyPath: 'id' });
@@ -102,6 +102,38 @@ const initDemoDB = async () => {
       if (!db.objectStoreNames.contains('depots')) {
         const depotsStore = db.createObjectStore('depots', { keyPath: 'id' });
         depotsStore.createIndex('code', 'code', { unique: true });
+        depotsStore.createIndex('city', 'city');
+        depotsStore.createIndex('status', 'status');
+        depotsStore.createIndex('manager_id', 'manager_id');
+      } else if (oldVersion < 3) {
+        // Add new indexes to existing depots store
+        try {
+          const ds = transaction.objectStore('depots');
+          if (!ds.indexNames.contains('city')) ds.createIndex('city', 'city');
+          if (!ds.indexNames.contains('status')) ds.createIndex('status', 'status');
+          if (!ds.indexNames.contains('manager_id')) ds.createIndex('manager_id', 'manager_id');
+        } catch (e) { /* ignore if already exists */ }
+      }
+
+      // Driver applications store
+      if (!db.objectStoreNames.contains('driver_applications')) {
+        const daStore = db.createObjectStore('driver_applications', { keyPath: 'id' });
+        daStore.createIndex('email', 'email');
+        daStore.createIndex('status', 'status');
+      }
+
+      // Laundry partner applications store
+      if (!db.objectStoreNames.contains('laundry_partner_applications')) {
+        const paStore = db.createObjectStore('laundry_partner_applications', { keyPath: 'id' });
+        paStore.createIndex('email', 'email');
+        paStore.createIndex('status', 'status');
+      }
+
+      // Career applications store
+      if (!db.objectStoreNames.contains('career_applications')) {
+        const caStore = db.createObjectStore('career_applications', { keyPath: 'id' });
+        caStore.createIndex('email', 'email');
+        caStore.createIndex('status', 'status');
       }
 
       // Subscription plans store
@@ -268,6 +300,7 @@ export const db = {
     if (getMode() === 'demo') {
       const idb = await initDemoDB();
       await seedDemoData(idb);
+      await seedDepotExtras(idb);
       return idb;
     }
     return supabase;
@@ -678,6 +711,144 @@ export const db = {
     return data || [];
   },
 
+  // ============================================
+  // DEPOT / PARTNER OPERATIONS
+  // ============================================
+
+  // Get all active depots
+  async getDepots(onlyActive = false) {
+    if (getMode() === 'demo') {
+      const idb = await initDemoDB();
+      const depots = await idb.getAll('depots');
+      return onlyActive ? depots.filter(d => d.status === 'active') : depots;
+    }
+    let q = supabase.from('depots').select('*').order('name');
+    if (onlyActive) q = q.eq('status', 'active');
+    const { data, error } = await q;
+    if (error) throw error;
+    return data || [];
+  },
+
+  // Get depots that serve a given city (city match on depot.city or service_areas)
+  async getDepotsByCity(city) {
+    if (getMode() === 'demo') {
+      const idb = await initDemoDB();
+      const depots = await idb.getAll('depots');
+      // Return all active depots; filter to preferred city first
+      const active = depots.filter(d => d.status === 'active');
+      const cityMatch = active.filter(d => d.city?.toLowerCase() === city?.toLowerCase());
+      return cityMatch.length ? cityMatch : active;
+    }
+    const { data, error } = await supabase.from('depots').select('*').eq('status', 'active');
+    if (error) throw error;
+    return data || [];
+  },
+
+  // Get orders assigned to a specific depot
+  async getOrdersByDepot(depotId, filters = {}) {
+    if (getMode() === 'demo') {
+      const idb = await initDemoDB();
+      let orders = await idb.getAll('orders');
+      orders = orders.filter(o => o.depot_id === depotId);
+      if (filters.status) orders = orders.filter(o => o.status === filters.status);
+      if (filters.date) orders = orders.filter(o => o.pickup_date === filters.date || o.delivery_date === filters.date);
+      const users = await idb.getAll('users');
+      const orderItems = await idb.getAll('order_items');
+      return orders.map(order => {
+        const user = users.find(u => u.id === order.user_id);
+        return {
+          ...order,
+          customer_name: order.customer_name || (user ? `${user.first_name} ${user.last_name}` : 'Guest'),
+          customer_email: order.customer_email || user?.email || '',
+          customer_phone: order.customer_phone || user?.phone || '',
+          items: orderItems.filter(i => i.order_id === order.id),
+        };
+      }).sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+    }
+    let q = supabase.from('orders')
+      .select('*, user:users!orders_user_id_fkey(*), items:order_items(*)')
+      .eq('depot_id', depotId)
+      .order('created_at', { ascending: false });
+    if (filters.status) q = q.eq('status', filters.status);
+    const { data, error } = await q;
+    if (error) throw error;
+    return data || [];
+  },
+
+  // Get capacity utilization for a depot on a specific date
+  async getDepotCapacityForDate(depotId, date) {
+    if (getMode() === 'demo') {
+      const idb = await initDemoDB();
+      const depot = await idb.get('depots', depotId);
+      const orders = await idb.getAll('orders');
+      const dayOrders = orders.filter(o =>
+        o.depot_id === depotId &&
+        (o.pickup_date === date || o.delivery_date === date) &&
+        !['cancelled', 'delivered'].includes(o.status)
+      );
+      const usedLbs = dayOrders.reduce((sum, o) => sum + (o.weight_lbs || 0), 0);
+      const capacityLbs = depot?.capacity_per_day || 500;
+      return {
+        depot,
+        date,
+        order_count: dayOrders.length,
+        used_lbs: usedLbs,
+        capacity_lbs: capacityLbs,
+        available_lbs: Math.max(0, capacityLbs - usedLbs),
+        utilization_pct: Math.round((usedLbs / capacityLbs) * 100),
+      };
+    }
+    const { data: depot } = await supabase.from('depots').select('*').eq('id', depotId).single();
+    const { data: orders } = await supabase.from('orders').select('weight_lbs,status')
+      .eq('depot_id', depotId).or(`pickup_date.eq.${date},delivery_date.eq.${date}`)
+      .not('status', 'in', '(cancelled,delivered)');
+    const usedLbs = (orders || []).reduce((s, o) => s + (o.weight_lbs || 0), 0);
+    const capacityLbs = depot?.capacity_per_day || 500;
+    return { depot, date, order_count: (orders||[]).length, used_lbs: usedLbs, capacity_lbs: capacityLbs, available_lbs: Math.max(0, capacityLbs - usedLbs), utilization_pct: Math.round((usedLbs / capacityLbs) * 100) };
+  },
+
+  // Assign an order to a depot
+  async assignOrderToDepot(orderId, depotId) {
+    return this.update('orders', orderId, { depot_id: depotId });
+  },
+
+  // Approve a partner application: create depot + partner user + mark approved
+  async approvePartnerApplication(applicationId, depotData, partnerPassword) {
+    const idb = getMode() === 'demo' ? await initDemoDB() : null;
+
+    // Create depot record
+    const depot = await this.create('depots', {
+      ...depotData,
+      status: 'active',
+    });
+
+    // Create partner user account
+    const passwordHash = partnerPassword;
+    const partnerUser = await this.create('users', {
+      email: depotData.partner_email,
+      phone: depotData.partner_phone || null,
+      first_name: depotData.partner_first_name,
+      last_name: depotData.partner_last_name,
+      role: 'partner',
+      depot_id: depot.id,
+      password_hash: passwordHash,
+      is_active: true,
+      is_verified: true,
+    });
+
+    // Link manager to depot
+    await this.update('depots', depot.id, { manager_id: partnerUser.id });
+
+    // Update application status
+    await this.update('laundry_partner_applications', applicationId, {
+      status: 'approved',
+      depot_id: depot.id,
+      partner_user_id: partnerUser.id,
+    });
+
+    return { depot, partnerUser };
+  },
+
   // Stats operations
   async getDashboardStats() {
     if (getMode() === 'demo') {
@@ -939,6 +1110,139 @@ export const db = {
     };
   },
 };
+
+// Seed depot extras (runs even on upgraded DBs, safe to call multiple times)
+async function seedDepotExtras(idb) {
+  const demoPasswordHash = 'd3ad9315b7be5dd53b31a273b3b3aba5defe700808305aa16a3062b76658a791';
+
+  // Update existing depots with capacity + operating hours
+  const depotUpdates = {
+    'depot-1': {
+      capacity_per_day: 500,
+      phone: '437-215-6321',
+      operating_hours: {
+        mon: { open: '07:00', close: '21:00', closed: false },
+        tue: { open: '07:00', close: '21:00', closed: false },
+        wed: { open: '07:00', close: '21:00', closed: false },
+        thu: { open: '07:00', close: '21:00', closed: false },
+        fri: { open: '07:00', close: '21:00', closed: false },
+        sat: { open: '09:00', close: '18:00', closed: false },
+        sun: { open: '10:00', close: '16:00', closed: false },
+      },
+    },
+    'depot-2': {
+      capacity_per_day: 350,
+      phone: '647-764-5658',
+      operating_hours: {
+        mon: { open: '08:00', close: '20:00', closed: false },
+        tue: { open: '08:00', close: '20:00', closed: false },
+        wed: { open: '08:00', close: '20:00', closed: false },
+        thu: { open: '08:00', close: '20:00', closed: false },
+        fri: { open: '08:00', close: '20:00', closed: false },
+        sat: { open: '09:00', close: '17:00', closed: false },
+        sun: { open: '00:00', close: '00:00', closed: true },
+      },
+    },
+  };
+
+  for (const [depotId, updates] of Object.entries(depotUpdates)) {
+    const existing = await idb.get('depots', depotId);
+    if (existing && !existing.capacity_per_day) {
+      await idb.put('depots', { ...existing, ...updates, updated_at: new Date().toISOString() });
+    }
+  }
+
+  // Add partner demo user if not exists
+  const existingPartner = await idb.get('users', 'user-partner');
+  if (!existingPartner) {
+    await idb.put('users', {
+      id: 'user-partner',
+      email: 'partner@amanicleaners.com',
+      phone: '16475550020',
+      first_name: 'CleanPro',
+      last_name: 'Partners',
+      role: 'partner',
+      depot_id: 'depot-2',
+      password_hash: demoPasswordHash,
+      is_active: true,
+      is_verified: true,
+      created_at: new Date().toISOString(),
+    });
+    // Link partner as manager of depot-2
+    const depot2 = await idb.get('depots', 'depot-2');
+    if (depot2 && !depot2.manager_id) {
+      await idb.put('depots', { ...depot2, manager_id: 'user-partner', updated_at: new Date().toISOString() });
+    }
+  }
+
+  // Add demo partner application if no partner apps exist
+  let partnerApps = [];
+  try { partnerApps = await idb.getAll('laundry_partner_applications'); } catch { /* store may not exist yet */ }
+  if (partnerApps.length === 0) {
+    await idb.put('laundry_partner_applications', {
+      id: 'papp-demo-1',
+      business_name: 'FreshPress Laundry',
+      contact_person_first_name: 'Amanda',
+      contact_person_last_name: 'Clarke',
+      email: 'amanda@freshpress.ca',
+      phone: '4165559876',
+      business_address: '840 Lawrence Ave W, Toronto, ON M6A 1C4',
+      business_license: 'ON-LP-2024-8432',
+      years_operating: 6,
+      capacity_per_day: 400,
+      services_offered: 'Wash & fold, dry cleaning, shirt laundering, alterations',
+      message: 'We have been operating in North York for 6 years and would love to partner with Amani\'s to serve more customers.',
+      business_documents_url: '',
+      status: 'pending',
+      created_at: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+      updated_at: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+    });
+
+    await idb.put('laundry_partner_applications', {
+      id: 'papp-demo-2',
+      business_name: 'CleanPro Partners',
+      contact_person_first_name: 'CleanPro',
+      contact_person_last_name: 'Partners',
+      email: 'partner@amanicleaners.com',
+      phone: '16475550020',
+      business_address: '3455 Weston Road, North York, ON M9M 0G4',
+      business_license: 'ON-LP-2023-1122',
+      years_operating: 4,
+      capacity_per_day: 350,
+      services_offered: 'Wash & fold, dry cleaning, comforters, uniform cleaning',
+      message: 'Long-time laundry operator in North York, eager to join the Amani network.',
+      business_documents_url: '',
+      status: 'approved',
+      depot_id: 'depot-2',
+      partner_user_id: 'user-partner',
+      created_at: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
+      updated_at: new Date(Date.now() - 25 * 24 * 60 * 60 * 1000).toISOString(),
+    });
+  }
+
+  // Add demo driver application if no driver apps exist
+  let driverApps = [];
+  try { driverApps = await idb.getAll('driver_applications'); } catch { /* store may not exist yet */ }
+  if (driverApps.length === 0) {
+    await idb.put('driver_applications', {
+      id: 'dapp-demo-1',
+      first_name: 'James',
+      last_name: 'Okafor',
+      email: 'james.okafor@email.com',
+      phone: '4165557788',
+      city: 'Scarborough',
+      vehicle_type: 'SUV',
+      has_insurance: true,
+      availability: 'Weekdays only',
+      years_of_experience: 5,
+      experience_details: 'Previous courier experience with UPS and local delivery companies.',
+      message: 'Looking to join a growing company. I am reliable and punctual.',
+      status: 'pending',
+      created_at: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
+      updated_at: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
+    });
+  }
+}
 
 // Seed demo data
 async function seedDemoData(idb) {

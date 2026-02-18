@@ -55,6 +55,12 @@ import AdminCheckins from './pages/admin/AdminCheckins';
 import AdminNotifications from './pages/admin/AdminNotifications';
 import AdminMessaging from './pages/admin/AdminMessaging';
 import AdminApplications from './pages/admin/AdminApplications';
+import AdminDepots from './pages/admin/AdminDepots';
+
+// Partner Pages
+import PartnerDashboard from './pages/partner/PartnerDashboard';
+import PartnerOrders from './pages/partner/PartnerOrders';
+import PartnerDepotInfo from './pages/partner/PartnerDepotInfo';
 
 // Protected Route Component
 const ProtectedRoute = ({ children, allowedRoles }) => {
@@ -179,11 +185,32 @@ function App() {
           <Route path="checkins" element={<AdminCheckins />} />
           <Route path="subscriptions" element={<AdminSubscriptions />} />
           <Route path="applications" element={<AdminApplications />} />
+          <Route path="depots" element={<AdminDepots />} />
           <Route path="services" element={<AdminServices />} />
           <Route path="messaging" element={<AdminMessaging />} />
           <Route path="notifications" element={<AdminNotifications />} />
           <Route path="reports" element={<AdminReports />} />
           <Route path="settings" element={<AdminSettings />} />
+        </Route>
+
+        {/* Staff Depots Route */}
+        <Route path="/staff/depots" element={
+          <ProtectedRoute allowedRoles={['staff', 'admin']}>
+            <DashboardLayout type="staff" />
+          </ProtectedRoute>
+        }>
+          <Route index element={<AdminDepots />} />
+        </Route>
+
+        {/* Partner Portal Routes */}
+        <Route path="/partner-portal" element={
+          <ProtectedRoute allowedRoles={['partner', 'admin']}>
+            <DashboardLayout type="partner" />
+          </ProtectedRoute>
+        }>
+          <Route index element={<PartnerDashboard />} />
+          <Route path="orders" element={<PartnerOrders />} />
+          <Route path="depot" element={<PartnerDepotInfo />} />
         </Route>
 
         {/* Catch all */}

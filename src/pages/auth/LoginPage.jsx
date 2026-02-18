@@ -64,21 +64,33 @@ const LoginPage = () => {
     return true;
   };
 
+  const getRoleRoute = (role) => {
+    const routes = {
+      customer: '/',
+      driver: '/driver',
+      staff: '/staff',
+      admin: '/admin',
+      partner: '/partner-portal',
+    };
+    return routes[role] || '/';
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    
+
     if (!validateForm()) return;
-    
+
     try {
+      let result;
       if (loginMethod === 'email') {
-        await login(formData.email, formData.password);
+        result = await login(formData.email, formData.password);
       } else {
         const phone = formData.phone.replace(/\D/g, '');
-        await loginWithPhone(phone, formData.password);
+        result = await loginWithPhone(phone, formData.password);
       }
       toast.success('Welcome back! 🍁');
-      navigate('/');
+      navigate(getRoleRoute(result?.user?.role));
     } catch (err) {
       setError(err.message || 'Invalid credentials');
     }
@@ -88,11 +100,7 @@ const LoginPage = () => {
     try {
       await loginAsRole(role);
       toast.success(`Logged in as demo ${role}! 🧪`);
-      if (role === 'customer') {
-        navigate('/');
-      } else {
-        navigate(`/${role}`);
-      }
+      navigate(getRoleRoute(role));
     } catch (err) {
       setError(err.message || 'Demo login failed');
     }
@@ -364,6 +372,7 @@ const LoginPage = () => {
                     { role: 'driver', label: 'Driver' },
                     { role: 'staff', label: 'Staff' },
                     { role: 'admin', label: 'Admin' },
+                    { role: 'partner', label: 'Partner' },
                   ].map((item) => (
                     <button
                       key={item.role}

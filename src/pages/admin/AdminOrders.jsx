@@ -4,11 +4,13 @@ import {
   Package, Search, Filter, Eye, Clock, CheckCircle, XCircle,
   Truck, RefreshCcw, ChevronLeft, ChevronRight, Download,
   Calendar, MapPin, Phone, AlertTriangle, Shirt, Mail,
-  DollarSign, Edit, Trash2, Plus, X
+  DollarSign, Edit, Trash2, Plus, X, Building2, Loader2
 } from 'lucide-react';
 import { useOrderStore, useAppStore } from '../../stores';
 import { formatAddress } from '../../lib/utils';
 import OrderEditModal from '../../components/OrderEditModal';
+import db from '../../lib/db';
+import toast from 'react-hot-toast';
 
 const AdminOrders = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -18,14 +20,31 @@ const AdminOrders = () => {
   const [editingOrder, setEditingOrder] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(null);
+  const [depots, setDepots] = useState([]);
+  const [assigningDepot, setAssigningDepot] = useState(false);
   const ordersPerPage = 15;
 
   const { orders, fetchOrders, updateOrderStatus, loading } = useOrderStore();
-  
 
   useEffect(() => {
     fetchOrders();
+    db.getDepots(true).then(setDepots).catch(() => {});
   }, [fetchOrders]);
+
+  const handleAssignDepot = async (orderId, depotId) => {
+    setAssigningDepot(true);
+    try {
+      await db.assignOrderToDepot(orderId, depotId);
+      toast.success('Depot assigned successfully');
+      fetchOrders();
+      // Update selectedOrder in-place
+      setSelectedOrder(prev => prev ? { ...prev, depot_id: depotId } : prev);
+    } catch (err) {
+      toast.error('Failed to assign depot');
+    } finally {
+      setAssigningDepot(false);
+    }
+  };
 
   const statusConfig = {
     pending_pickup: { label: 'Pending Pickup', color: 'bg-amber-100 text-amber-700', icon: Clock },
@@ -424,6 +443,30 @@ const AdminOrders = () => {
                         </button>
                       );
                     })}
+                  </div>
+                </div>
+
+                {/* Depot Assignment */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
+                    <Building2 className="w-4 h-4 text-amani-500" />
+                    Assigned Depot
+                  </label>
+                  <div className="flex gap-2">
+                    <select
+                      value={selectedOrder.depot_id || ''}
+                      onChange={e => handleAssignDepot(selectedOrder.id, e.target.value)}
+                      disabled={assigningDepot}
+                      className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amani-500 focus:border-transparent text-sm"
+                    >
+                      <option value="">No depot assigned</option>
+                      {depots.map(d => (
+                        <option key={d.id} value={d.id}>
+                          {d.name} — {d.city} ({d.capacity_per_day || '?'} lbs/day)
+                        </option>
+                      ))}
+                    </select>
+                    {assigningDepot && <Loader2 className="w-5 h-5 animate-spin text-amani-500 self-center" />}
                   </div>
                 </div>
 
