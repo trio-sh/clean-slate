@@ -172,8 +172,16 @@ const TrackOrderPage = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Hero Section */}
-      <div className="bg-gradient-to-br from-navy-900 via-navy-800 to-navy-900 py-16 px-4">
-        <div className="max-w-2xl mx-auto text-center">
+      <div className="relative bg-gradient-to-br from-navy-900 via-navy-800 to-navy-900 py-20 px-4 overflow-hidden">
+        <div className="absolute inset-0">
+          <img
+            src="https://api.a0.dev/assets/image?text=delivery driver scanning package, laundry pickup tracking real time, friendly driver at customer door, Toronto neighborhood sunny&aspect=16:9&seed=801"
+            alt=""
+            className="w-full h-full object-cover opacity-15"
+          />
+          <div className="absolute inset-0 bg-gradient-to-br from-navy-900/80 via-navy-800/80 to-navy-900/80" />
+        </div>
+        <div className="relative max-w-2xl mx-auto text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}

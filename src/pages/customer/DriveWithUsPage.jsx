@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState } from 'react'; // kept for future local state
 import { motion } from 'framer-motion';
 import { 
   Car, DollarSign, Clock, MapPin, Star, CheckCircle, 
@@ -8,27 +8,6 @@ import {
 import DriverApplicationForm from '../../components/DriverApplicationForm';
 
 const DriveWithUsPage = () => {
-  const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
-    email: '',
-    phone: '',
-    city: '',
-    experience: '',
-    availability: '',
-    message: ''
-  });
-
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    // In a real implementation, this would send to amaniscleaners@gmail.com
-    console.log('Application submitted:', formData);
-    alert('Thank you for your application! We will contact you at amaniscleaners@gmail.com within 24-48 hours.');
-  };
 
   const benefits = [
     {

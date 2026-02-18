@@ -1,10 +1,10 @@
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 
-import { 
-  Truck, Clock, Shield, Star, Sparkles, ArrowRight, 
+import {
+  Truck, Clock, Shield, Star, Sparkles, ArrowRight,
   Shirt, MapPin, Phone, CheckCircle2, Award, Users,
-  Zap, Heart, Leaf, Package
+  Zap, Heart, Leaf, Package, Building2
 } from 'lucide-react';
 
 const HomePage = () => {
@@ -46,6 +46,14 @@ const HomePage = () => {
     <div className="overflow-hidden">
       {/* Hero Section */}
       <section className="relative min-h-[90vh] flex items-center bg-gradient-to-br from-navy-900 via-navy-800 to-amani-900 overflow-hidden">
+        {/* Hero background photo */}
+        <div className="absolute inset-0">
+          <img
+            src="https://api.a0.dev/assets/image?text=premium laundry service, bright clean modern Canadian home, freshly washed folded clothes on bed, warm welcoming atmosphere, professional service&aspect=16:9&seed=101"
+            alt=""
+            className="w-full h-full object-cover opacity-10"
+          />
+        </div>
         {/* Background Pattern */}
         <div className="absolute inset-0 opacity-10">
           <div className="absolute inset-0" style={{
@@ -494,6 +502,79 @@ const HomePage = () => {
                 </div>
               </motion.div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Become a Partner Section */}
+      <section className="py-20 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            {/* Image side */}
+            <motion.div
+              initial={{ opacity: 0, x: -40 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              className="relative rounded-3xl overflow-hidden shadow-2xl"
+            >
+              <img
+                src="https://api.a0.dev/assets/image?text=commercial laundry facility owner, professional laundry business partnership, modern equipment, clean bright facility, successful business owner&aspect=4:3&seed=902"
+                alt="Become a Laundry Partner"
+                className="w-full h-80 object-cover"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-navy-900/60 to-transparent" />
+              <div className="absolute bottom-6 left-6 right-6">
+                <div className="flex gap-3">
+                  {['Fast Onboarding', 'Steady Revenue', 'Full Support'].map((tag) => (
+                    <span key={tag} className="bg-white/20 backdrop-blur-sm text-white text-xs font-medium px-3 py-1.5 rounded-full border border-white/30">
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </motion.div>
+
+            {/* Content side */}
+            <motion.div
+              initial={{ opacity: 0, x: 40 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+            >
+              <span className="inline-block text-amani-600 font-semibold mb-4">FOR BUSINESSES</span>
+              <h2 className="text-4xl md:text-5xl font-display font-bold text-navy-900 mb-6">
+                Become a <span className="text-amani-500">Laundry Partner</span>
+              </h2>
+              <p className="text-xl text-gray-600 mb-8">
+                Own a laundry or dry-cleaning facility? Partner with Amani's Cleaners to get a steady stream of orders, grow your business, and serve more customers across Southern Ontario.
+              </p>
+
+              <div className="space-y-4 mb-8">
+                {[
+                  { icon: Users, title: 'Access our customer base', desc: '50,000+ active customers across 40+ cities' },
+                  { icon: Truck, title: 'We handle pickup & delivery', desc: 'Our drivers collect and return — you just clean' },
+                  { icon: Zap, title: 'Fast onboarding', desc: 'Go live in as little as 3–5 business days' },
+                ].map(({ icon: Icon, title, desc }) => (
+                  <div key={title} className="flex items-start gap-4">
+                    <div className="w-10 h-10 bg-amani-100 rounded-xl flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <Icon className="w-5 h-5 text-amani-600" />
+                    </div>
+                    <div>
+                      <p className="font-semibold text-navy-900">{title}</p>
+                      <p className="text-gray-500 text-sm">{desc}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <Link
+                to="/partner"
+                className="btn-primary inline-flex items-center gap-2 text-lg px-8 py-4"
+              >
+                <Building2 className="w-5 h-5" />
+                Apply to Partner
+                <ArrowRight className="w-5 h-5" />
+              </Link>
+            </motion.div>
           </div>
         </div>
       </section>

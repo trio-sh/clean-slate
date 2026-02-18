@@ -102,10 +102,20 @@ const PartnerApplicationPage = () => {
           className="bg-white rounded-2xl shadow-lg overflow-hidden"
         >
           {/* Header */}
-          <div className="bg-gradient-to-r from-amani-500 to-maple-500 px-8 py-12 text-white">
-            <div className="max-w-3xl mx-auto text-center">
-              <Building2 className="w-16 h-16 mx-auto mb-6 text-white/80" />
-              <h1 className="text-4xl font-display font-bold mb-4">
+          <div className="relative bg-gradient-to-r from-amani-500 to-maple-500 px-8 py-16 text-white overflow-hidden">
+            <div className="absolute inset-0">
+              <img
+                src="https://api.a0.dev/assets/image?text=laundry business partnership, two professionals collaborating, modern commercial laundry facility, business expansion agreement&aspect=16:9&seed=901"
+                alt=""
+                className="w-full h-full object-cover opacity-20"
+              />
+              <div className="absolute inset-0 bg-gradient-to-r from-amani-600/70 to-maple-600/70" />
+            </div>
+            <div className="relative max-w-3xl mx-auto text-center">
+              <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center mx-auto mb-6">
+                <Building2 className="w-8 h-8 text-white" />
+              </div>
+              <h1 className="text-4xl md:text-5xl font-display font-bold mb-4">
                 Become a Laundry Partner
               </h1>
               <p className="text-xl text-white/90 max-w-2xl mx-auto">

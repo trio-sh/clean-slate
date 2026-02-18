@@ -254,8 +254,16 @@ const SubscriptionsPage = () => {
       )}
 
       {/* Hero Section */}
-      <div className="bg-gradient-to-br from-navy-900 via-navy-800 to-navy-900 py-20 px-4">
-        <div className="max-w-4xl mx-auto text-center">
+      <div className="relative bg-gradient-to-br from-navy-900 via-navy-800 to-navy-900 py-24 px-4 overflow-hidden">
+        <div className="absolute inset-0">
+          <img
+            src="https://api.a0.dev/assets/image?text=happy customer receiving freshly cleaned laundry subscription delivery at door, premium lifestyle, clean bright home, Canadian suburb&aspect=16:9&seed=701"
+            alt=""
+            className="w-full h-full object-cover opacity-15"
+          />
+          <div className="absolute inset-0 bg-gradient-to-br from-navy-900/80 via-navy-800/80 to-navy-900/80" />
+        </div>
+        <div className="relative max-w-4xl mx-auto text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -264,7 +272,7 @@ const SubscriptionsPage = () => {
               <Sparkles className="w-4 h-4" />
               Save up to 30% with subscriptions
             </div>
-            
+
             <h1 className="text-4xl md:text-5xl font-display font-bold text-white mb-6">
               Laundry Plans That<br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-amani-400 to-maple-400">

@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Send, CheckCircle, AlertCircle, Loader } from 'lucide-react';
+import db from '../lib/db';
+import toast from 'react-hot-toast';
 
 const DriverApplicationForm = () => {
   const [formData, setFormData] = useState({
@@ -27,59 +29,34 @@ const DriverApplicationForm = () => {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    // Create pre-filled email content
-    const subject = `Driver Application - ${formData.firstName} ${formData.lastName}`;
-    
-    const body = `
-Driver Application for Amani's Cleaners
+    setIsSubmitting(true);
 
-Personal Information:
---------------------
-Name: ${formData.firstName} ${formData.lastName}
-Email: ${formData.email}
-Phone: ${formData.phone}
-City: ${formData.city}
+    try {
+      await db.create('driver_applications', {
+        first_name: formData.firstName,
+        last_name: formData.lastName,
+        email: formData.email,
+        phone: formData.phone,
+        city: formData.city,
+        vehicle_type: formData.vehicleType,
+        has_insurance: formData.insurance,
+        availability: formData.availability,
+        years_of_experience: formData.experience,
+        message: formData.message,
+        status: 'pending',
+      });
 
-Vehicle Information:
--------------------
-Vehicle Type: ${formData.vehicleType}
-Insurance Confirmed: ${formData.insurance ? 'Yes' : 'No'}
-
-Availability:
-------------
-Preferred Schedule: ${formData.availability}
-
-Experience:
-----------
-${formData.experience || 'No previous delivery experience specified'}
-
-Additional Information:
-----------------------
-${formData.message || 'No additional information provided'}
-
----
-
-Please contact me to discuss the next steps in the application process. I'm excited about the opportunity to join Amani's Cleaners team!
-
-Best regards,
-${formData.firstName} ${formData.lastName}
-    `.trim();
-
-    // Encode for URL
-    const encodedSubject = encodeURIComponent(subject);
-    const encodedBody = encodeURIComponent(body);
-    
-    // Create mailto link
-    const mailtoLink = `mailto:amaniscleaners@gmail.com?subject=${encodedSubject}&body=${encodedBody}`;
-    
-    // Open email client
-    window.location.href = mailtoLink;
-    
-    // Show success message
-    setSubmitStatus('success');
+      toast.success('Application submitted! We\'ll be in touch within 24–48 hours.');
+      setSubmitStatus('success');
+    } catch (err) {
+      console.error('Driver application error:', err);
+      toast.error('Failed to submit. Please try again.');
+      setSubmitStatus('error');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const availabilityOptions = [

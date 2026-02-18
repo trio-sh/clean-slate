@@ -88,8 +88,16 @@ const ServicesPage = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <section className="bg-gradient-to-br from-navy-900 to-amani-900 py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="relative bg-gradient-to-br from-navy-900 to-amani-900 py-28 overflow-hidden">
+        <div className="absolute inset-0">
+          <img
+            src="https://api.a0.dev/assets/image?text=professional dry cleaning laundry service, rows of clean pressed garments on hangers, bright organized premium clothing care facility&aspect=16:9&seed=601"
+            alt=""
+            className="w-full h-full object-cover opacity-20"
+          />
+          <div className="absolute inset-0 bg-gradient-to-br from-navy-900/75 to-amani-900/75" />
+        </div>
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -99,7 +107,7 @@ const ServicesPage = () => {
               <Sparkles className="w-4 h-4 text-amani-400" />
               <span className="text-white font-medium">Premium Quality</span>
             </span>
-            <h1 className="text-4xl md:text-5xl font-display font-bold text-white mb-4">
+            <h1 className="text-4xl md:text-6xl font-display font-bold text-white mb-4">
               Our Services
             </h1>
             <p className="text-xl text-gray-300 max-w-2xl mx-auto">
