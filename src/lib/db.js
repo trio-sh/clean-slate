@@ -595,25 +595,30 @@ export const db = {
       return { user: newUser, session: null };
     }
 
-    // Live: register + get session in one RPC call
-    const { data, error } = await supabase.rpc('create_session_register', {
-      p_email:         email,
-      p_phone:         normalizedPhone || null,
-      p_first_name:    first_name,
-      p_last_name:     last_name,
-      p_password_hash: passwordHash,
-      p_role:          'customer',
-    });
-    if (error) throw new Error(error.message || 'Registration failed');
-    if (!data?.access_token) throw new Error('Registration failed');
+    // Live: insert into public.users first, then sign up via Supabase Auth
+    // Supabase Auth stores bcrypt(passwordHash) — signInWithPassword uses the hash as the password
+    const existingEmail = await this.getUserByEmail(email);
+    if (existingEmail) throw new Error('Email already registered');
+    if (phone) {
+      const existingPhone = await this.getUserByPhone(phone);
+      if (existingPhone) throw new Error('Phone number already registered');
+    }
 
-    // Persist session so all subsequent requests are authenticated
-    await supabase.auth.setSession({
-      access_token:  data.access_token,
-      refresh_token: data.access_token,
+    // Insert into public.users
+    const newUser = await this.create('users', {
+      email, phone: normalizedPhone || null, first_name, last_name,
+      password_hash: passwordHash, role: 'customer',
+      is_active: true, is_verified: false, first_order_discount_used: false,
     });
 
-    return { user: data.user, session: data };
+    // Create Supabase Auth session (password = SHA-256 hash)
+    const { data: authData, error: authError } = await supabase.auth.signUp({
+      email,
+      password: passwordHash,
+    });
+    if (authError) console.warn('Auth signUp warning:', authError.message);
+
+    return { user: newUser, session: authData?.session || null };
   },
 
   // Login with email and password
@@ -629,23 +634,19 @@ export const db = {
       return { user, session: null };
     }
 
-    // Live: RPC generates a real signed JWT, then we call setSession so
-    // the Supabase client stores it in localStorage and sends it automatically.
-    // This makes auth.uid() work in all RLS policies.
-    const { data, error } = await supabase.rpc('create_session_email', {
-      p_email: email,
-      p_password_hash: passwordHash,
+    // Live: signInWithPassword using SHA-256 hash as the password
+    // (auth.users.encrypted_password = bcrypt(sha256Hash) set by migration)
+    const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+      email,
+      password: passwordHash,
     });
-    if (error) throw new Error(error.message || 'Invalid email or password');
-    if (!data?.access_token) throw new Error('Invalid email or password');
+    if (authError) throw new Error('Invalid email or password');
 
-    // Inject session into Supabase client (persisted to localStorage)
-    await supabase.auth.setSession({
-      access_token:  data.access_token,
-      refresh_token: data.access_token, // custom auth has no refresh token; reuse access token
-    });
+    // Fetch full user row from public.users
+    const user = await this.getUserByEmail(email);
+    if (!user) throw new Error('Invalid email or password');
 
-    return { user: data.user, session: data };
+    return { user, session: authData.session };
   },
 
   // Login with phone and password (custom auth)
@@ -661,20 +662,21 @@ export const db = {
       return { user, session: null };
     }
 
-    // Live: RPC validates + generates signed JWT, setSession persists to localStorage
-    const { data, error } = await supabase.rpc('create_session_phone', {
-      p_phone: normalizePhone(phone),
-      p_password_hash: passwordHash,
-    });
-    if (error) throw new Error(error.message || 'Invalid phone number or password');
-    if (!data?.access_token) throw new Error('Invalid phone number or password');
+    // Live: look up email from phone, then signInWithPassword with SHA-256 hash
+    const userByPhone = await this.getUserByPhone(phone);
+    if (!userByPhone) throw new Error('Invalid phone number or password');
 
-    await supabase.auth.setSession({
-      access_token:  data.access_token,
-      refresh_token: data.access_token,
-    });
+    // Verify hash matches before attempting Supabase auth
+    const isValid = await verifyPassword(password, userByPhone.password_hash || '');
+    if (!isValid) throw new Error('Invalid phone number or password');
 
-    return { user: data.user, session: data };
+    const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+      email:    userByPhone.email,
+      password: passwordHash,
+    });
+    if (authError) throw new Error('Invalid phone number or password');
+
+    return { user: userByPhone, session: authData.session };
   },
 
   // Update user password
