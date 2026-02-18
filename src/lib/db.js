@@ -279,11 +279,9 @@ export const db = {
       const idb = await initDemoDB();
       return idb.getAll(table);
     }
-    const userId = this._getCurrentUserId();
-    if (!userId) throw new Error('Not authenticated');
-    const { data, error } = await supabase.rpc('app_get_all', { p_user_id: userId, p_table: table });
+    const { data, error } = await supabase.from(table).select('*');
     if (error) throw error;
-    return Array.isArray(data) ? data : (data || []);
+    return data || [];
   },
 
   async getById(table, id) {
@@ -291,10 +289,8 @@ export const db = {
       const idb = await initDemoDB();
       return idb.get(table, id);
     }
-    const userId = this._getCurrentUserId();
-    if (!userId) throw new Error('Not authenticated');
-    const { data, error } = await supabase.rpc('app_get_by_id', { p_user_id: userId, p_table: table, p_id: id });
-    if (error) throw error;
+    const { data, error } = await supabase.from(table).select('*').eq('id', id).single();
+    if (error && error.code !== 'PGRST116') throw error;
     return data;
   },
 
@@ -304,13 +300,9 @@ export const db = {
       const index = idb.transaction(table).store.index(field);
       return index.getAll(value);
     }
-    const userId = this._getCurrentUserId();
-    if (!userId) throw new Error('Not authenticated');
-    const { data, error } = await supabase.rpc('app_get_by_field', {
-      p_user_id: userId, p_table: table, p_field: field, p_value: String(value)
-    });
+    const { data, error } = await supabase.from(table).select('*').eq(field, value);
     if (error) throw error;
-    return Array.isArray(data) ? data : (data || []);
+    return data || [];
   },
 
   async create(table, data) {
@@ -349,14 +341,16 @@ export const db = {
       record.reference_code = generateReferenceCode();
     }
 
-    const userId = this._getCurrentUserId();
-    if (!userId) throw new Error('Not authenticated');
-    const { data: result, error } = await supabase.rpc('app_create', {
-      p_user_id: userId,
-      p_table:   table,
-      p_data:    record,
-    });
-    if (error) throw error;
+    const { data: result, error } = await supabase.from(table).insert(record).select().single();
+    if (error) {
+      if (error.code === '42703' || error.message?.includes('column')) {
+        const safeRecord = this._stripUnknownFields(table, record);
+        const { data: r2, error: e2 } = await supabase.from(table).insert(safeRecord).select().single();
+        if (e2) throw e2;
+        return r2;
+      }
+      throw error;
+    }
     return result;
   },
 
@@ -381,15 +375,16 @@ export const db = {
       await idb.put(table, updated);
       return updated;
     }
-    const userId = this._getCurrentUserId();
-    if (!userId) throw new Error('Not authenticated');
-    const { data, error } = await supabase.rpc('app_update', {
-      p_user_id: userId,
-      p_table:   table,
-      p_id:      id,
-      p_data:    record,
-    });
-    if (error) throw error;
+    const { data, error } = await supabase.from(table).update(record).eq('id', id).select().single();
+    if (error) {
+      if (error.code === '42703' || error.message?.includes('column')) {
+        const safeRecord = this._stripUnknownFields(table, record);
+        const { data: r2, error: e2 } = await supabase.from(table).update(safeRecord).eq('id', id).select().single();
+        if (e2) throw e2;
+        return r2;
+      }
+      throw error;
+    }
     return data;
   },
 
@@ -434,11 +429,7 @@ export const db = {
       await idb.delete(table, id);
       return true;
     }
-    const userId = this._getCurrentUserId();
-    if (!userId) throw new Error('Not authenticated');
-    const { error } = await supabase.rpc('app_delete', {
-      p_user_id: userId, p_table: table, p_id: id
-    });
+    const { error } = await supabase.from(table).delete().eq('id', id);
     if (error) throw error;
     return true;
   },
@@ -469,7 +460,11 @@ export const db = {
       
       return { ...order, items };
     }
-    const { data, error } = await supabase.rpc('app_get_order_by_reference', { p_reference_code: referenceCode });
+    const { data, error } = await supabase
+      .from('orders')
+      .select('*, items:order_items(*)')
+      .eq('reference_code', referenceCode)
+      .single();
     if (error) throw error;
     return data;
   },
@@ -510,36 +505,17 @@ export const db = {
       }).sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
     }
     
-    // Use SECURITY DEFINER RPC — handles joins + bypasses RLS
-    const userId = this._getCurrentUserId();
-    if (!userId) throw new Error('Not authenticated');
-
-    const { data: rpcData, error: rpcError } = await supabase.rpc('app_get_orders_with_details', {
-      p_user_id:   userId,
-      p_status:    filters.status  || null,
-      p_driver_id: filters.driver_id || null,
-    });
-    if (rpcError) throw rpcError;
-
-    let data = Array.isArray(rpcData) ? rpcData : (rpcData || []);
-
-    // Normalize address fields from joined objects
-    data = data.map(order => {
-      const pickupObj   = order.pickup_address_data;
-      const deliveryObj = order.delivery_address_data;
-      const pickupAddr  = typeof order.pickup_address === 'string' && order.pickup_address
-        ? order.pickup_address
-        : pickupObj ? [pickupObj.unit, pickupObj.street, pickupObj.city, pickupObj.province, pickupObj.postal_code].filter(Boolean).join(', ') : '';
-      const deliveryAddr = typeof order.delivery_address === 'string' && order.delivery_address
-        ? order.delivery_address
-        : deliveryObj ? [deliveryObj.unit, deliveryObj.street, deliveryObj.city, deliveryObj.province, deliveryObj.postal_code].filter(Boolean).join(', ') : '';
-      return { ...order, pickup_address: pickupAddr, delivery_address: deliveryAddr };
-    });
-
-    if (filters.user_id)    data = data.filter(o => o.user_id    === filters.user_id);
-    if (filters.pickup_date) data = data.filter(o => o.pickup_date === filters.pickup_date);
-
-    return data;
+    let query = supabase
+      .from('orders')
+      .select('*, user:users(*), items:order_items(*)')
+      .order('created_at', { ascending: false });
+    if (filters.status)      query = query.eq('status', filters.status);
+    if (filters.user_id)     query = query.eq('user_id', filters.user_id);
+    if (filters.pickup_date) query = query.eq('pickup_date', filters.pickup_date);
+    if (filters.driver_id)   query = query.or(`pickup_driver_id.eq.${filters.driver_id},delivery_driver_id.eq.${filters.driver_id}`);
+    const { data, error } = await query;
+    if (error) throw error;
+    return (data || []);
   },
 
   // User operations
@@ -749,15 +725,15 @@ export const db = {
       }));
     }
     
-    const userId = this._getCurrentUserId();
-    if (!userId) throw new Error('Not authenticated');
-    const { data, error } = await supabase.rpc('app_get_driver_routes', {
-      p_user_id:   userId,
-      p_driver_id: driverId || null,
-      p_date:      date || null,
-    });
+    let query = supabase
+      .from('driver_routes')
+      .select('*, stops:route_stops(*, order:orders(*))')
+      .eq('driver_id', driverId)
+      .order('route_date', { ascending: true });
+    if (date) query = query.eq('route_date', date);
+    const { data, error } = await query;
     if (error) throw error;
-    return Array.isArray(data) ? data : (data || []);
+    return data || [];
   },
 
   // Stats operations
@@ -791,11 +767,21 @@ export const db = {
       };
     }
     
-    const userId = this._getCurrentUserId();
-    if (!userId) throw new Error('Not authenticated');
-    const { data, error } = await supabase.rpc('app_get_dashboard_stats', { p_user_id: userId });
+    const today = new Date().toISOString().split('T')[0];
+    const { data: orders, error } = await supabase.from('orders')
+      .select('status,payment_status,total,total_amount,created_at');
     if (error) throw error;
-    return data || {};
+    const all = orders || [];
+    const todayOrders = all.filter(o => o.created_at?.startsWith(today));
+    return {
+      orders_today:        todayOrders.length,
+      pending_orders:      all.filter(o => ['pending_pickup','picked_up'].includes(o.status)).length,
+      processing_orders:   all.filter(o => o.status === 'processing').length,
+      ready_orders:        all.filter(o => o.status === 'ready').length,
+      out_for_delivery:    all.filter(o => o.status === 'out_for_delivery').length,
+      revenue_today:       todayOrders.filter(o => o.payment_status === 'paid').reduce((s,o) => s + (o.total || o.total_amount || 0), 0),
+      new_customers_today: 0,
+    };
   },
 
   // Check-in operations
@@ -856,28 +842,20 @@ export const db = {
       };
     }
     
-    // Use SECURITY DEFINER RPC to fetch today's checkin records
-    const currentUserId = this._getCurrentUserId();
-    if (!currentUserId) return null;
-    const { data: rawData } = await supabase.rpc('app_get_user_checkins', {
-      p_user_id:        currentUserId,
-      p_target_user_id: userId,
-      p_limit:          10,
-    });
-    const recs = (Array.isArray(rawData) ? rawData : (rawData || [])).filter(c => c.check_date === today);
-    const checkInRec  = recs.find(c => c.type === 'check_in');
-    const checkOutRec = recs.find(c => c.type === 'check_out');
-    if (!checkInRec) return null;
+    const { data } = await supabase
+      .from('checkins').select('*')
+      .eq('user_id', userId).eq('check_date', today)
+      .order('check_time', { ascending: true });
+    if (!data?.length) return null;
+    const ci = data.find(c => c.type === 'check_in');
+    const co = data.find(c => c.type === 'check_out');
+    if (!ci) return null;
     return {
-      ...checkInRec,
-      check_in_time: checkInRec.check_time,
-      check_out_time: checkOutRec?.check_time || null,
-      check_in_location: checkInRec.location_address
-        ? { address: checkInRec.location_address, latitude: checkInRec.latitude, longitude: checkInRec.longitude }
-        : null,
-      check_out_location: checkOutRec?.location_address
-        ? { address: checkOutRec.location_address, latitude: checkOutRec.latitude, longitude: checkOutRec.longitude }
-        : null,
+      ...ci,
+      check_in_time:  ci.check_time,
+      check_out_time: co?.check_time || null,
+      check_in_location:  ci.location_address ? { address: ci.location_address, latitude: ci.latitude, longitude: ci.longitude } : null,
+      check_out_location: co?.location_address ? { address: co.location_address, latitude: co.latitude, longitude: co.longitude } : null,
     };
   },
 
@@ -937,37 +915,25 @@ export const db = {
         .slice(0, limit);
     }
     
-    const currentUserId = this._getCurrentUserId();
-    if (!currentUserId) return [];
-    const { data: rawData, error } = await supabase.rpc('app_get_user_checkins', {
-      p_user_id:        currentUserId,
-      p_target_user_id: userId,
-      p_limit:          limit,
-    });
+    const { data, error } = await supabase
+      .from('checkins').select('*')
+      .eq('user_id', userId)
+      .order('check_time', { ascending: false })
+      .limit(limit * 2);
     if (error) { console.warn('Checkin history error:', error.message); return []; }
-    
-    const recs = Array.isArray(rawData) ? rawData : (rawData || []);
-    // Group by date and combine check_in + check_out pairs
     const byDate = {};
-    for (const c of recs) {
+    for (const c of (data || [])) {
       const d = c.check_date || '';
       if (!byDate[d]) byDate[d] = [];
       byDate[d].push(c);
     }
-    return Object.values(byDate)
-      .map(day => {
-        const checkIn  = day.find(r => r.type === 'check_in') || day[0];
-        const checkOut = day.find(r => r.type === 'check_out');
-        return {
-          ...checkIn,
-          check_in_time: checkIn.check_time,
-          check_out_time: checkOut?.check_time || null,
-          check_in_location:  checkIn.location_address  ? { address: checkIn.location_address }  : null,
-          check_out_location: checkOut?.location_address ? { address: checkOut.location_address } : null,
-        };
-      })
-      .sort((a, b) => new Date(b.check_in_time || 0) - new Date(a.check_in_time || 0))
-      .slice(0, limit);
+    return Object.values(byDate).map(day => {
+      const ci = day.find(r => r.type === 'check_in') || day[0];
+      const co = day.find(r => r.type === 'check_out');
+      return { ...ci, check_in_time: ci.check_time, check_out_time: co?.check_time || null,
+        check_in_location:  ci.location_address  ? { address: ci.location_address }  : null,
+        check_out_location: co?.location_address ? { address: co.location_address } : null };
+    }).sort((a,b) => new Date(b.check_in_time||0) - new Date(a.check_in_time||0)).slice(0, limit);
   },
 
   async getAllTodayCheckins() {
@@ -984,15 +950,23 @@ export const db = {
       );
     }
     
-    const userId = this._getCurrentUserId();
-    if (!userId) return [];
     try {
-      const { data, error } = await supabase.rpc('app_get_today_checkins', { p_user_id: userId });
+      const { data, error } = await supabase
+        .from('checkins')
+        .select('*, user:users!checkins_user_id_fkey(*)')
+        .eq('check_date', today)
+        .order('check_time', { ascending: false });
       if (error) throw error;
-      return this._combineCheckinRecords(Array.isArray(data) ? data : (data || []));
+      return this._combineCheckinRecords(data || []);
     } catch (err) {
-      console.error('getAllTodayCheckins error:', err);
-      return [];
+      try {
+        const { data: checkins } = await supabase.from('checkins').select('*').eq('check_date', today);
+        if (!checkins?.length) return [];
+        const ids = [...new Set(checkins.map(c => c.user_id).filter(Boolean))];
+        const { data: users } = await supabase.from('users').select('*').in('id', ids);
+        const umap = Object.fromEntries((users||[]).map(u => [u.id, u]));
+        return this._combineCheckinRecords(checkins.map(c => ({ ...c, user: umap[c.user_id]||null })));
+      } catch (e) { console.error('getAllTodayCheckins error:', e); return []; }
     }
   },
 
