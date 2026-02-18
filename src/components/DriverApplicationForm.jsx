@@ -11,7 +11,8 @@ const DriverApplicationForm = () => {
     email: '',
     phone: '',
     city: '',
-    experience: '',
+    yearsExperience: '',        // numeric — years of driving experience
+    experienceDetails: '',      // free text — description
     availability: '',
     message: '',
     vehicleType: '',
@@ -43,7 +44,8 @@ const DriverApplicationForm = () => {
         vehicle_type: formData.vehicleType,
         has_insurance: formData.insurance,
         availability: formData.availability,
-        years_of_experience: formData.experience,
+        years_of_experience: parseInt(formData.yearsExperience) || 0,
+        experience_details: formData.experienceDetails,
         message: formData.message,
         status: 'pending',
       });
@@ -87,8 +89,8 @@ const DriverApplicationForm = () => {
         >
           <CheckCircle className="w-6 h-6 text-green-500" />
           <div>
-            <p className="font-medium text-green-800">Email Client Opened!</p>
-            <p className="text-sm text-green-700">Your application draft has been created. Please send the email to complete your application.</p>
+            <p className="font-medium text-green-800">Application Submitted!</p>
+            <p className="text-sm text-green-700">We've received your application and will be in touch within 24–48 hours.</p>
           </div>
         </motion.div>
       )}
@@ -227,15 +229,31 @@ const DriverApplicationForm = () => {
 
         <div>
           <label className="block text-sm font-medium text-navy-700 mb-2">
-            Driving Experience
+            Years of Driving Experience
+          </label>
+          <input
+            type="number"
+            name="yearsExperience"
+            value={formData.yearsExperience}
+            onChange={handleChange}
+            min="0"
+            max="50"
+            className="w-full input"
+            placeholder="e.g. 3"
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-navy-700 mb-2">
+            Experience Details <span className="text-gray-400 font-normal">(optional)</span>
           </label>
           <textarea
-            name="experience"
-            value={formData.experience}
+            name="experienceDetails"
+            value={formData.experienceDetails}
             onChange={handleChange}
             rows={3}
             className="w-full input"
-            placeholder="Tell us about your driving experience (optional)"
+            placeholder="Tell us about your driving background, previous delivery work, etc."
           />
         </div>
 
@@ -269,16 +287,20 @@ const DriverApplicationForm = () => {
 
         <button
           type="submit"
-          className="w-full btn-primary py-4 text-lg flex items-center justify-center gap-2"
+          disabled={isSubmitting}
+          className="w-full btn-primary py-4 text-lg flex items-center justify-center gap-2 disabled:opacity-60"
         >
-          <Send className="w-5 h-5" />
-          Open Email Application
+          {isSubmitting ? (
+            <Loader className="w-5 h-5 animate-spin" />
+          ) : (
+            <Send className="w-5 h-5" />
+          )}
+          {isSubmitting ? 'Submitting...' : 'Submit Application'}
         </button>
 
-        <div className="text-center text-sm text-gray-500 pt-4 border-t border-gray-100">
-          <p>Clicking the button above will open your email client with a pre-filled application</p>
-          <p className="mt-1">Send the email to <a href="mailto:amaniscleaners@gmail.com" className="text-amani-600 hover:underline">amaniscleaners@gmail.com</a> to complete your application</p>
-        </div>
+        <p className="text-center text-xs text-gray-400">
+          We'll review your application and contact you within 24–48 hours.
+        </p>
       </form>
     </div>
   );
