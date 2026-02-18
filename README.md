@@ -24,6 +24,7 @@ The platform supports two login methods:
    - Standard email/password authentication
    - Email verification support
    - Password reset functionality
+Custom implementation
 
 2. **Phone + Password** (Custom implementation)
    - Login with phone number and password
