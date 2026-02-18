@@ -47,11 +47,18 @@ const StaffApplications = () => {
     }
   };
 
-  const updateApplicationStatus = async (applicationId, tableName, newStatus) => {
+  const getTableName = (type) => {
+    if (type === 'partner') return 'laundry_partner_applications';
+    if (type === 'driver')  return 'driver_applications';
+    if (type === 'career')  return 'career_applications';
+    return `${type}_applications`;
+  };
+
+  const updateApplicationStatus = async (applicationId, type, newStatus) => {
     try {
-      await db.update(tableName, applicationId, { status: newStatus });
+      await db.update(getTableName(type), applicationId, { status: newStatus });
       toast.success('Application status updated successfully');
-      loadApplications(); // Refresh the data
+      loadApplications();
     } catch (error) {
       console.error('Failed to update application status:', error);
       toast.error('Failed to update application status');
@@ -348,14 +355,14 @@ const StaffApplications = () => {
                       
                       <div className="flex gap-1">
                         <button
-                          onClick={() => updateApplicationStatus(app.id, `${app.type}_applications`, 'approved')}
+                          onClick={() => updateApplicationStatus(app.id, app.type, 'approved')}
                           className="p-2 bg-green-100 text-green-600 rounded-lg hover:bg-green-200 transition-colors"
                           title="Approve"
                         >
                           <Check className="w-4 h-4" />
                         </button>
                         <button
-                          onClick={() => updateApplicationStatus(app.id, `${app.type}_applications`, 'rejected')}
+                          onClick={() => updateApplicationStatus(app.id, app.type, 'rejected')}
                           className="p-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition-colors"
                           title="Reject"
                         >
@@ -414,7 +421,7 @@ const StaffApplications = () => {
                       <div className="flex gap-2 mt-3">
                         <button
                           onClick={() => {
-                            updateApplicationStatus(selectedApplication.id, `${selectedApplication.type}_applications`, 'approved');
+                            updateApplicationStatus(selectedApplication.id, selectedApplication.type, 'approved');
                             setSelectedApplication(null);
                           }}
                           className="flex-1 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
@@ -423,7 +430,7 @@ const StaffApplications = () => {
                         </button>
                         <button
                           onClick={() => {
-                            updateApplicationStatus(selectedApplication.id, `${selectedApplication.type}_applications`, 'rejected');
+                            updateApplicationStatus(selectedApplication.id, selectedApplication.type, 'rejected');
                             setSelectedApplication(null);
                           }}
                           className="flex-1 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
