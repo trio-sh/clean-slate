@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   Users, Car, Building2, Briefcase,
   Mail, Phone, Eye, Check, X, Filter,
-  Search, Calendar, MapPin, Store, Key, Loader2
+  Search, Calendar, MapPin, Store, Key, Loader2, Copy, ExternalLink
 } from 'lucide-react';
 import db from '../../lib/db';
 import toast from 'react-hot-toast';
@@ -25,6 +25,7 @@ const AdminApplications = () => {
   // Partner approval modal state
   const [approvingPartner, setApprovingPartner] = useState(null);
   const [approveLoading, setApproveLoading] = useState(false);
+  const [approvedCredentials, setApprovedCredentials] = useState(null); // shown after success
   const [depotForm, setDepotForm] = useState({
     name: '', code: '', street_address: '', city: '',
     postal_code: '', phone: '', capacity_per_day: '',
@@ -86,8 +87,15 @@ const AdminApplications = () => {
     setApproveLoading(true);
     try {
       await db.approvePartnerApplication(approvingPartner.id, depotForm, depotForm.temp_password);
-      toast.success(`Partner approved! Depot "${depotForm.name}" created. Login: ${depotForm.partner_email} / ${depotForm.temp_password}`);
+      toast.success(`Partner approved! Credentials sent via SMS if phone was provided.`);
       setApprovingPartner(null);
+      setApprovedCredentials({
+        depotName: depotForm.name,
+        email: depotForm.partner_email,
+        password: depotForm.temp_password,
+        phone: depotForm.partner_phone,
+        loginUrl: `${window.location.origin}/login`,
+      });
       loadApplications();
     } catch (err) {
       console.error('Partner approval error:', err);
@@ -581,6 +589,84 @@ const AdminApplications = () => {
                     </button>
                   </div>
                 </form>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Credentials Panel — shown after partner is approved */}
+      <AnimatePresence>
+        {approvedCredentials && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-white rounded-2xl shadow-xl max-w-md w-full"
+            >
+              <div className="p-6">
+                <div className="flex items-center gap-3 mb-5">
+                  <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+                    <Check className="w-5 h-5 text-green-600" />
+                  </div>
+                  <div>
+                    <h2 className="text-lg font-bold text-navy-900">Partner Approved!</h2>
+                    <p className="text-sm text-gray-500">Depot: {approvedCredentials.depotName}</p>
+                  </div>
+                </div>
+
+                <div className="bg-gray-50 rounded-xl p-4 space-y-3 mb-4">
+                  <p className="text-sm font-semibold text-gray-700 mb-2">Portal Login Credentials</p>
+
+                  {[
+                    { label: 'Login URL', value: approvedCredentials.loginUrl },
+                    { label: 'Email', value: approvedCredentials.email },
+                    { label: 'Password', value: approvedCredentials.password },
+                  ].map(({ label, value }) => (
+                    <div key={label} className="flex items-center justify-between gap-2">
+                      <div className="min-w-0">
+                        <p className="text-xs text-gray-500">{label}</p>
+                        <p className="text-sm font-mono font-medium text-navy-900 truncate">{value}</p>
+                      </div>
+                      <button
+                        onClick={() => { navigator.clipboard.writeText(value); toast.success(`${label} copied!`); }}
+                        className="p-1.5 hover:bg-gray-200 rounded-lg text-gray-500 flex-shrink-0"
+                        title={`Copy ${label}`}
+                      >
+                        <Copy className="w-4 h-4" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+
+                {approvedCredentials.phone ? (
+                  <p className="text-xs text-green-700 bg-green-50 border border-green-200 rounded-lg p-2 mb-4">
+                    SMS with login credentials was sent to {approvedCredentials.phone}.
+                  </p>
+                ) : (
+                  <p className="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg p-2 mb-4">
+                    No phone number provided — please share these credentials manually with the partner.
+                  </p>
+                )}
+
+                <div className="flex gap-3">
+                  <a
+                    href={approvedCredentials.loginUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex-1 py-2.5 border border-gray-300 text-gray-700 rounded-xl text-sm font-medium flex items-center justify-center gap-2 hover:bg-gray-50 transition-colors"
+                  >
+                    <ExternalLink className="w-4 h-4" />
+                    Open Login Page
+                  </a>
+                  <button
+                    onClick={() => setApprovedCredentials(null)}
+                    className="flex-1 py-2.5 bg-amani-500 text-white rounded-xl text-sm font-semibold hover:bg-amani-600 transition-colors"
+                  >
+                    Done
+                  </button>
+                </div>
               </div>
             </motion.div>
           </div>

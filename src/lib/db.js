@@ -846,6 +846,19 @@ export const db = {
       partner_user_id: partnerUser.id,
     });
 
+    // Auto-send SMS with login credentials if phone is provided
+    if (depotData.partner_phone) {
+      try {
+        const { sendSMS, smsTemplates } = await import('./utils');
+        const phone = depotData.partner_phone.replace(/\D/g, '');
+        const message = smsTemplates.loginCredentials(depotData.partner_email, partnerPassword);
+        await sendSMS(phone, message);
+      } catch (e) {
+        console.warn('Could not send partner credentials SMS:', e);
+        // Non-fatal — credentials are still shown in the UI
+      }
+    }
+
     return { depot, partnerUser };
   },
 
