@@ -23,16 +23,23 @@ const HomePage = () => {
   ];
 
   const services = [
-    { name: 'Wash & Fold', price: '$2.39/lb', icon: Package, color: 'bg-blue-500' },
-    { name: 'Dry Cleaning', price: 'From $6.50', icon: Shirt, color: 'bg-purple-500' },
-    { name: 'Wedding Gowns', price: 'From $210', icon: Heart, color: 'bg-pink-500' },
-    { name: 'Commercial', price: '$2.25/lb', icon: Users, color: 'bg-emerald-500' },
+    { name: 'Wash & Fold', price: '$2.39/lb', icon: Package, color: 'bg-blue-500',
+      image: 'https://api.a0.dev/assets/image?text=neatly folded fresh clean laundry, white towels and clothes stacked, professional laundry service bright background&aspect=16:9&seed=201' },
+    { name: 'Dry Cleaning', price: 'From $6.50', icon: Shirt, color: 'bg-purple-500',
+      image: 'https://api.a0.dev/assets/image?text=professional dry cleaning service, elegant suits and dress shirts hanging on rack, pressed formal wear boutique&aspect=16:9&seed=202' },
+    { name: 'Wedding Gowns', price: 'From $210', icon: Heart, color: 'bg-pink-500',
+      image: 'https://api.a0.dev/assets/image?text=beautiful white wedding dress bridal gown cleaning preservation service, delicate fabric care, white background&aspect=16:9&seed=203' },
+    { name: 'Commercial', price: '$2.25/lb', icon: Users, color: 'bg-emerald-500',
+      image: 'https://api.a0.dev/assets/image?text=commercial laundry service bulk cleaning, industrial washing facility large scale, clean linen stacks&aspect=16:9&seed=204' },
   ];
 
   const testimonials = [
-    { name: 'Sarah M.', location: 'Toronto', text: 'Best laundry service in the city! Always on time and my clothes come back perfect.', rating: 5 },
-    { name: 'Michael T.', location: 'North York', text: 'The subscription plan saved me so much time. Highly recommend!', rating: 5 },
-    { name: 'Jennifer L.', location: 'Vaughan', text: 'Professional service, great prices. Been using them for 3 years.', rating: 5 },
+    { name: 'Sarah M.', location: 'Toronto', text: 'Best laundry service in the city! Always on time and my clothes come back perfect.', rating: 5,
+      avatar: 'https://api.a0.dev/assets/image?text=happy smiling Canadian woman portrait, 30s, friendly natural look, warm smile, professional headshot&aspect=1:1&seed=301' },
+    { name: 'Michael T.', location: 'North York', text: 'The subscription plan saved me so much time. Highly recommend!', rating: 5,
+      avatar: 'https://api.a0.dev/assets/image?text=happy smiling Canadian man portrait, 30s, professional friendly look, warm confident smile, headshot&aspect=1:1&seed=302' },
+    { name: 'Jennifer L.', location: 'Vaughan', text: 'Professional service, great prices. Been using them for 3 years.', rating: 5,
+      avatar: 'https://api.a0.dev/assets/image?text=happy smiling Canadian woman portrait, 40s, friendly warm look, natural smile, professional headshot&aspect=1:1&seed=303' },
   ];
 
   return (
@@ -344,15 +351,26 @@ const HomePage = () => {
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.1 }}
               >
-                <Link 
+                <Link
                   to="/services"
-                  className="block card p-6 group hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
+                  className="block card overflow-hidden group hover:shadow-xl hover:-translate-y-2 transition-all duration-300"
                 >
-                  <div className={`w-14 h-14 ${service.color} rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>
-                    <service.icon className="w-7 h-7 text-white" />
+                  {/* Service image */}
+                  <div className="relative h-44 overflow-hidden">
+                    <img
+                      src={service.image}
+                      alt={service.name}
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
+                    <div className={`absolute top-3 right-3 w-10 h-10 ${service.color} rounded-xl flex items-center justify-center shadow-lg`}>
+                      <service.icon className="w-5 h-5 text-white" />
+                    </div>
                   </div>
-                  <h3 className="text-xl font-semibold text-navy-900 mb-1">{service.name}</h3>
-                  <p className="text-amani-600 font-medium">{service.price}</p>
+                  <div className="p-5">
+                    <h3 className="text-lg font-semibold text-navy-900 mb-1">{service.name}</h3>
+                    <p className="text-amani-600 font-semibold">{service.price}</p>
+                  </div>
                 </Link>
               </motion.div>
             ))}
@@ -390,9 +408,12 @@ const HomePage = () => {
             <div className="hidden md:block absolute top-16 left-1/4 right-1/4 h-0.5 bg-gradient-to-r from-amani-500 to-maple-500" />
             
             {[
-              { step: '01', title: 'Schedule Pickup', desc: 'Book online or via app. Choose your preferred time slot.', icon: Clock },
-              { step: '02', title: 'We Collect & Clean', desc: 'Our driver picks up. We clean with care and expertise.', icon: Sparkles },
-              { step: '03', title: 'Fresh Delivery', desc: 'Your clean clothes delivered back to your door.', icon: Truck },
+              { step: '01', title: 'Schedule Pickup', desc: 'Book online or via app. Choose your preferred time slot.', icon: Clock,
+                image: 'https://api.a0.dev/assets/image?text=person using smartphone app to schedule laundry pickup service, mobile ordering clean UI, bright modern&aspect=1:1&seed=501' },
+              { step: '02', title: 'We Collect & Clean', desc: 'Our driver picks up. We clean with care and expertise.', icon: Sparkles,
+                image: 'https://api.a0.dev/assets/image?text=friendly laundry delivery driver picking up laundry bag from customer front door, residential Toronto neighborhood&aspect=1:1&seed=502' },
+              { step: '03', title: 'Fresh Delivery', desc: 'Your clean clothes delivered back to your door.', icon: Truck,
+                image: 'https://api.a0.dev/assets/image?text=clean neatly folded laundry delivered in bag to customer doorstep, fresh pressed clothes delivery service&aspect=1:1&seed=503' },
             ].map((item, i) => (
               <motion.div
                 key={i}
@@ -402,8 +423,14 @@ const HomePage = () => {
                 transition={{ delay: i * 0.2 }}
                 className="relative text-center"
               >
-                <div className="w-16 h-16 bg-gradient-to-br from-amani-500 to-maple-500 rounded-full flex items-center justify-center mx-auto mb-6 relative z-10">
-                  <span className="text-2xl font-display font-bold text-white">{item.step}</span>
+                {/* Step image */}
+                <div className="relative w-32 h-32 mx-auto mb-6">
+                  <div className="w-full h-full rounded-full overflow-hidden border-4 border-amani-500/50 shadow-xl shadow-amani-500/20">
+                    <img src={item.image} alt={item.title} className="w-full h-full object-cover" />
+                  </div>
+                  <div className="absolute -top-2 -right-2 w-9 h-9 bg-gradient-to-br from-amani-500 to-maple-500 rounded-full flex items-center justify-center shadow-lg border-2 border-navy-900">
+                    <span className="text-sm font-bold text-white">{item.step}</span>
+                  </div>
                 </div>
                 <h3 className="text-2xl font-semibold text-white mb-3">{item.title}</h3>
                 <p className="text-gray-400">{item.desc}</p>
@@ -452,9 +479,11 @@ const HomePage = () => {
                 </div>
                 <p className="text-gray-600 mb-6 italic">"{testimonial.text}"</p>
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 bg-gradient-to-br from-amani-500 to-maple-500 rounded-full flex items-center justify-center">
-                    <span className="text-white font-bold">{testimonial.name[0]}</span>
-                  </div>
+                  <img
+                    src={testimonial.avatar}
+                    alt={testimonial.name}
+                    className="w-12 h-12 rounded-full object-cover border-2 border-amani-100 shadow"
+                  />
                   <div>
                     <p className="font-semibold text-navy-900">{testimonial.name}</p>
                     <p className="text-sm text-gray-500 flex items-center gap-1">

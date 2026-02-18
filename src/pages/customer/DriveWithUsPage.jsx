@@ -146,32 +146,31 @@ const DriveWithUsPage = () => {
               initial={{ opacity: 0, x: 50 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.8, delay: 0.2 }}
-              className="bg-white/10 backdrop-blur-xl rounded-3xl p-8 border border-white/20"
+              className="relative rounded-3xl overflow-hidden shadow-2xl"
             >
-              <div className="text-center mb-6">
-                <div className="inline-flex items-center gap-2 bg-amani-500/20 rounded-full px-4 py-2 mb-4">
-                  <span className="text-amani-400 font-medium">💰 $25-35 per route</span>
-                </div>
-                <h3 className="text-2xl font-display font-bold mb-2">What You'll Earn</h3>
-                <p className="text-gray-300">Average drivers make $300-500 weekly</p>
-              </div>
-              
-              <div className="grid grid-cols-2 gap-4 text-center">
-                <div className="bg-white/5 rounded-xl p-4">
-                  <div className="text-2xl font-bold text-amani-400">1-2 Days</div>
-                  <div className="text-sm text-gray-300">To Get Started</div>
-                </div>
-                <div className="bg-white/5 rounded-xl p-4">
-                  <div className="text-2xl font-bold text-amani-400">Weekly</div>
-                  <div className="text-sm text-gray-300">Direct Deposit</div>
-                </div>
-                <div className="bg-white/5 rounded-xl p-4">
-                  <div className="text-2xl font-bold text-amani-400">Flexible</div>
-                  <div className="text-sm text-gray-300">Your Schedule</div>
-                </div>
-                <div className="bg-white/5 rounded-xl p-4">
-                  <div className="text-2xl font-bold text-amani-400">No Experience</div>
-                  <div className="text-sm text-gray-300">Required</div>
+              {/* Lifestyle image */}
+              <img
+                src="https://api.a0.dev/assets/image?text=friendly smiling delivery driver standing next to car, casual clothes, Toronto residential neighborhood, sunny day, holding laundry bag, earning extra income gig work&aspect=4:3&seed=401"
+                alt="Drive with Amani's Cleaners"
+                className="w-full h-80 object-cover"
+              />
+              {/* Gradient overlay */}
+              <div className="absolute inset-0 bg-gradient-to-t from-navy-900/90 via-navy-900/30 to-transparent" />
+
+              {/* Stats overlay */}
+              <div className="absolute bottom-0 left-0 right-0 p-6">
+                <div className="grid grid-cols-2 gap-3">
+                  {[
+                    { value: '$25–35', label: 'Per Route' },
+                    { value: 'Weekly', label: 'Direct Deposit' },
+                    { value: '1–2 Days', label: 'To Get Started' },
+                    { value: 'Flexible', label: 'Your Schedule' },
+                  ].map(({ value, label }) => (
+                    <div key={label} className="bg-white/10 backdrop-blur-sm rounded-xl p-3 text-center border border-white/10">
+                      <div className="text-xl font-bold text-amani-400">{value}</div>
+                      <div className="text-xs text-gray-300">{label}</div>
+                    </div>
+                  ))}
                 </div>
               </div>
             </motion.div>
