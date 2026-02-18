@@ -19,7 +19,7 @@ const HomePage = () => {
     { value: '11+', label: 'Years of Service' },
     { value: '50K+', label: 'Happy Customers' },
     { value: '4.9', label: 'Google Rating' },
-    { value: '17+', label: 'GTA Areas Served' },
+    { value: '40+', label: 'Areas Served' },
   ];
 
   const services = [
@@ -38,14 +38,31 @@ const HomePage = () => {
   return (
     <div className="overflow-hidden">
       {/* Hero Section */}
-      <section className="relative min-h-[90vh] flex items-center bg-gradient-to-br from-navy-900 via-navy-800 to-amani-900">
+      <section className="relative min-h-[90vh] flex items-center bg-gradient-to-br from-navy-900 via-navy-800 to-amani-900 overflow-hidden">
         {/* Background Pattern */}
         <div className="absolute inset-0 opacity-10">
           <div className="absolute inset-0" style={{
             backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
           }} />
         </div>
-        
+
+        {/* Animated gradient orbs */}
+        <motion.div
+          animate={{ scale: [1, 1.2, 1], opacity: [0.15, 0.25, 0.15] }}
+          transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
+          className="absolute -top-32 -left-32 w-96 h-96 bg-amani-500 rounded-full blur-3xl pointer-events-none"
+        />
+        <motion.div
+          animate={{ scale: [1, 1.15, 1], opacity: [0.1, 0.2, 0.1] }}
+          transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut', delay: 2 }}
+          className="absolute -bottom-40 -right-20 w-[32rem] h-[32rem] bg-maple-600 rounded-full blur-3xl pointer-events-none"
+        />
+        <motion.div
+          animate={{ scale: [1, 1.1, 1], opacity: [0.08, 0.15, 0.08] }}
+          transition={{ duration: 12, repeat: Infinity, ease: 'easeInOut', delay: 4 }}
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-blue-600 rounded-full blur-3xl pointer-events-none"
+        />
+
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <motion.div
@@ -53,32 +70,76 @@ const HomePage = () => {
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.8 }}
             >
-              <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-full px-4 py-2 mb-6">
-                <span className="text-2xl">🍁</span>
-                <span className="text-white font-medium">Proudly Canadian Since 2013</span>
-              </div>
-              
+              {/* Trust badge */}
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+                className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-4 py-2 mb-6"
+              >
+                <motion.span
+                  animate={{ rotate: [0, 10, -10, 0] }}
+                  transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
+                  className="text-2xl"
+                >🍁</motion.span>
+                <span className="text-white font-medium text-sm">Proudly Canadian Since 2013</span>
+                <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
+              </motion.div>
+
               <h1 className="text-5xl md:text-6xl lg:text-7xl font-display font-bold text-white leading-tight mb-6">
-                Premium <span className="text-amani-400">Laundry</span> & Dry Cleaning
+                Premium{' '}
+                <span className="relative inline-block">
+                  <span className="bg-gradient-to-r from-amani-300 via-amani-400 to-maple-400 bg-clip-text text-transparent">
+                    Laundry
+                  </span>
+                  <motion.span
+                    initial={{ scaleX: 0 }}
+                    animate={{ scaleX: 1 }}
+                    transition={{ duration: 0.8, delay: 0.8 }}
+                    className="absolute -bottom-1 left-0 right-0 h-1 bg-gradient-to-r from-amani-400 to-maple-400 rounded-full origin-left"
+                  />
+                </span>
+                {' '}& Dry Cleaning
               </h1>
-              
-              <p className="text-xl text-gray-300 mb-8 max-w-xl">
-                Experience the difference with Toronto's most trusted cleaning service. 
-                Free pickup & delivery across the Greater Toronto Area.
+
+              <p className="text-xl text-gray-300 mb-8 max-w-xl leading-relaxed">
+                Toronto's most trusted cleaning service since 2013.
+                Free pickup & delivery across <span className="text-amani-300 font-semibold">40+ cities</span> in Southern Ontario.
               </p>
-              
-              <div className="flex flex-col sm:flex-row gap-4 mb-8">
-                <Link to="/order" className="btn-primary text-lg px-8 py-4 inline-flex items-center justify-center gap-2">
-                  <Sparkles className="w-5 h-5" />
-                  Order Now - 15% Off
-                </Link>
-                <Link to="/pricing" className="bg-white/10 backdrop-blur-sm text-white px-8 py-4 rounded-xl font-semibold hover:bg-white/20 transition-all inline-flex items-center justify-center gap-2">
-                  View Pricing
-                  <ArrowRight className="w-5 h-5" />
-                </Link>
+
+              {/* Feature pills */}
+              <div className="flex flex-wrap gap-2 mb-8">
+                {[
+                  { icon: Zap, text: 'Same-Day Available' },
+                  { icon: Shield, text: '100% Satisfaction' },
+                  { icon: Leaf, text: 'Eco-Friendly' },
+                  { icon: Award, text: '4.9★ Rated' },
+                ].map(({ icon: Icon, text }, i) => (
+                  <motion.span
+                    key={text}
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.5 + i * 0.1 }}
+                    className="inline-flex items-center gap-1.5 bg-white/10 backdrop-blur-sm border border-white/10 text-white/90 text-sm px-3 py-1.5 rounded-full"
+                  >
+                    <Icon className="w-3.5 h-3.5 text-amani-400" />
+                    {text}
+                  </motion.span>
+                ))}
               </div>
 
-              <div className="flex items-center gap-6 text-white/80">
+              <div className="flex flex-col sm:flex-row gap-4 mb-8">
+                <Link to="/order" className="btn-primary text-lg px-8 py-4 inline-flex items-center justify-center gap-2 shadow-lg shadow-amani-500/30 hover:shadow-amani-500/50 transition-shadow">
+                  <Sparkles className="w-5 h-5" />
+                  Order Now — 15% Off
+                </Link>
+                <a href="tel:4372156321" className="bg-white/10 backdrop-blur-sm border border-white/20 text-white px-8 py-4 rounded-xl font-semibold hover:bg-white/20 transition-all inline-flex items-center justify-center gap-2">
+                  <Phone className="w-5 h-5" />
+                  437-215-6321
+                </a>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-6 text-white/80">
                 <div className="flex items-center gap-2">
                   <div className="flex -space-x-2">
                     {[1, 2, 3, 4].map((i) => (
@@ -98,6 +159,7 @@ const HomePage = () => {
               </div>
             </motion.div>
 
+            {/* Right card */}
             <motion.div
               initial={{ opacity: 0, x: 50 }}
               animate={{ opacity: 1, x: 0 }}
@@ -105,46 +167,90 @@ const HomePage = () => {
               className="relative hidden lg:block"
             >
               <div className="relative">
-                {/* Main Image Card */}
-                <div className="bg-gradient-to-br from-amani-500 to-maple-500 rounded-3xl p-8 shadow-2xl">
-                  <div className="bg-white rounded-2xl p-8">
-                    <div className="text-center mb-6">
-                      <Shirt className="w-20 h-20 mx-auto text-amani-500 mb-4" />
-                      <h3 className="text-2xl font-display font-bold text-navy-900">Quick Order</h3>
-                      <p className="text-gray-500">Get your clothes cleaned today</p>
-                    </div>
-                    
-                    <div className="space-y-4 mb-6">
-                      <div className="flex items-center gap-3 p-3 bg-green-50 rounded-xl">
-                        <CheckCircle2 className="w-5 h-5 text-green-500" />
-                        <span className="text-green-700">Free pickup within 24 hours</span>
+                {/* Glow behind card */}
+                <div className="absolute inset-0 bg-gradient-to-br from-amani-500/40 to-maple-500/40 rounded-3xl blur-2xl scale-95" />
+
+                {/* Main Card */}
+                <div className="relative bg-gradient-to-br from-amani-500 to-maple-500 rounded-3xl p-1 shadow-2xl">
+                  <div className="bg-white rounded-[22px] p-8">
+
+                    {/* Card header */}
+                    <div className="flex items-center justify-between mb-6">
+                      <div>
+                        <h3 className="text-2xl font-display font-bold text-navy-900">Schedule a Pickup</h3>
+                        <p className="text-gray-500 text-sm mt-0.5">We come to you — fast & free</p>
                       </div>
-                      <div className="flex items-center gap-3 p-3 bg-blue-50 rounded-xl">
-                        <CheckCircle2 className="w-5 h-5 text-blue-500" />
-                        <span className="text-blue-700">Professional cleaning</span>
-                      </div>
-                      <div className="flex items-center gap-3 p-3 bg-purple-50 rounded-xl">
-                        <CheckCircle2 className="w-5 h-5 text-purple-500" />
-                        <span className="text-purple-700">Free delivery back to you</span>
+                      <div className="w-14 h-14 bg-gradient-to-br from-amani-500 to-maple-500 rounded-2xl flex items-center justify-center shadow-lg">
+                        <Shirt className="w-7 h-7 text-white" />
                       </div>
                     </div>
 
-                    <Link to="/order" className="btn-primary w-full text-center">
-                      Schedule Pickup
+                    {/* Order steps */}
+                    <div className="space-y-3 mb-6">
+                      {[
+                        { step: 1, label: 'Place your order online', color: 'bg-amani-50 border-amani-200', text: 'text-amani-700', dot: 'bg-amani-500', done: true },
+                        { step: 2, label: 'We pick up from your door', color: 'bg-blue-50 border-blue-200', text: 'text-blue-700', dot: 'bg-blue-500', done: true },
+                        { step: 3, label: 'Expert cleaning & care', color: 'bg-purple-50 border-purple-200', text: 'text-purple-700', dot: 'bg-purple-500', done: false },
+                        { step: 4, label: 'Delivered fresh to you', color: 'bg-green-50 border-green-200', text: 'text-green-700', dot: 'bg-green-500', done: false },
+                      ].map(({ step, label, color, text, dot, done }, i) => (
+                        <motion.div
+                          key={step}
+                          initial={{ opacity: 0, x: 20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: 0.6 + i * 0.15 }}
+                          className={`flex items-center gap-3 p-3 rounded-xl border ${color}`}
+                        >
+                          <div className={`w-6 h-6 rounded-full ${dot} flex items-center justify-center flex-shrink-0`}>
+                            {done
+                              ? <CheckCircle2 className="w-4 h-4 text-white" />
+                              : <span className="text-white text-xs font-bold">{step}</span>
+                            }
+                          </div>
+                          <span className={`${text} font-medium text-sm`}>{label}</span>
+                        </motion.div>
+                      ))}
+                    </div>
+
+                    <Link to="/order" className="btn-primary w-full text-center flex items-center justify-center gap-2 py-4 text-base">
+                      <Sparkles className="w-4 h-4" />
+                      Get Started — Free Pickup
                     </Link>
+
+                    <p className="text-center text-xs text-gray-400 mt-3">No subscription required · Cancel anytime</p>
                   </div>
                 </div>
 
-                {/* Floating Badge */}
-                <div className="absolute -bottom-6 -left-6 bg-white rounded-2xl shadow-xl p-4 flex items-center gap-3">
+                {/* Floating badge — bottom left */}
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 1 }}
+                  className="absolute -bottom-6 -left-6 bg-white rounded-2xl shadow-xl p-4 flex items-center gap-3"
+                >
                   <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
                     <Truck className="w-6 h-6 text-green-600" />
                   </div>
                   <div>
-                    <p className="font-semibold text-navy-900">Free Delivery</p>
-                    <p className="text-sm text-gray-500">Min. 23lb or $64.01</p>
+                    <p className="font-semibold text-navy-900 text-sm">Free Delivery</p>
+                    <p className="text-xs text-gray-500">Min. 23 lb or $64.01</p>
                   </div>
-                </div>
+                </motion.div>
+
+                {/* Floating badge — top right */}
+                <motion.div
+                  initial={{ opacity: 0, y: -20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 1.1 }}
+                  className="absolute -top-5 -right-5 bg-white rounded-2xl shadow-xl p-3 flex items-center gap-2"
+                >
+                  <div className="w-10 h-10 bg-yellow-100 rounded-xl flex items-center justify-center">
+                    <Zap className="w-5 h-5 text-yellow-600" />
+                  </div>
+                  <div>
+                    <p className="font-semibold text-navy-900 text-sm">Same-Day</p>
+                    <p className="text-xs text-gray-500">Rush available</p>
+                  </div>
+                </motion.div>
               </div>
             </motion.div>
           </div>
