@@ -425,6 +425,7 @@ const AdminApplications = () => {
                         <div><span className="font-medium">Business Name:</span> {selectedApplication.business_name}</div>
                         <div><span className="font-medium">Contact Person:</span> {selectedApplication.contact_person_first_name} {selectedApplication.contact_person_last_name}</div>
                         <div><span className="font-medium">Business License:</span> {selectedApplication.business_license || 'N/A'}</div>
+                        <div><span className="font-medium">HST Number:</span> {selectedApplication.hst_number || 'N/A'}</div>
                         <div><span className="font-medium">Years Operating:</span> {selectedApplication.years_operating || 0}</div>
                         <div><span className="font-medium">Capacity:</span> {selectedApplication.capacity_per_day || 0} lbs/day</div>
                         <div className="md:col-span-2"><span className="font-medium">Address:</span> {selectedApplication.business_address}</div>

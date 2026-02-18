@@ -17,6 +17,7 @@ const PartnerApplicationPage = () => {
     phone: '',
     business_address: '',
     business_license: '',
+    hst_number: '',
     years_operating: '',
     services_offered: '',
     capacity_per_day: '',
@@ -162,6 +163,24 @@ const PartnerApplicationPage = () => {
                       placeholder="Business license number"
                     />
                   </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    HST Registration Number
+                  </label>
+                  <div className="relative">
+                    <FileText className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                    <input
+                      type="text"
+                      name="hst_number"
+                      value={formData.hst_number}
+                      onChange={handleChange}
+                      className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-amani-500 focus:border-transparent"
+                      placeholder="e.g. 123456789 RT0001"
+                    />
+                  </div>
+                  <p className="text-xs text-gray-500 mt-1">Canada Revenue Agency HST/GST number (9 digits + RT)</p>
                 </div>
 
                 <div>
