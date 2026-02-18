@@ -279,9 +279,11 @@ export const db = {
       const idb = await initDemoDB();
       return idb.getAll(table);
     }
-    const { data, error } = await supabase.from(table).select('*');
+    const userId = this._getCurrentUserId();
+    if (!userId) throw new Error('Not authenticated');
+    const { data, error } = await supabase.rpc('app_get_all', { p_user_id: userId, p_table: table });
     if (error) throw error;
-    return data;
+    return Array.isArray(data) ? data : (data || []);
   },
 
   async getById(table, id) {
@@ -289,7 +291,9 @@ export const db = {
       const idb = await initDemoDB();
       return idb.get(table, id);
     }
-    const { data, error } = await supabase.from(table).select('*').eq('id', id).single();
+    const userId = this._getCurrentUserId();
+    if (!userId) throw new Error('Not authenticated');
+    const { data, error } = await supabase.rpc('app_get_by_id', { p_user_id: userId, p_table: table, p_id: id });
     if (error) throw error;
     return data;
   },
@@ -300,9 +304,13 @@ export const db = {
       const index = idb.transaction(table).store.index(field);
       return index.getAll(value);
     }
-    const { data, error } = await supabase.from(table).select('*').eq(field, value);
+    const userId = this._getCurrentUserId();
+    if (!userId) throw new Error('Not authenticated');
+    const { data, error } = await supabase.rpc('app_get_by_field', {
+      p_user_id: userId, p_table: table, p_field: field, p_value: String(value)
+    });
     if (error) throw error;
-    return data;
+    return Array.isArray(data) ? data : (data || []);
   },
 
   async create(table, data) {
@@ -341,18 +349,14 @@ export const db = {
       record.reference_code = generateReferenceCode();
     }
 
-    const { data: result, error } = await supabase.from(table).insert(record).select().single();
-    if (error) {
-      // If column doesn't exist, strip unknown fields and retry
-      if (error.code === '42703' || error.message?.includes('column')) {
-        console.warn(`Column error on ${table}, retrying with safe fields:`, error.message);
-        const safeRecord = this._stripUnknownFields(table, record);
-        const { data: retryResult, error: retryError } = await supabase.from(table).insert(safeRecord).select().single();
-        if (retryError) throw retryError;
-        return retryResult;
-      }
-      throw error;
-    }
+    const userId = this._getCurrentUserId();
+    if (!userId) throw new Error('Not authenticated');
+    const { data: result, error } = await supabase.rpc('app_create', {
+      p_user_id: userId,
+      p_table:   table,
+      p_data:    record,
+    });
+    if (error) throw error;
     return result;
   },
 
@@ -377,19 +381,28 @@ export const db = {
       await idb.put(table, updated);
       return updated;
     }
-    const { data, error } = await supabase.from(table).update(record).eq('id', id).select().single();
-    if (error) {
-      // If column doesn't exist, strip unknown fields and retry
-      if (error.code === '42703' || error.message?.includes('column')) {
-        console.warn(`Column error on ${table} update, retrying with safe fields:`, error.message);
-        const safeRecord = this._stripUnknownFields(table, record);
-        const { data: retryData, error: retryError } = await supabase.from(table).update(safeRecord).eq('id', id).select().single();
-        if (retryError) throw retryError;
-        return retryData;
-      }
-      throw error;
-    }
+    const userId = this._getCurrentUserId();
+    if (!userId) throw new Error('Not authenticated');
+    const { data, error } = await supabase.rpc('app_update', {
+      p_user_id: userId,
+      p_table:   table,
+      p_id:      id,
+      p_data:    record,
+    });
+    if (error) throw error;
     return data;
+  },
+
+  // Helper: get the current logged-in user's ID from localStorage (Zustand persist key)
+  _getCurrentUserId() {
+    try {
+      const stored = localStorage.getItem('amani-auth');
+      if (!stored) return null;
+      const parsed = JSON.parse(stored);
+      return parsed?.state?.user?.id || null;
+    } catch {
+      return null;
+    }
   },
 
   // Helper: strip fields not in the known schema (for when migration hasn't been run)
@@ -421,7 +434,11 @@ export const db = {
       await idb.delete(table, id);
       return true;
     }
-    const { error } = await supabase.from(table).delete().eq('id', id);
+    const userId = this._getCurrentUserId();
+    if (!userId) throw new Error('Not authenticated');
+    const { error } = await supabase.rpc('app_delete', {
+      p_user_id: userId, p_table: table, p_id: id
+    });
     if (error) throw error;
     return true;
   },
@@ -452,7 +469,7 @@ export const db = {
       
       return { ...order, items };
     }
-    const { data, error } = await supabase.from('orders').select('*, items:order_items(*)').eq('reference_code', referenceCode).single();
+    const { data, error } = await supabase.rpc('app_get_order_by_reference', { p_reference_code: referenceCode });
     if (error) throw error;
     return data;
   },
@@ -493,77 +510,36 @@ export const db = {
       }).sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
     }
     
-    // Try with full joins first, fallback to simple query if FK constraints differ
-    let data, error;
-    
-    try {
-      const result = await supabase.from('orders').select(`
-        *,
-        user:users!orders_user_id_fkey(*),
-        pickup_address_data:addresses!orders_pickup_address_id_fkey(*),
-        delivery_address_data:addresses!orders_delivery_address_id_fkey(*),
-        items:order_items(*)
-      `).order('created_at', { ascending: false });
-      
-      data = result.data;
-      error = result.error;
-      
-      // Normalize: keep original text address fields, store joined objects separately
-      if (data) {
-        data = data.map(order => {
-          const pickupObj = order.pickup_address_data;
-          const deliveryObj = order.delivery_address_data;
-          
-          // If pickup_address was overwritten by the join or is missing, rebuild from object
-          const pickupAddr = typeof order.pickup_address === 'string' && order.pickup_address
-            ? order.pickup_address
-            : pickupObj ? [pickupObj.unit, pickupObj.street, pickupObj.city, pickupObj.province, pickupObj.postal_code].filter(Boolean).join(', ') : '';
-          
-          const deliveryAddr = typeof order.delivery_address === 'string' && order.delivery_address
-            ? order.delivery_address
-            : deliveryObj ? [deliveryObj.unit, deliveryObj.street, deliveryObj.city, deliveryObj.province, deliveryObj.postal_code].filter(Boolean).join(', ') : '';
-          
-          return {
-            ...order,
-            pickup_address: pickupAddr,
-            delivery_address: deliveryAddr,
-            pickup_address_data: pickupObj || null,
-            delivery_address_data: deliveryObj || null,
-          };
-        });
-      }
-    } catch (e) {
-      console.warn('Full join query failed, trying simple query:', e);
-    }
+    // Use SECURITY DEFINER RPC — handles joins + bypasses RLS
+    const userId = this._getCurrentUserId();
+    if (!userId) throw new Error('Not authenticated');
 
-    // Fallback: if joins failed, fetch orders without joins
-    if (error || !data) {
-      console.warn('Orders join query error, falling back to simple query:', error?.message);
-      const simpleResult = await supabase.from('orders').select('*').order('created_at', { ascending: false });
-      if (simpleResult.error) throw simpleResult.error;
-      
-      // Manually fetch order_items for each order
-      const orderIds = simpleResult.data.map(o => o.id);
-      let orderItems = [];
-      if (orderIds.length > 0) {
-        const itemsResult = await supabase.from('order_items').select('*').in('order_id', orderIds);
-        if (!itemsResult.error) orderItems = itemsResult.data || [];
-      }
-      
-      data = simpleResult.data.map(order => ({
-        ...order,
-        user: null,
-        pickup_address: null,
-        delivery_address: null,
-        items: orderItems.filter(i => i.order_id === order.id)
-      }));
-    }
+    const { data: rpcData, error: rpcError } = await supabase.rpc('app_get_orders_with_details', {
+      p_user_id:   userId,
+      p_status:    filters.status  || null,
+      p_driver_id: filters.driver_id || null,
+    });
+    if (rpcError) throw rpcError;
 
-    if (filters.status) data = data.filter(o => o.status === filters.status);
-    if (filters.user_id) data = data.filter(o => o.user_id === filters.user_id);
+    let data = Array.isArray(rpcData) ? rpcData : (rpcData || []);
+
+    // Normalize address fields from joined objects
+    data = data.map(order => {
+      const pickupObj   = order.pickup_address_data;
+      const deliveryObj = order.delivery_address_data;
+      const pickupAddr  = typeof order.pickup_address === 'string' && order.pickup_address
+        ? order.pickup_address
+        : pickupObj ? [pickupObj.unit, pickupObj.street, pickupObj.city, pickupObj.province, pickupObj.postal_code].filter(Boolean).join(', ') : '';
+      const deliveryAddr = typeof order.delivery_address === 'string' && order.delivery_address
+        ? order.delivery_address
+        : deliveryObj ? [deliveryObj.unit, deliveryObj.street, deliveryObj.city, deliveryObj.province, deliveryObj.postal_code].filter(Boolean).join(', ') : '';
+      return { ...order, pickup_address: pickupAddr, delivery_address: deliveryAddr };
+    });
+
+    if (filters.user_id)    data = data.filter(o => o.user_id    === filters.user_id);
     if (filters.pickup_date) data = data.filter(o => o.pickup_date === filters.pickup_date);
 
-    return data || [];
+    return data;
   },
 
   // User operations
@@ -619,8 +595,8 @@ export const db = {
       return { user: newUser, session: null };
     }
 
-    // Live: use SECURITY DEFINER RPC — inserts user bypassing RLS, checks uniqueness server-side
-    const { data, error } = await supabase.rpc('register_user', {
+    // Live: register + get session in one RPC call
+    const { data, error } = await supabase.rpc('create_session_register', {
       p_email:         email,
       p_phone:         normalizedPhone || null,
       p_first_name:    first_name,
@@ -628,13 +604,16 @@ export const db = {
       p_password_hash: passwordHash,
       p_role:          'customer',
     });
-    if (error) {
-      // Surface the specific error (email/phone already exists etc.)
-      throw new Error(error.message || 'Registration failed');
-    }
-    const newUser = data?.[0];
-    if (!newUser) throw new Error('Registration failed');
-    return { user: newUser, session: null };
+    if (error) throw new Error(error.message || 'Registration failed');
+    if (!data?.access_token) throw new Error('Registration failed');
+
+    // Persist session so all subsequent requests are authenticated
+    await supabase.auth.setSession({
+      access_token:  data.access_token,
+      refresh_token: data.access_token,
+    });
+
+    return { user: data.user, session: data };
   },
 
   // Login with email and password
@@ -642,7 +621,6 @@ export const db = {
     const passwordHash = await hashPassword(password);
 
     if (getMode() === 'demo') {
-      // Demo: fetch user then compare hash
       const user = await this.getUserByEmail(email);
       if (!user) throw new Error('Invalid email or password');
       const hashToCheck = user.password_hash || 'd3ad9315b7be5dd53b31a273b3b3aba5defe700808305aa16a3062b76658a791';
@@ -651,15 +629,23 @@ export const db = {
       return { user, session: null };
     }
 
-    // Live: use SECURITY DEFINER RPC — authenticates and returns user in one call, bypasses RLS
-    const { data, error } = await supabase.rpc('authenticate_with_email', {
+    // Live: RPC generates a real signed JWT, then we call setSession so
+    // the Supabase client stores it in localStorage and sends it automatically.
+    // This makes auth.uid() work in all RLS policies.
+    const { data, error } = await supabase.rpc('create_session_email', {
       p_email: email,
       p_password_hash: passwordHash,
     });
-    if (error) throw new Error('Invalid email or password');
-    const user = data?.[0];
-    if (!user) throw new Error('Invalid email or password');
-    return { user, session: null };
+    if (error) throw new Error(error.message || 'Invalid email or password');
+    if (!data?.access_token) throw new Error('Invalid email or password');
+
+    // Inject session into Supabase client (persisted to localStorage)
+    await supabase.auth.setSession({
+      access_token:  data.access_token,
+      refresh_token: data.access_token, // custom auth has no refresh token; reuse access token
+    });
+
+    return { user: data.user, session: data };
   },
 
   // Login with phone and password (custom auth)
@@ -675,15 +661,20 @@ export const db = {
       return { user, session: null };
     }
 
-    // Live: use SECURITY DEFINER RPC — authenticates by phone, bypasses RLS
-    const { data, error } = await supabase.rpc('authenticate_with_phone', {
+    // Live: RPC validates + generates signed JWT, setSession persists to localStorage
+    const { data, error } = await supabase.rpc('create_session_phone', {
       p_phone: normalizePhone(phone),
       p_password_hash: passwordHash,
     });
-    if (error) throw new Error('Invalid phone number or password');
-    const user = data?.[0];
-    if (!user) throw new Error('Invalid phone number or password');
-    return { user, session: null };
+    if (error) throw new Error(error.message || 'Invalid phone number or password');
+    if (!data?.access_token) throw new Error('Invalid phone number or password');
+
+    await supabase.auth.setSession({
+      access_token:  data.access_token,
+      refresh_token: data.access_token,
+    });
+
+    return { user: data.user, session: data };
   },
 
   // Update user password
@@ -705,13 +696,19 @@ export const db = {
     return this.update('users', userId, { password_hash: passwordHash });
   },
 
-  // Logout
+  // Logout — clear Supabase localStorage session so auth.uid() resets to null
   async logout() {
-    if (getMode() === 'live' && supabase) {
+    if (supabase) {
       await supabase.auth.signOut();
     }
-    // Clear any local session data
     return true;
+  },
+  // Restore session from localStorage on app boot
+  // Call this once in your root component (App.jsx) on mount
+  async restoreSession() {
+    if (getMode() !== 'live' || !supabase) return null;
+    const { data } = await supabase.auth.getSession();
+    return data?.session || null;
   },
 
   // Check if email exists
@@ -750,16 +747,15 @@ export const db = {
       }));
     }
     
-    let query = supabase.from('driver_routes').select(`
-      *,
-      stops:route_stops(*, order:orders(*))
-    `).eq('driver_id', driverId);
-    
-    if (date) query = query.eq('route_date', date);
-    
-    const { data, error } = await query.order('route_date', { ascending: true });
+    const userId = this._getCurrentUserId();
+    if (!userId) throw new Error('Not authenticated');
+    const { data, error } = await supabase.rpc('app_get_driver_routes', {
+      p_user_id:   userId,
+      p_driver_id: driverId || null,
+      p_date:      date || null,
+    });
     if (error) throw error;
-    return data;
+    return Array.isArray(data) ? data : (data || []);
   },
 
   // Stats operations
@@ -793,9 +789,11 @@ export const db = {
       };
     }
     
-    const { data, error } = await supabase.from('dashboard_stats').select('*').single();
+    const userId = this._getCurrentUserId();
+    if (!userId) throw new Error('Not authenticated');
+    const { data, error } = await supabase.rpc('app_get_dashboard_stats', { p_user_id: userId });
     if (error) throw error;
-    return data;
+    return data || {};
   },
 
   // Check-in operations
@@ -856,25 +854,23 @@ export const db = {
       };
     }
     
-    // Get both check_in and check_out for today
-    const { data } = await supabase
-      .from('checkins')
-      .select('*')
-      .eq('user_id', userId)
-      .eq('check_date', today)
-      .order('check_time', { ascending: true });
-    
-    if (!data?.length) return null;
-    
-    const checkInRec = data.find(c => c.type === 'check_in');
-    const checkOutRec = data.find(c => c.type === 'check_out');
-    
+    // Use SECURITY DEFINER RPC to fetch today's checkin records
+    const currentUserId = this._getCurrentUserId();
+    if (!currentUserId) return null;
+    const { data: rawData } = await supabase.rpc('app_get_user_checkins', {
+      p_user_id:        currentUserId,
+      p_target_user_id: userId,
+      p_limit:          10,
+    });
+    const recs = (Array.isArray(rawData) ? rawData : (rawData || [])).filter(c => c.check_date === today);
+    const checkInRec  = recs.find(c => c.type === 'check_in');
+    const checkOutRec = recs.find(c => c.type === 'check_out');
     if (!checkInRec) return null;
     return {
       ...checkInRec,
       check_in_time: checkInRec.check_time,
       check_out_time: checkOutRec?.check_time || null,
-      check_in_location: checkInRec.location_address 
+      check_in_location: checkInRec.location_address
         ? { address: checkInRec.location_address, latitude: checkInRec.latitude, longitude: checkInRec.longitude }
         : null,
       check_out_location: checkOutRec?.location_address
@@ -939,33 +935,32 @@ export const db = {
         .slice(0, limit);
     }
     
-    const { data, error } = await supabase
-      .from('checkins')
-      .select('*')
-      .eq('user_id', userId)
-      .order('check_time', { ascending: false })
-      .limit(limit * 2); // fetch extra since check_in + check_out are separate
-    if (error) {
-      console.warn('Checkin history error:', error.message);
-      return [];
-    }
+    const currentUserId = this._getCurrentUserId();
+    if (!currentUserId) return [];
+    const { data: rawData, error } = await supabase.rpc('app_get_user_checkins', {
+      p_user_id:        currentUserId,
+      p_target_user_id: userId,
+      p_limit:          limit,
+    });
+    if (error) { console.warn('Checkin history error:', error.message); return []; }
     
-    // Group by date and combine
+    const recs = Array.isArray(rawData) ? rawData : (rawData || []);
+    // Group by date and combine check_in + check_out pairs
     const byDate = {};
-    for (const c of (data || [])) {
-      const date = c.check_date || '';
-      if (!byDate[date]) byDate[date] = [];
-      byDate[date].push(c);
+    for (const c of recs) {
+      const d = c.check_date || '';
+      if (!byDate[d]) byDate[d] = [];
+      byDate[d].push(c);
     }
     return Object.values(byDate)
-      .map(recs => {
-        const checkIn = recs.find(r => r.type === 'check_in') || recs[0];
-        const checkOut = recs.find(r => r.type === 'check_out');
+      .map(day => {
+        const checkIn  = day.find(r => r.type === 'check_in') || day[0];
+        const checkOut = day.find(r => r.type === 'check_out');
         return {
           ...checkIn,
           check_in_time: checkIn.check_time,
           check_out_time: checkOut?.check_time || null,
-          check_in_location: checkIn.location_address ? { address: checkIn.location_address } : null,
+          check_in_location:  checkIn.location_address  ? { address: checkIn.location_address }  : null,
           check_out_location: checkOut?.location_address ? { address: checkOut.location_address } : null,
         };
       })
@@ -987,37 +982,12 @@ export const db = {
       );
     }
     
-    // Try with FK hint first, then fallback
+    const userId = this._getCurrentUserId();
+    if (!userId) return [];
     try {
-      const { data, error } = await supabase
-        .from('checkins')
-        .select('*, user:users!checkins_user_id_fkey(*)')
-        .eq('check_date', today)
-        .order('check_time', { ascending: false });
-      
-      if (!error && data) {
-        return this._combineCheckinRecords(data);
-      }
-      
-      // Fallback: fetch checkins without join, then manually attach users
-      console.warn('Checkins FK join failed, using fallback:', error?.message);
-      const { data: checkins } = await supabase
-        .from('checkins')
-        .select('*')
-        .eq('check_date', today)
-        .order('check_time', { ascending: false });
-      
-      if (!checkins?.length) return [];
-      
-      const userIds = [...new Set(checkins.map(c => c.user_id).filter(Boolean))];
-      const { data: users } = await supabase
-        .from('users')
-        .select('*')
-        .in('id', userIds);
-      
-      const userMap = Object.fromEntries((users || []).map(u => [u.id, u]));
-      const withUsers = checkins.map(c => ({ ...c, user: userMap[c.user_id] || null }));
-      return this._combineCheckinRecords(withUsers);
+      const { data, error } = await supabase.rpc('app_get_today_checkins', { p_user_id: userId });
+      if (error) throw error;
+      return this._combineCheckinRecords(Array.isArray(data) ? data : (data || []));
     } catch (err) {
       console.error('getAllTodayCheckins error:', err);
       return [];
