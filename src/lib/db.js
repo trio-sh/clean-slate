@@ -553,7 +553,6 @@ export const db = {
   // Register new user with email and password
   async registerWithEmail(userData) {
     const { email, password, first_name, last_name, phone } = userData;
-    const passwordHash = await hashPassword(password);
     const normalizedPhone = phone ? normalizePhone(phone) : '';
 
     if (getMode() === 'demo') {
@@ -565,14 +564,12 @@ export const db = {
       }
       const newUser = await this.create('users', {
         email, phone: normalizedPhone, first_name, last_name,
-        password_hash: passwordHash, role: 'customer',
+        password_hash: password, role: 'customer',
         is_active: true, is_verified: false, first_order_discount_used: false,
       });
       return { user: newUser, session: null };
     }
 
-    // Live: insert into public.users first, then sign up via Supabase Auth
-    // Supabase Auth stores bcrypt(passwordHash) — signInWithPassword uses the hash as the password
     const existingEmail = await this.getUserByEmail(email);
     if (existingEmail) throw new Error('Email already registered');
     if (phone) {
@@ -580,45 +577,38 @@ export const db = {
       if (existingPhone) throw new Error('Phone number already registered');
     }
 
-    // Insert into public.users
-    const newUser = await this.create('users', {
-      email, phone: normalizedPhone || null, first_name, last_name,
-      password_hash: passwordHash, role: 'customer',
-      is_active: true, is_verified: false, first_order_discount_used: false,
-    });
-
-    // Create Supabase Auth session (password = SHA-256 hash)
+    // Sign up in Supabase Auth first (plain password — Supabase handles bcrypt)
     const { data: authData, error: authError } = await supabase.auth.signUp({
       email,
-      password: passwordHash,
+      password,
     });
-    if (authError) console.warn('Auth signUp warning:', authError.message);
+    if (authError) throw new Error(authError.message || 'Registration failed');
+
+    // Insert into public.users (store plain password for reference, trigger keeps auth in sync)
+    const newUser = await this.create('users', {
+      email, phone: normalizedPhone || null, first_name, last_name,
+      password_hash: password, role: 'customer',
+      is_active: true, is_verified: false, first_order_discount_used: false,
+    });
 
     return { user: newUser, session: authData?.session || null };
   },
 
   // Login with email and password
   async loginWithEmail(email, password) {
-    const passwordHash = await hashPassword(password);
-
     if (getMode() === 'demo') {
       const user = await this.getUserByEmail(email);
       if (!user) throw new Error('Invalid email or password');
-      const hashToCheck = user.password_hash || 'd3ad9315b7be5dd53b31a273b3b3aba5defe700808305aa16a3062b76658a791';
-      const isValid = await verifyPassword(password, hashToCheck);
-      if (!isValid) throw new Error('Invalid email or password');
+      if (user.password_hash !== password) throw new Error('Invalid email or password');
       return { user, session: null };
     }
 
-    // Live: signInWithPassword using SHA-256 hash as the password
-    // (auth.users.encrypted_password = bcrypt(sha256Hash) set by migration)
     const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
       email,
-      password: passwordHash,
+      password,
     });
     if (authError) throw new Error('Invalid email or password');
 
-    // Fetch full user row from public.users
     const user = await this.getUserByEmail(email);
     if (!user) throw new Error('Invalid email or password');
 
@@ -627,28 +617,19 @@ export const db = {
 
   // Login with phone and password (custom auth)
   async loginWithPhone(phone, password) {
-    const passwordHash = await hashPassword(password);
-
     if (getMode() === 'demo') {
       const user = await this.getUserByPhone(phone);
       if (!user) throw new Error('Invalid phone number or password');
-      const hashToCheck = user.password_hash || 'd3ad9315b7be5dd53b31a273b3b3aba5defe700808305aa16a3062b76658a791';
-      const isValid = await verifyPassword(password, hashToCheck);
-      if (!isValid) throw new Error('Invalid phone number or password');
+      if (user.password_hash !== password) throw new Error('Invalid phone number or password');
       return { user, session: null };
     }
 
-    // Live: look up email from phone, then signInWithPassword with SHA-256 hash
     const userByPhone = await this.getUserByPhone(phone);
     if (!userByPhone) throw new Error('Invalid phone number or password');
 
-    // Verify hash matches before attempting Supabase auth
-    const isValid = await verifyPassword(password, userByPhone.password_hash || '');
-    if (!isValid) throw new Error('Invalid phone number or password');
-
     const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
       email:    userByPhone.email,
-      password: passwordHash,
+      password,
     });
     if (authError) throw new Error('Invalid phone number or password');
 
@@ -657,10 +638,8 @@ export const db = {
 
   // Update user password
   async updatePassword(userId, newPassword) {
-    const passwordHash = await hashPassword(newPassword);
-    
     if (getMode() === 'demo') {
-      return this.update('users', userId, { password_hash: passwordHash });
+      return this.update('users', userId, { password_hash: newPassword });
     }
     
     // Update in Supabase Auth
