@@ -1,14 +1,16 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { 
-  Briefcase, User, Mail, Phone, DollarSign, Calendar, 
+import {
+  Briefcase, User, Mail, Phone, DollarSign, Calendar,
   FileText, Upload, CheckCircle, Loader2, ArrowLeft
 } from 'lucide-react';
 import db from '../lib/db';
 import toast from 'react-hot-toast';
+import { useLanguage } from '../i18n/LanguageContext';
 
 const CareerApplicationPage = () => {
+  const { t } = useLanguage();
   const [formData, setFormData] = useState({
     first_name: '',
     last_name: '',
@@ -22,7 +24,7 @@ const CareerApplicationPage = () => {
     applicant_references: '',
     message: ''
   });
-  
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
 
@@ -49,11 +51,11 @@ const CareerApplicationPage = () => {
       await db.create('career_applications', applicationData);
 
       // Show success message
-      toast.success('Application submitted successfully! We will review it soon.');
+      toast.success(t('careerApplication.submitSuccess'));
       setIsSubmitted(true);
     } catch (error) {
       console.error('Error submitting application:', error);
-      toast.error('Failed to submit application. Please try again.');
+      toast.error(t('careerApplication.submitError'));
     } finally {
       setIsSubmitting(false);
     }
@@ -71,16 +73,16 @@ const CareerApplicationPage = () => {
             <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
               <CheckCircle className="w-8 h-8 text-green-600" />
             </div>
-            <h2 className="text-2xl font-bold text-navy-900 mb-4">Application Submitted!</h2>
+            <h2 className="text-2xl font-bold text-navy-900 mb-4">{t('careerApplication.submitted')}</h2>
             <p className="text-gray-600 mb-6">
-              Thank you for your interest in joining Amani's Cleaners. Our team will review your application and contact you within 3-5 business days.
+              {t('careerApplication.thankYou')}
             </p>
             <Link
               to="/"
               className="inline-flex items-center gap-2 bg-amani-500 text-white px-6 py-3 rounded-xl font-medium hover:bg-amani-600 transition-colors"
             >
               <ArrowLeft className="w-4 h-4" />
-              Back to Home
+              {t('careerApplication.backToHome')}
             </Link>
           </motion.div>
         </div>
@@ -101,10 +103,10 @@ const CareerApplicationPage = () => {
             <div className="max-w-3xl mx-auto text-center">
               <Briefcase className="w-16 h-16 mx-auto mb-6 text-white/80" />
               <h1 className="text-4xl font-display font-bold mb-4">
-                Join Our Team
+                {t('careerApplication.title')}
               </h1>
               <p className="text-xl text-white/90 max-w-2xl mx-auto">
-                Explore exciting career opportunities with Canada's premier laundry and dry cleaning service.
+                {t('careerApplication.subtitle')}
               </p>
             </div>
           </div>
@@ -116,7 +118,7 @@ const CareerApplicationPage = () => {
               <div className="grid md:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    First Name *
+                    {t('careerApplication.firstName')} *
                   </label>
                   <div className="relative">
                     <User className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
@@ -127,14 +129,14 @@ const CareerApplicationPage = () => {
                       onChange={handleChange}
                       required
                       className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-amani-500 focus:border-transparent"
-                      placeholder="Enter your first name"
+                      placeholder={t('careerApplication.firstNamePlaceholder')}
                     />
                   </div>
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Last Name *
+                    {t('careerApplication.lastName')} *
                   </label>
                   <div className="relative">
                     <User className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
@@ -145,14 +147,14 @@ const CareerApplicationPage = () => {
                       onChange={handleChange}
                       required
                       className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-amani-500 focus:border-transparent"
-                      placeholder="Enter your last name"
+                      placeholder={t('careerApplication.lastNamePlaceholder')}
                     />
                   </div>
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Email Address *
+                    {t('careerApplication.email')} *
                   </label>
                   <div className="relative">
                     <Mail className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
@@ -163,14 +165,14 @@ const CareerApplicationPage = () => {
                       onChange={handleChange}
                       required
                       className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-amani-500 focus:border-transparent"
-                      placeholder="your@email.com"
+                      placeholder={t('careerApplication.emailPlaceholder')}
                     />
                   </div>
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Phone Number *
+                    {t('careerApplication.phone')} *
                   </label>
                   <div className="relative">
                     <Phone className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
@@ -181,7 +183,7 @@ const CareerApplicationPage = () => {
                       onChange={handleChange}
                       required
                       className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-amani-500 focus:border-transparent"
-                      placeholder="(416) 123-4567"
+                      placeholder={t('careerApplication.phonePlaceholder')}
                     />
                   </div>
                 </div>
@@ -191,7 +193,7 @@ const CareerApplicationPage = () => {
               <div className="grid md:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Position Applied For *
+                    {t('careerApplication.position')} *
                   </label>
                   <div className="relative">
                     <Briefcase className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
@@ -202,14 +204,14 @@ const CareerApplicationPage = () => {
                       onChange={handleChange}
                       required
                       className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-amani-500 focus:border-transparent"
-                      placeholder="e.g., Customer Service Representative"
+                      placeholder={t('careerApplication.positionPlaceholder')}
                     />
                   </div>
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Salary Expectation ($ CAD)
+                    {t('careerApplication.salary')}
                   </label>
                   <div className="relative">
                     <DollarSign className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
@@ -221,14 +223,14 @@ const CareerApplicationPage = () => {
                       min="0"
                       step="0.01"
                       className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-amani-500 focus:border-transparent"
-                      placeholder="Expected salary"
+                      placeholder={t('careerApplication.salaryPlaceholder')}
                     />
                   </div>
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Available Start Date
+                    {t('careerApplication.availability')}
                   </label>
                   <div className="relative">
                     <Calendar className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
@@ -238,14 +240,14 @@ const CareerApplicationPage = () => {
                       value={formData.availability}
                       onChange={handleChange}
                       className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-amani-500 focus:border-transparent"
-                      placeholder="When can you start?"
+                      placeholder={t('careerApplication.availabilityPlaceholder')}
                     />
                   </div>
                 </div>
 
                 <div className="md:col-span-2">
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Resume/CV Link *
+                    {t('careerApplication.resume')} *
                   </label>
                   <div className="relative">
                     <Upload className="w-5 h-5 absolute left-3 top-3 text-gray-400" />
@@ -256,11 +258,11 @@ const CareerApplicationPage = () => {
                       onChange={handleChange}
                       required
                       className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-amani-500 focus:border-transparent"
-                      placeholder="Link to your resume (Google Drive, Dropbox, etc.)"
+                      placeholder={t('careerApplication.resumePlaceholder')}
                     />
                   </div>
                   <p className="text-xs text-gray-500 mt-1">
-                    Please provide a link to your resume or CV
+                    {t('careerApplication.resumeHint')}
                   </p>
                 </div>
               </div>
@@ -269,7 +271,7 @@ const CareerApplicationPage = () => {
               <div className="grid md:grid-cols-2 gap-6">
                 <div className="md:col-span-2">
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Cover Letter
+                    {t('careerApplication.coverLetter')}
                   </label>
                   <textarea
                     name="cover_letter"
@@ -277,13 +279,13 @@ const CareerApplicationPage = () => {
                     onChange={handleChange}
                     rows={4}
                     className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-amani-500 focus:border-transparent resize-none"
-                    placeholder="Tell us why you're interested in this position and what makes you a great candidate"
+                    placeholder={t('careerApplication.coverLetterPlaceholder')}
                   />
                 </div>
 
                 <div className="md:col-span-2">
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    References
+                    {t('careerApplication.references')}
                   </label>
                   <textarea
                     name="applicant_references"
@@ -291,13 +293,13 @@ const CareerApplicationPage = () => {
                     onChange={handleChange}
                     rows={3}
                     className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-amani-500 focus:border-transparent resize-none"
-                    placeholder="List of professional references (name, position, company, contact info)"
+                    placeholder={t('careerApplication.referencesPlaceholder')}
                   />
                 </div>
 
                 <div className="md:col-span-2">
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Additional Information
+                    {t('careerApplication.additionalInfo')}
                   </label>
                   <textarea
                     name="message"
@@ -305,7 +307,7 @@ const CareerApplicationPage = () => {
                     onChange={handleChange}
                     rows={3}
                     className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-amani-500 focus:border-transparent resize-none"
-                    placeholder="Any additional information you'd like us to know"
+                    placeholder={t('careerApplication.additionalInfoPlaceholder')}
                   />
                 </div>
               </div>
@@ -320,10 +322,10 @@ const CareerApplicationPage = () => {
                   {isSubmitting ? (
                     <>
                       <Loader2 className="w-5 h-5 animate-spin" />
-                      Submitting...
+                      {t('careerApplication.submitting')}
                     </>
                   ) : (
-                    'Submit Application'
+                    t('careerApplication.submitButton')
                   )}
                 </button>
               </div>

@@ -115,12 +115,13 @@ export const useCartStore = create(
   persist(
     (set, get) => ({
       items: [],
-      laundryWeight: 0,
-      
+      laundryWeight: 0, // Regular Wash & Fold
+      commercialLaundryWeight: 0, // Commercial Wash & Fold
+
       addItem: (item) => {
         const { items } = get();
         const existingIndex = items.findIndex(i => i.id === item.id);
-        
+
         if (existingIndex >= 0) {
           const newItems = [...items];
           newItems[existingIndex].quantity += item.quantity || 1;
@@ -148,8 +149,9 @@ export const useCartStore = create(
       },
 
       setLaundryWeight: (weight) => set({ laundryWeight: weight }),
+      setCommercialLaundryWeight: (weight) => set({ commercialLaundryWeight: weight }),
 
-      clearCart: () => set({ items: [], laundryWeight: 0 }),
+      clearCart: () => set({ items: [], laundryWeight: 0, commercialLaundryWeight: 0 }),
 
       getSubtotal: () => {
         const { items } = get();

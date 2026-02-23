@@ -1,14 +1,16 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { 
-  Building2, User, Mail, Phone, MapPin, Briefcase, 
+import {
+  Building2, User, Mail, Phone, MapPin, Briefcase,
   FileText, Upload, CheckCircle, Loader2, ArrowLeft
 } from 'lucide-react';
 import db from '../lib/db';
 import toast from 'react-hot-toast';
+import { useLanguage } from '../i18n/LanguageContext';
 
 const PartnerApplicationPage = () => {
+  const { t } = useLanguage();
   const [formData, setFormData] = useState({
     business_name: '',
     contact_person_first_name: '',
@@ -52,14 +54,14 @@ const PartnerApplicationPage = () => {
       await db.create('laundry_partner_applications', applicationData);
 
       // Show success message
-      toast.success('Application submitted successfully! We will review it soon.');
+      toast.success(t('partnerApplication.submitSuccess'));
       setIsSubmitted(true);
 
       // Optionally send email notification to admin
       // This would depend on your email configuration
     } catch (error) {
       console.error('Error submitting application:', error);
-      toast.error('Failed to submit application. Please try again.');
+      toast.error(t('partnerApplication.submitError'));
     } finally {
       setIsSubmitting(false);
     }
@@ -77,16 +79,16 @@ const PartnerApplicationPage = () => {
             <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
               <CheckCircle className="w-8 h-8 text-green-600" />
             </div>
-            <h2 className="text-2xl font-bold text-navy-900 mb-4">Application Submitted!</h2>
+            <h2 className="text-2xl font-bold text-navy-900 mb-4">{t('partnerApplication.submitted')}</h2>
             <p className="text-gray-600 mb-6">
-              Thank you for your interest in partnering with Amani's Cleaners. Our team will review your application and contact you within 3-5 business days.
+              {t('partnerApplication.thankYouMessage')}
             </p>
             <Link
               to="/"
               className="inline-flex items-center gap-2 bg-amani-500 text-white px-6 py-3 rounded-xl font-medium hover:bg-amani-600 transition-colors"
             >
               <ArrowLeft className="w-4 h-4" />
-              Back to Home
+              {t('partnerApplication.backToHome')}
             </Link>
           </motion.div>
         </div>
@@ -117,10 +119,10 @@ const PartnerApplicationPage = () => {
                 <Building2 className="w-8 h-8 text-white" />
               </div>
               <h1 className="text-4xl md:text-5xl font-display font-bold mb-4">
-                Become a Laundry Partner
+                {t('partnerApplication.title')}
               </h1>
               <p className="text-xl text-white/90 max-w-2xl mx-auto">
-                Join our network of trusted laundry partners. Expand your business while providing exceptional service to our customers.
+                {t('partnerApplication.subtitle')}
               </p>
             </div>
           </div>
@@ -132,7 +134,7 @@ const PartnerApplicationPage = () => {
               <div className="grid md:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Business Name *
+                    {t('partnerApplication.businessName')} *
                   </label>
                   <div className="relative">
                     <Building2 className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
@@ -143,14 +145,14 @@ const PartnerApplicationPage = () => {
                       onChange={handleChange}
                       required
                       className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-amani-500 focus:border-transparent"
-                      placeholder="Enter your business name"
+                      placeholder={t('partnerApplication.businessNamePlaceholder')}
                     />
                   </div>
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Business License Number
+                    {t('partnerApplication.businessLicense')}
                   </label>
                   <div className="relative">
                     <FileText className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
@@ -160,14 +162,14 @@ const PartnerApplicationPage = () => {
                       value={formData.business_license}
                       onChange={handleChange}
                       className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-amani-500 focus:border-transparent"
-                      placeholder="Business license number"
+                      placeholder={t('partnerApplication.businessLicensePlaceholder')}
                     />
                   </div>
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    HST Registration Number
+                    {t('partnerApplication.hstNumber')}
                   </label>
                   <div className="relative">
                     <FileText className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
@@ -177,15 +179,15 @@ const PartnerApplicationPage = () => {
                       value={formData.hst_number}
                       onChange={handleChange}
                       className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-amani-500 focus:border-transparent"
-                      placeholder="e.g. 123456789 RT0001"
+                      placeholder={t('partnerApplication.hstNumberPlaceholder')}
                     />
                   </div>
-                  <p className="text-xs text-gray-500 mt-1">Canada Revenue Agency HST/GST number (9 digits + RT)</p>
+                  <p className="text-xs text-gray-500 mt-1">{t('partnerApplication.hstNumberHint')}</p>
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Contact Person First Name *
+                    {t('partnerApplication.contactFirstName')} *
                   </label>
                   <div className="relative">
                     <User className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
@@ -196,14 +198,14 @@ const PartnerApplicationPage = () => {
                       onChange={handleChange}
                       required
                       className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-amani-500 focus:border-transparent"
-                      placeholder="First name"
+                      placeholder={t('order.firstName')}
                     />
                   </div>
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Contact Person Last Name *
+                    {t('partnerApplication.contactLastName')} *
                   </label>
                   <div className="relative">
                     <User className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
@@ -214,14 +216,14 @@ const PartnerApplicationPage = () => {
                       onChange={handleChange}
                       required
                       className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-amani-500 focus:border-transparent"
-                      placeholder="Last name"
+                      placeholder={t('order.lastName')}
                     />
                   </div>
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Email Address *
+                    {t('partnerApplication.email')} *
                   </label>
                   <div className="relative">
                     <Mail className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
@@ -232,14 +234,14 @@ const PartnerApplicationPage = () => {
                       onChange={handleChange}
                       required
                       className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-amani-500 focus:border-transparent"
-                      placeholder="your@email.com"
+                      placeholder={t('partnerApplication.emailPlaceholder')}
                     />
                   </div>
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Phone Number *
+                    {t('partnerApplication.phone')} *
                   </label>
                   <div className="relative">
                     <Phone className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
@@ -250,14 +252,14 @@ const PartnerApplicationPage = () => {
                       onChange={handleChange}
                       required
                       className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-amani-500 focus:border-transparent"
-                      placeholder="(416) 123-4567"
+                      placeholder={t('partnerApplication.phonePlaceholder')}
                     />
                   </div>
                 </div>
 
                 <div className="md:col-span-2">
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Business Address *
+                    {t('partnerApplication.businessAddress')} *
                   </label>
                   <div className="relative">
                     <MapPin className="w-5 h-5 absolute left-3 top-3 text-gray-400" />
@@ -268,7 +270,7 @@ const PartnerApplicationPage = () => {
                       required
                       rows={3}
                       className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-amani-500 focus:border-transparent resize-none"
-                      placeholder="Full business address"
+                      placeholder={t('partnerApplication.businessAddressPlaceholder')}
                     />
                   </div>
                 </div>
@@ -278,7 +280,7 @@ const PartnerApplicationPage = () => {
               <div className="grid md:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Years in Business
+                    {t('partnerApplication.yearsInBusiness')}
                   </label>
                   <div className="relative">
                     <Briefcase className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
@@ -289,14 +291,14 @@ const PartnerApplicationPage = () => {
                       onChange={handleChange}
                       min="0"
                       className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-amani-500 focus:border-transparent"
-                      placeholder="Years in business"
+                      placeholder={t('partnerApplication.yearsInBusinessPlaceholder')}
                     />
                   </div>
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Capacity Per Day (lbs)
+                    {t('partnerApplication.capacityPerDay')}
                   </label>
                   <div className="relative">
                     <Briefcase className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
@@ -307,14 +309,14 @@ const PartnerApplicationPage = () => {
                       onChange={handleChange}
                       min="0"
                       className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-amani-500 focus:border-transparent"
-                      placeholder="Daily capacity in pounds"
+                      placeholder={t('partnerApplication.capacityPerDayPlaceholder')}
                     />
                   </div>
                 </div>
 
                 <div className="md:col-span-2">
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Services Offered
+                    {t('partnerApplication.servicesOffered')}
                   </label>
                   <div className="relative">
                     <Briefcase className="w-5 h-5 absolute left-3 top-3 text-gray-400" />
@@ -324,14 +326,14 @@ const PartnerApplicationPage = () => {
                       onChange={handleChange}
                       rows={3}
                       className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-amani-500 focus:border-transparent resize-none"
-                      placeholder="Describe the laundry services you offer"
+                      placeholder={t('partnerApplication.servicesOfferedPlaceholder')}
                     />
                   </div>
                 </div>
 
                 <div className="md:col-span-2">
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Business Documents
+                    {t('partnerApplication.businessDocuments')}
                   </label>
                   <div className="relative">
                     <Upload className="w-5 h-5 absolute left-3 top-3 text-gray-400" />
@@ -341,17 +343,17 @@ const PartnerApplicationPage = () => {
                       value={formData.business_documents_url}
                       onChange={handleChange}
                       className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-amani-500 focus:border-transparent"
-                      placeholder="Link to business documents (Google Drive, Dropbox, etc.)"
+                      placeholder={t('partnerApplication.businessDocumentsPlaceholder')}
                     />
                   </div>
                   <p className="text-xs text-gray-500 mt-1">
-                    Please upload business registration, insurance, and other relevant documents
+                    {t('partnerApplication.businessDocumentsHint')}
                   </p>
                 </div>
 
                 <div className="md:col-span-2">
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Message
+                    {t('partnerApplication.message')}
                   </label>
                   <textarea
                     name="message"
@@ -359,7 +361,7 @@ const PartnerApplicationPage = () => {
                     onChange={handleChange}
                     rows={4}
                     className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-amani-500 focus:border-transparent resize-none"
-                    placeholder="Tell us more about your business and why you'd like to partner with us"
+                    placeholder={t('partnerApplication.messagePlaceholder')}
                   />
                 </div>
               </div>
@@ -374,10 +376,10 @@ const PartnerApplicationPage = () => {
                   {isSubmitting ? (
                     <>
                       <Loader2 className="w-5 h-5 animate-spin" />
-                      Submitting...
+                      {t('partnerApplication.submitting')}
                     </>
                   ) : (
-                    'Submit Application'
+                    t('partnerApplication.submitButton')
                   )}
                 </button>
               </div>

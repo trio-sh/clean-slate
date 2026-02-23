@@ -412,3 +412,297 @@
 .leaflet-top.leaflet-right {
   right: 60px;
 }
+
+/* App Section Styles */
+.app-section {
+  position: relative;
+  padding: 5rem 0;
+  background: linear-gradient(135deg, #0c4a6e 0%, #1e3a5f 50%, #0c4a6e 100%);
+  overflow: hidden;
+}
+
+.app-container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 2rem;
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4rem;
+  align-items: center;
+}
+
+.app-glow {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, rgba(237, 109, 26, 0.15) 0%, transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+  animation: appGlowPulse 4s ease-in-out infinite;
+}
+
+@keyframes appGlowPulse {
+  0%, 100% { opacity: 0.5; transform: translate(-50%, -50%) scale(1); }
+  50% { opacity: 0.8; transform: translate(-50%, -50%) scale(1.1); }
+}
+
+.app-content {
+  position: relative;
+  z-index: 10;
+}
+
+.app-content h3 {
+  font-family: 'Playfair Display', serif;
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: white;
+  margin-bottom: 1rem;
+  line-height: 1.2;
+}
+
+.app-content h3 em {
+  color: #ed6d1a;
+  font-style: italic;
+}
+
+.app-content > p {
+  font-size: 1.125rem;
+  color: rgba(255, 255, 255, 0.85);
+  line-height: 1.7;
+  margin-bottom: 2.5rem;
+  max-width: 540px;
+}
+
+.app-features {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin-bottom: 2.5rem;
+}
+
+.app-feature {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.app-feature-icon {
+  flex-shrink: 0;
+  width: 48px;
+  height: 48px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.app-feature p {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 1rem;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.app-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.app-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  padding: 0.875rem 1.5rem;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 14px;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+  min-width: 180px;
+}
+
+.app-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.3);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.app-btn-icon {
+  width: 28px;
+  height: 28px;
+  background: white;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.875rem;
+  color: #0c4a6e;
+  font-weight: 700;
+}
+
+.app-btn-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+
+.app-btn-text span {
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 0.75rem;
+}
+
+.app-btn-text strong {
+  color: white;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.app-visual {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.app-phone {
+  position: relative;
+  width: 300px;
+  height: 600px;
+  background: linear-gradient(145deg, #1a1a2e 0%, #16213e 100%);
+  border-radius: 48px;
+  padding: 12px;
+  box-shadow: 
+    0 50px 100px rgba(0, 0, 0, 0.3),
+    0 0 0 2px rgba(255, 255, 255, 0.1),
+    inset 0 2px 10px rgba(255, 255, 255, 0.1);
+}
+
+.app-phone::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 120px;
+  height: 28px;
+  background: #1a1a2e;
+  border-radius: 0 0 16px 16px;
+}
+
+.app-screen {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(180deg, #fef7f0 0%, #ffffff 100%);
+  border-radius: 36px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  text-align: center;
+  overflow: hidden;
+  position: relative;
+}
+
+.app-screen::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(237, 109, 26, 0.1) 0%, transparent 50%);
+  animation: screenShimmer 3s ease-in-out infinite;
+}
+
+@keyframes screenShimmer {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(-10%, -10%); }
+}
+
+.app-screen-logo {
+  width: 80px;
+  height: 80px;
+  object-fit: contain;
+  margin-bottom: 1rem;
+  position: relative;
+  z-index: 1;
+}
+
+.app-screen h4 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #0c4a6e;
+  margin: 0 0 0.5rem 0;
+  position: relative;
+  z-index: 1;
+}
+
+.app-screen p {
+  color: #6b7280;
+  font-size: 0.875rem;
+  margin: 0;
+  position: relative;
+  z-index: 1;
+}
+
+/* Responsive styles */
+@media (max-width: 1024px) {
+  .app-container {
+    grid-template-columns: 1fr;
+    gap: 3rem;
+  }
+
+  .app-visual {
+    order: -1;
+  }
+
+  .app-phone {
+    width: 260px;
+    height: 520px;
+  }
+}
+
+@media (max-width: 640px) {
+  .app-section {
+    padding: 3rem 0;
+  }
+
+  .app-container {
+    padding: 0 1.5rem;
+  }
+
+  .app-content h3 {
+    font-size: 2rem;
+  }
+
+  .app-content > p {
+    font-size: 1rem;
+  }
+
+  .app-phone {
+    width: 220px;
+    height: 440px;
+  }
+
+  .app-buttons {
+    flex-direction: column;
+  }
+
+  .app-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}

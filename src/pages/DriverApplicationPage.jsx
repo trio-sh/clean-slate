@@ -1,14 +1,17 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { 
-  Car, User, Mail, Phone, IdCard, Calendar, 
+import {
+  Car, User, Mail, Phone, IdCard, Calendar,
   FileText, Upload, CheckCircle, Loader2, ArrowLeft
 } from 'lucide-react';
 import db from '../lib/db';
 import toast from 'react-hot-toast';
+import { useLanguage } from '../i18n/LanguageContext';
 
 const DriverApplicationPage = () => {
+  const { t } = useLanguage();
+
   const [formData, setFormData] = useState({
     first_name: '',
     last_name: '',
@@ -21,7 +24,7 @@ const DriverApplicationPage = () => {
     message: '',
     resume_url: ''
   });
-  
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
 
@@ -48,11 +51,11 @@ const DriverApplicationPage = () => {
       await db.create('driver_applications', applicationData);
 
       // Show success message
-      toast.success('Application submitted successfully! We will review it soon.');
+      toast.success(t('driverApplication.successMessage'));
       setIsSubmitted(true);
     } catch (error) {
       console.error('Error submitting application:', error);
-      toast.error('Failed to submit application. Please try again.');
+      toast.error(t('driverApplication.errorMessage'));
     } finally {
       setIsSubmitting(false);
     }
@@ -70,16 +73,16 @@ const DriverApplicationPage = () => {
             <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
               <CheckCircle className="w-8 h-8 text-green-600" />
             </div>
-            <h2 className="text-2xl font-bold text-navy-900 mb-4">Application Submitted!</h2>
+            <h2 className="text-2xl font-bold text-navy-900 mb-4">{t('driverApplication.submitted')}</h2>
             <p className="text-gray-600 mb-6">
-              Thank you for your interest in driving with Amani's Cleaners. Our team will review your application and contact you within 3-5 business days.
+              {t('driverApplication.thankYouMessage')}
             </p>
             <Link
               to="/"
               className="inline-flex items-center gap-2 bg-amani-500 text-white px-6 py-3 rounded-xl font-medium hover:bg-amani-600 transition-colors"
             >
               <ArrowLeft className="w-4 h-4" />
-              Back to Home
+              {t('driverApplication.backToHome')}
             </Link>
           </motion.div>
         </div>
@@ -100,10 +103,10 @@ const DriverApplicationPage = () => {
             <div className="max-w-3xl mx-auto text-center">
               <Car className="w-16 h-16 mx-auto mb-6 text-white/80" />
               <h1 className="text-4xl font-display font-bold mb-4">
-                Become a Driver
+                {t('driverApplication.title')}
               </h1>
               <p className="text-xl text-white/90 max-w-2xl mx-auto">
-                Join our delivery team and earn competitive rates while providing excellent service to our customers.
+                {t('driverApplication.subtitle')}
               </p>
             </div>
           </div>
@@ -115,7 +118,7 @@ const DriverApplicationPage = () => {
               <div className="grid md:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    First Name *
+                    {t('driverApplication.firstName')} *
                   </label>
                   <div className="relative">
                     <User className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
@@ -126,14 +129,14 @@ const DriverApplicationPage = () => {
                       onChange={handleChange}
                       required
                       className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-amani-500 focus:border-transparent"
-                      placeholder="Enter your first name"
+                      placeholder={t('driverApplication.firstNamePlaceholder')}
                     />
                   </div>
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Last Name *
+                    {t('driverApplication.lastName')} *
                   </label>
                   <div className="relative">
                     <User className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
@@ -144,14 +147,14 @@ const DriverApplicationPage = () => {
                       onChange={handleChange}
                       required
                       className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-amani-500 focus:border-transparent"
-                      placeholder="Enter your last name"
+                      placeholder={t('driverApplication.lastNamePlaceholder')}
                     />
                   </div>
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Email Address *
+                    {t('driverApplication.emailAddress')} *
                   </label>
                   <div className="relative">
                     <Mail className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
@@ -162,14 +165,14 @@ const DriverApplicationPage = () => {
                       onChange={handleChange}
                       required
                       className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-amani-500 focus:border-transparent"
-                      placeholder="your@email.com"
+                      placeholder={t('driverApplication.emailPlaceholder')}
                     />
                   </div>
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Phone Number *
+                    {t('driverApplication.phoneNumber')} *
                   </label>
                   <div className="relative">
                     <Phone className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
@@ -180,7 +183,7 @@ const DriverApplicationPage = () => {
                       onChange={handleChange}
                       required
                       className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-amani-500 focus:border-transparent"
-                      placeholder="(416) 123-4567"
+                      placeholder={t('driverApplication.phonePlaceholder')}
                     />
                   </div>
                 </div>
@@ -190,7 +193,7 @@ const DriverApplicationPage = () => {
               <div className="grid md:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Vehicle Type
+                    {t('driverApplication.vehicleType')}
                   </label>
                   <div className="relative">
                     <Car className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
@@ -200,14 +203,14 @@ const DriverApplicationPage = () => {
                       value={formData.vehicle_type}
                       onChange={handleChange}
                       className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-amani-500 focus:border-transparent"
-                      placeholder="Car, Van, Truck, etc."
+                      placeholder={t('driverApplication.vehicleTypePlaceholder')}
                     />
                   </div>
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Driver's License Number
+                    {t('driverApplication.licenseNumber')}
                   </label>
                   <div className="relative">
                     <IdCard className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
@@ -217,14 +220,14 @@ const DriverApplicationPage = () => {
                       value={formData.license_number}
                       onChange={handleChange}
                       className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-amani-500 focus:border-transparent"
-                      placeholder="License number"
+                      placeholder={t('driverApplication.licensePlaceholder')}
                     />
                   </div>
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Years of Driving Experience
+                    {t('driverApplication.yearsOfExperience')}
                   </label>
                   <div className="relative">
                     <Calendar className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
@@ -235,14 +238,14 @@ const DriverApplicationPage = () => {
                       onChange={handleChange}
                       min="0"
                       className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-amani-500 focus:border-transparent"
-                      placeholder="Years of experience"
+                      placeholder={t('driverApplication.experiencePlaceholder')}
                     />
                   </div>
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Availability
+                    {t('driverApplication.availability')}
                   </label>
                   <div className="relative">
                     <Calendar className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
@@ -252,11 +255,11 @@ const DriverApplicationPage = () => {
                       onChange={handleChange}
                       className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-amani-500 focus:border-transparent appearance-none"
                     >
-                      <option value="">Select availability</option>
-                      <option value="full_time">Full-time</option>
-                      <option value="part_time">Part-time</option>
-                      <option value="weekends_only">Weekends only</option>
-                      <option value="evenings_only">Evenings only</option>
+                      <option value="">{t('driverApplication.selectAvailability')}</option>
+                      <option value="full_time">{t('driverApplication.fullTime')}</option>
+                      <option value="part_time">{t('driverApplication.partTime')}</option>
+                      <option value="weekends_only">{t('driverApplication.weekendsOnly')}</option>
+                      <option value="evenings_only">{t('driverApplication.eveningsOnly')}</option>
                     </select>
                   </div>
                 </div>
@@ -266,7 +269,7 @@ const DriverApplicationPage = () => {
               <div className="grid md:grid-cols-2 gap-6">
                 <div className="md:col-span-2">
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Resume/CV Link
+                    {t('driverApplication.resumeLink')}
                   </label>
                   <div className="relative">
                     <Upload className="w-5 h-5 absolute left-3 top-3 text-gray-400" />
@@ -276,17 +279,17 @@ const DriverApplicationPage = () => {
                       value={formData.resume_url}
                       onChange={handleChange}
                       className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-amani-500 focus:border-transparent"
-                      placeholder="Link to your resume (Google Drive, Dropbox, etc.)"
+                      placeholder={t('driverApplication.resumePlaceholder')}
                     />
                   </div>
                   <p className="text-xs text-gray-500 mt-1">
-                    Please provide a link to your resume or CV
+                    {t('driverApplication.resumeHint')}
                   </p>
                 </div>
 
                 <div className="md:col-span-2">
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Why do you want to drive for Amani's Cleaners?
+                    {t('driverApplication.whyDrive')}
                   </label>
                   <textarea
                     name="message"
@@ -294,7 +297,7 @@ const DriverApplicationPage = () => {
                     onChange={handleChange}
                     rows={4}
                     className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-amani-500 focus:border-transparent resize-none"
-                    placeholder="Tell us about yourself and why you'd be a great fit for our team"
+                    placeholder={t('driverApplication.messagePlaceholder')}
                   />
                 </div>
               </div>
@@ -309,10 +312,10 @@ const DriverApplicationPage = () => {
                   {isSubmitting ? (
                     <>
                       <Loader2 className="w-5 h-5 animate-spin" />
-                      Submitting...
+                      {t('driverApplication.submitting')}
                     </>
                   ) : (
-                    'Submit Application'
+                    t('driverApplication.submitButton')
                   )}
                 </button>
               </div>

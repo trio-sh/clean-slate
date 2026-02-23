@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { 
-  Check, Star, Zap, Crown, GraduationCap, Sparkles, 
+import {
+  Check, Star, Zap, Crown, GraduationCap, Sparkles,
   ArrowRight, Calendar, Gift, Shield, Clock, Truck,
   Loader, CreditCard, Send, Bell, Package
 } from 'lucide-react';
@@ -10,10 +10,12 @@ import db from '../../lib/db';
 import { useAuthStore } from '../../stores';
 import { sendSMS, smsTemplates, sendEmail, notificationService } from '../../lib/utils';
 import toast from 'react-hot-toast';
+import { useLanguage } from '../../i18n/LanguageContext';
 
 const SubscriptionsPage = () => {
   const { isAuthenticated, user } = useAuthStore();
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const [plans, setPlans] = useState([]);
   const [selectedPlan, setSelectedPlan] = useState(null);
   const [isSubscribing, setIsSubscribing] = useState(false);
@@ -68,7 +70,7 @@ const SubscriptionsPage = () => {
 
   const handleSubscribe = async (plan) => {
     if (!isAuthenticated) {
-      toast.error('Please sign in to subscribe');
+      toast.error(t('subscriptions.pleaseSignIn'));
       navigate('/login');
       return;
     }
@@ -106,7 +108,7 @@ const SubscriptionsPage = () => {
           );
           const smsResult = await sendSMS(user.phone, smsMessage);
           if (smsResult.success) {
-            toast.success('Subscription details sent via SMS!');
+            toast.success(t('subscriptions.smsSent'));
           }
         } catch (smsError) {
           console.error('SMS failed:', smsError);
@@ -118,7 +120,7 @@ const SubscriptionsPage = () => {
         try {
           const emailResult = await sendEmail({
             to_email: user.email,
-            subject: `Amani's Cleaners - Subscription Payment for ${plan.name}`,
+            subject: `Amani's Cleaners - ${t('subscriptions.subscriptionPaymentFor')} ${plan.name}`,
             template: 'subscription_payment',
             data: {
               customer_name: `${user.first_name} ${user.last_name}`,
@@ -130,7 +132,7 @@ const SubscriptionsPage = () => {
             }
           });
           if (emailResult.success) {
-            toast.success('Payment instructions sent to your email!');
+            toast.success(t('subscriptions.emailSent'));
           }
         } catch (emailError) {
           console.error('Email failed:', emailError);
@@ -140,8 +142,8 @@ const SubscriptionsPage = () => {
       // Send in-app notification to customer
       try {
         await notificationService.sendToUser(user.id, {
-          title: 'Subscription Created!',
-          message: `Your ${plan.name} subscription has been created. Check your SMS and email for payment instructions.`,
+          title: t('subscriptions.subscriptionCreatedTitle'),
+          message: `${t('subscriptions.subscriptionCreatedMessage')} ${plan.name} ${t('subscriptions.checkSMSEmail')}`,
           type: 'info',
           link: '/account/subscriptions'
         });
@@ -152,8 +154,8 @@ const SubscriptionsPage = () => {
       // Send SMS sent confirmation notification
       try {
         await notificationService.sendToUser(user.id, {
-          title: 'SMS Sent Successfully',
-          message: `We've sent a payment link to your phone number ending in ${user.phone?.slice(-4)}. Please check your messages.`,
+          title: t('subscriptions.smsSentSuccessfully'),
+          message: `${t('subscriptions.paymentLinkSent')} ${user.phone?.slice(-4)}. ${t('subscriptions.checkMessages')}`,
           type: 'info'
         });
       } catch (smsNotifError) {
@@ -163,12 +165,12 @@ const SubscriptionsPage = () => {
       // Broadcast to admins and staff
       try {
         const broadcastNotification = {
-          title: 'New Subscription Created',
-          message: `Customer ${user.first_name} ${user.last_name} subscribed to ${plan.name} plan ($${plan.price}).`,
+          title: t('subscriptions.newSubscriptionCreated'),
+          message: `${t('subscriptions.customerLabel')} ${user.first_name} ${user.last_name} ${t('subscriptions.subscribedTo')} ${plan.name} ${t('subscriptions.plan')} ($${plan.price}).`,
           type: 'info',
           link: '/admin/subscriptions'
         };
-        
+
         await notificationService.broadcastToRole('admin', broadcastNotification);
         await notificationService.broadcastToRole('staff', broadcastNotification);
       } catch (broadcastError) {
@@ -176,11 +178,11 @@ const SubscriptionsPage = () => {
       }
 
       setShowConfirmation(true);
-      toast.success('Subscription created successfully!');
+      toast.success(t('subscriptions.subscriptionCreatedSuccess'));
 
     } catch (error) {
       console.error('Subscription failed:', error);
-      toast.error('Failed to create subscription. Please try again.');
+      toast.error(t('subscriptions.subscriptionCreateFailed'));
     } finally {
       setIsSubscribing(false);
     }
@@ -203,10 +205,10 @@ const SubscriptionsPage = () => {
   };
 
   const benefits = [
-    { icon: Truck, text: 'Free pickup & delivery' },
-    { icon: Clock, text: 'Priority processing' },
-    { icon: Gift, text: 'Exclusive member discounts' },
-    { icon: Shield, text: 'Satisfaction guarantee' },
+    { icon: Truck, text: t('subscriptions.benefits.freePickupDelivery') },
+    { icon: Clock, text: t('subscriptions.benefits.priorityProcessing') },
+    { icon: Gift, text: t('subscriptions.benefits.exclusiveDiscounts') },
+    { icon: Shield, text: t('subscriptions.benefits.satisfactionGuarantee') },
   ];
 
   const studentPlans = plans.filter(p => p.name.toLowerCase().includes('student'));
@@ -224,27 +226,27 @@ const SubscriptionsPage = () => {
                   <Package className="w-6 h-6" />
                 </div>
                 <div>
-                  <h3 className="font-bold text-lg">Your Current Subscription</h3>
+                  <h3 className="font-bold text-lg">{t('subscriptions.yourCurrentSubscription')}</h3>
                   <p className="text-white/80 text-sm">
-                    {currentSubscription.plan_details?.name || 'Active Plan'} •{' '}
-                    {currentSubscription.status.replace('_', ' ').toUpperCase()}
+                    {currentSubscription.plan_details?.name || t('subscriptions.activePlan')} •{' '}
+                    {t(`track.status.${currentSubscription.status}`)}
                   </p>
                 </div>
               </div>
               <div className="flex flex-wrap items-center gap-3">
                 <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                  currentSubscription.status === 'active' 
+                  currentSubscription.status === 'active'
                     ? 'bg-green-500 text-white'
                     : currentSubscription.status === 'pending_payment'
                     ? 'bg-yellow-500 text-white'
                     : 'bg-gray-500 text-white'
                 }`}>
-                  {currentSubscription.status.replace('_', ' ').toUpperCase()}
+                  {t(`track.status.${currentSubscription.status}`)}
                 </span>
                 <div className="text-right">
-                  <p className="text-sm font-medium">${currentSubscription.plan_details?.price || 0}/mo</p>
+                  <p className="text-sm font-medium">${currentSubscription.plan_details?.price || 0}{t('track.perMonth')}</p>
                   <p className="text-xs text-white/80">
-                    Ends: {new Date(currentSubscription.end_date).toLocaleDateString()}
+                    {t('subscriptions.ends')}: {new Date(currentSubscription.end_date).toLocaleDateString()}
                   </p>
                 </div>
               </div>
@@ -270,19 +272,18 @@ const SubscriptionsPage = () => {
           >
             <div className="inline-flex items-center gap-2 bg-amani-500/20 text-amani-400 px-4 py-2 rounded-full text-sm font-medium mb-6">
               <Sparkles className="w-4 h-4" />
-              Save up to 30% with subscriptions
+              {t('subscriptions.hero.saveUp')}
             </div>
 
             <h1 className="text-4xl md:text-5xl font-display font-bold text-white mb-6">
-              Laundry Plans That<br />
+              {t('subscriptions.hero.laundryPlans')}<br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-amani-400 to-maple-400">
-                Fit Your Life
+                {t('subscriptions.hero.fitYourLife')}
               </span>
             </h1>
-            
+
             <p className="text-xl text-gray-400 max-w-2xl mx-auto">
-              Join thousands of Canadians who save time and money with our subscription plans. 
-              Cancel anytime, no commitments.
+              {t('subscriptions.hero.joinThousands')}
             </p>
           </motion.div>
         </div>
@@ -317,12 +318,12 @@ const SubscriptionsPage = () => {
             <div className="text-center mb-10">
               <div className="inline-flex items-center gap-2 text-purple-600 mb-4">
                 <GraduationCap className="w-6 h-6" />
-                <span className="font-semibold">Student Plans</span>
+                <span className="font-semibold">{t('subscriptions.studentPlans')}</span>
               </div>
               <h2 className="text-3xl font-display font-bold text-navy-900 mb-3">
-                Special Rates for Students
+                {t('subscriptions.specialRatesForStudents')}
               </h2>
-              <p className="text-gray-600">Valid student ID required at first pickup</p>
+              <p className="text-gray-600">{t('subscriptions.studentIdRequired')}</p>
             </div>
 
             <div className="grid md:grid-cols-3 gap-6">
@@ -344,45 +345,45 @@ const SubscriptionsPage = () => {
                     {isPopular && (
                       <div className="absolute -top-3 left-1/2 -translate-x-1/2">
                         <span className="bg-purple-500 text-white text-xs font-semibold px-3 py-1 rounded-full">
-                          Most Popular
+                          {t('subscriptions.mostPopular')}
                         </span>
                       </div>
                     )}
-                    
+
                     <div className={`w-12 h-12 bg-${color}-100 rounded-xl flex items-center justify-center mb-4`}>
                       <Icon className={`w-6 h-6 text-${color}-600`} />
                     </div>
-                    
+
                     <h3 className="text-xl font-display font-bold text-navy-900 mb-2">
                       {plan.name}
                     </h3>
-                    
+
                     <div className="mb-4">
                       <span className="text-3xl font-bold text-navy-900">${plan.price}</span>
                       {plan.duration_months && (
                         <span className="text-gray-500 ml-1">
-                          / {plan.duration_months === 1 ? 'month' : `${plan.duration_months} months`}
+                          / {plan.duration_months === 1 ? t('subscriptions.month') : `${plan.duration_months} ${t('subscriptions.months')}`}
                         </span>
                       )}
                     </div>
-                    
+
                     <p className="text-gray-600 text-sm mb-6">{plan.description}</p>
-                    
+
                     <ul className="space-y-3 mb-6">
                       <li className="flex items-start gap-2 text-sm">
                         <Check className="w-5 h-5 text-green-500 flex-shrink-0" />
-                        <span>Up to {plan.monthly_weight_limit || 30}lb/month</span>
+                        <span>{t('subscriptions.upTo')} {plan.monthly_weight_limit || 30}lb{t('subscriptions.perMonth')}</span>
                       </li>
                       <li className="flex items-start gap-2 text-sm">
                         <Check className="w-5 h-5 text-green-500 flex-shrink-0" />
-                        <span>Free pickup & delivery</span>
+                        <span>{t('subscriptions.benefits.freePickupDelivery')}</span>
                       </li>
                       <li className="flex items-start gap-2 text-sm">
                         <Check className="w-5 h-5 text-green-500 flex-shrink-0" />
-                        <span>48-hour turnaround</span>
+                        <span>{t('subscriptions.turnaround48')}</span>
                       </li>
                     </ul>
-                    
+
                     <button
                       onClick={() => handleSubscribe(plan)}
                       disabled={isSubscribing}
@@ -395,11 +396,11 @@ const SubscriptionsPage = () => {
                       {isSubscribing ? (
                         <>
                           <Loader className="w-4 h-4 animate-spin" />
-                          Processing...
+                          {t('common.processing')}
                         </>
                       ) : (
                         <>
-                          Get Started
+                          {t('subscriptions.getStarted')}
                           <ArrowRight className="w-4 h-4" />
                         </>
                       )}
@@ -420,9 +421,9 @@ const SubscriptionsPage = () => {
           >
             <div className="text-center mb-10">
               <h2 className="text-3xl font-display font-bold text-navy-900 mb-3">
-                Premium Plans
+                {t('subscriptions.premiumPlans')}
               </h2>
-              <p className="text-gray-600">For households and professionals</p>
+              <p className="text-gray-600">{t('subscriptions.forHouseholds')}</p>
             </div>
 
             <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
@@ -444,11 +445,11 @@ const SubscriptionsPage = () => {
                     {isGold && (
                       <div className="absolute -top-3 left-1/2 -translate-x-1/2">
                         <span className="bg-gradient-to-r from-amber-500 to-amber-600 text-white text-xs font-semibold px-3 py-1 rounded-full">
-                          Best Value
+                          {t('subscriptions.bestValue')}
                         </span>
                       </div>
                     )}
-                    
+
                     <div className="flex items-start justify-between mb-6">
                       <div>
                         <div className={`w-14 h-14 ${isGold ? 'bg-amber-100' : 'bg-gray-100'} rounded-xl flex items-center justify-center mb-4`}>
@@ -460,37 +461,37 @@ const SubscriptionsPage = () => {
                       </div>
                       <div className="text-right">
                         <span className="text-4xl font-bold text-navy-900">${plan.price}</span>
-                        <span className="text-gray-500 block">/month</span>
+                        <span className="text-gray-500 block">{t('subscriptions.perMonth')}</span>
                       </div>
                     </div>
-                    
+
                     <p className="text-gray-600 mb-6">{plan.description}</p>
-                    
+
                     <ul className="space-y-3 mb-8">
                       <li className="flex items-start gap-3">
                         <Check className={`w-5 h-5 ${isGold ? 'text-amber-500' : 'text-green-500'} flex-shrink-0 mt-0.5`} />
-                        <span>Up to {plan.monthly_weight_limit || 50}lb/month</span>
+                        <span>{t('subscriptions.upTo')} {plan.monthly_weight_limit || 50}lb{t('subscriptions.perMonth')}</span>
                       </li>
                       <li className="flex items-start gap-3">
                         <Check className={`w-5 h-5 ${isGold ? 'text-amber-500' : 'text-green-500'} flex-shrink-0 mt-0.5`} />
-                        <span>Free pickup & delivery included</span>
+                        <span>{t('subscriptions.freePickupIncluded')}</span>
                       </li>
                       <li className="flex items-start gap-3">
                         <Check className={`w-5 h-5 ${isGold ? 'text-amber-500' : 'text-green-500'} flex-shrink-0 mt-0.5`} />
-                        <span>{isGold ? '24-hour express' : '48-hour'} turnaround</span>
+                        <span>{isGold ? t('subscriptions.turnaround24') : t('subscriptions.turnaround48')}</span>
                       </li>
                       <li className="flex items-start gap-3">
                         <Check className={`w-5 h-5 ${isGold ? 'text-amber-500' : 'text-green-500'} flex-shrink-0 mt-0.5`} />
-                        <span>{isGold ? '20%' : '10%'} off dry cleaning</span>
+                        <span>{isGold ? '20%' : '10%'} {t('subscriptions.offDryCleaning')}</span>
                       </li>
                       {isGold && (
                         <li className="flex items-start gap-3">
                           <Check className="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" />
-                          <span>Priority customer support</span>
+                          <span>{t('subscriptions.prioritySupport')}</span>
                         </li>
                       )}
                     </ul>
-                    
+
                     <button
                       onClick={() => handleSubscribe(plan)}
                       disabled={isSubscribing}
@@ -503,11 +504,11 @@ const SubscriptionsPage = () => {
                       {isSubscribing ? (
                         <>
                           <Loader className="w-5 h-5 animate-spin" />
-                          Processing...
+                          {t('common.processing')}
                         </>
                       ) : (
                         <>
-                          Subscribe Now
+                          {t('subscriptions.subscribeNow')}
                           <ArrowRight className="w-5 h-5" />
                         </>
                       )}
@@ -527,26 +528,26 @@ const SubscriptionsPage = () => {
           className="mt-20"
         >
           <h2 className="text-2xl font-display font-bold text-navy-900 text-center mb-10">
-            Frequently Asked Questions
+            {t('subscriptions.faq.title')}
           </h2>
-          
+
           <div className="max-w-3xl mx-auto space-y-4">
             {[
               {
-                q: 'Can I cancel my subscription anytime?',
-                a: 'Yes! You can cancel your subscription at any time. Your benefits will continue until the end of your current billing period.'
+                q: t('subscriptions.faq.cancelAnytime.question'),
+                a: t('subscriptions.faq.cancelAnytime.answer')
               },
               {
-                q: 'What happens if I exceed my monthly weight limit?',
-                a: 'Additional weight beyond your plan limit is charged at our regular rate of $2.39/lb. You\'ll be notified before any extra charges.'
+                q: t('subscriptions.faq.exceedLimit.question'),
+                a: t('subscriptions.faq.exceedLimit.answer')
               },
               {
-                q: 'Do student plans require verification?',
-                a: 'Yes, we\'ll need to see a valid student ID at your first pickup. The ID must show current enrollment status.'
+                q: t('subscriptions.faq.studentVerification.question'),
+                a: t('subscriptions.faq.studentVerification.answer')
               },
               {
-                q: 'Can I pause my subscription?',
-                a: 'Yes, you can pause your subscription for up to 2 months per year at no cost. Just contact us 3 days before your next billing date.'
+                q: t('subscriptions.faq.pauseSubscription.question'),
+                a: t('subscriptions.faq.pauseSubscription.answer')
               },
             ].map((faq, i) => (
               <div key={i} className="bg-white rounded-xl p-6 border border-gray-100">
@@ -566,16 +567,16 @@ const SubscriptionsPage = () => {
         >
           <div className="bg-gradient-to-r from-amani-500 to-maple-500 rounded-3xl p-12">
             <h2 className="text-3xl font-display font-bold text-white mb-4">
-              Not Sure Which Plan?
+              {t('subscriptions.cta.title')}
             </h2>
             <p className="text-white/80 mb-8 max-w-lg mx-auto">
-              Try our pay-as-you-go service first! No commitment required. Experience our quality before subscribing.
+              {t('subscriptions.cta.description')}
             </p>
             <a
               href="/order"
               className="inline-flex items-center gap-2 bg-white text-amani-600 px-8 py-4 rounded-xl font-semibold hover:bg-gray-100 transition-colors"
             >
-              Place an Order
+              {t('subscriptions.cta.placeOrder')}
               <ArrowRight className="w-5 h-5" />
             </a>
           </div>
@@ -594,33 +595,33 @@ const SubscriptionsPage = () => {
               <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Check className="w-8 h-8 text-green-500" />
               </div>
-              
+
               <h3 className="text-2xl font-display font-bold text-navy-900 mb-2">
-                Subscription Created!
+                {t('subscriptions.modal.title')}
               </h3>
-              
+
               <p className="text-gray-600 mb-6">
-                Your {selectedPlan.name} subscription has been created successfully.
+                {t('subscriptions.modal.message')} {selectedPlan.name} {t('subscriptions.modal.successfully')}.
               </p>
-              
+
               <div className="bg-gray-50 rounded-xl p-4 mb-6 text-left">
-                <h4 className="font-semibold text-navy-900 mb-2">Next Steps:</h4>
+                <h4 className="font-semibold text-navy-900 mb-2">{t('subscriptions.modal.nextSteps')}:</h4>
                 <ul className="space-y-2 text-sm text-gray-600">
                   <li className="flex items-start gap-2">
                     <Send className="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5" />
-                    <span>Check your SMS for the payment link</span>
+                    <span>{t('subscriptions.modal.checkSMS')}</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <Send className="w-4 h-4 text-blue-500 flex-shrink-0 mt-0.5" />
-                    <span>Check your email for payment instructions</span>
+                    <span>{t('subscriptions.modal.checkEmail')}</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <Bell className="w-4 h-4 text-purple-500 flex-shrink-0 mt-0.5" />
-                    <span>View subscription details in your account</span>
+                    <span>{t('subscriptions.modal.viewDetails')}</span>
                   </li>
                 </ul>
               </div>
-              
+
               <div className="flex gap-3">
                 <button
                   onClick={() => {
@@ -629,13 +630,13 @@ const SubscriptionsPage = () => {
                   }}
                   className="flex-1 py-3 px-4 border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 font-medium"
                 >
-                  Continue Browsing
+                  {t('subscriptions.modal.continueBrowsing')}
                 </button>
                 <button
                   onClick={() => navigate('/account')}
                   className="flex-1 py-3 px-4 bg-amani-500 text-white rounded-xl hover:bg-amani-600 font-medium"
                 >
-                  View Account
+                  {t('subscriptions.modal.viewAccount')}
                 </button>
               </div>
             </div>

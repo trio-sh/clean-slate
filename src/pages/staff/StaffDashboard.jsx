@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 
-import { 
+import {
   Package, Clock, CheckCircle, AlertTriangle,
   TrendingUp, ChevronRight, RefreshCw, Search,
   Shirt, Droplets, Timer, Users, Truck, Calendar,
@@ -11,6 +11,7 @@ import {
   MapPin, FileText, Download
 } from 'lucide-react';
 import { useAuthStore } from '../../stores';
+import { useLanguage } from '../../i18n/LanguageContext';
 import db from '../../lib/db';
 import { format, isToday, parseISO, differenceInMinutes } from 'date-fns';
 import toast from 'react-hot-toast';
@@ -18,6 +19,7 @@ import CheckInModal from '../../components/CheckInModal';
 import { downloadInvoice, downloadReceipt } from '../../lib/utils';
 
 const StaffDashboard = () => {
+  const { t } = useLanguage();
   const { user } = useAuthStore();
   const [stats, setStats] = useState({
     pendingOrders: 0,

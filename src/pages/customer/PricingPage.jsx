@@ -3,50 +3,52 @@ import { motion } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 
-import { 
-  Check, Sparkles, ArrowRight, Info, Clock, Truck, 
+import {
+  Check, Sparkles, ArrowRight, Info, Clock, Truck,
   Star, Shield, Calculator, ChevronDown, ChevronUp, Zap, ShoppingCart
 } from 'lucide-react';
 import { useCartStore } from '../../stores';
+import { useLanguage } from '../../i18n/LanguageContext';
 
 const PricingPage = () => {
   const navigate = useNavigate();
   const { addItem, items } = useCartStore();
+  const { t } = useLanguage();
   const [expandedCategory, setExpandedCategory] = useState('shirts');
   const [calculator, setCalculator] = useState({ weight: 23, type: 'regular' });
   const [selectedSameDayFee, setSelectedSameDayFee] = useState(25);
 
   // Same Day Service addon
   const sameDayOptions = [
-    { fee: 20, label: 'Standard Rush', turnaround: '8-10 hours' },
-    { fee: 25, label: 'Express Rush', turnaround: '6-8 hours' },
-    { fee: 35, label: 'Priority Rush', turnaround: '4-6 hours' },
+    { fee: 20, label: t('pricing.sameDayOptions.standardRush'), turnaround: t('pricing.sameDayOptions.standardRushTime') },
+    { fee: 25, label: t('pricing.sameDayOptions.expressRush'), turnaround: t('pricing.sameDayOptions.expressRushTime') },
+    { fee: 35, label: t('pricing.sameDayOptions.priorityRush'), turnaround: t('pricing.sameDayOptions.priorityRushTime') },
   ];
 
   const handleAddSameDayService = (fee = 25) => {
     // Check if same day service already in cart
     const existingSameDay = items.find(item => item.id === 'same-day-service');
     if (existingSameDay) {
-      toast.error('Same day service already in cart');
+      toast.error(t('pricing.sameDayAlreadyInCart'));
       navigate('/order');
       return;
     }
 
     const option = sameDayOptions.find(o => o.fee === fee) || sameDayOptions[1];
-    
+
     addItem({
       id: 'same-day-service',
-      name: `Same Day Service - ${option.label}`,
-      service_name: `Same Day Service - ${option.label}`,
+      name: `${t('pricing.sameDayService')} - ${option.label}`,
+      service_name: `${t('pricing.sameDayService')} - ${option.label}`,
       price: fee,
       quantity: 1,
       isAddon: true,
       addonType: 'same-day',
       turnaround: option.turnaround,
-      notes: `SAME DAY SERVICE REQUESTED: ${option.label} (${option.turnaround} turnaround). Customer agrees to expedited processing terms.`
+      notes: `${t('pricing.sameDayServiceRequested')}: ${option.label} (${option.turnaround} ${t('pricing.turnaround')}). ${t('pricing.sameDayTerms')}`
     });
 
-    toast.success(`Same Day Service ($${fee}) added to cart!`);
+    toast.success(t('pricing.sameDayAddedToCart', { fee }));
     navigate('/order');
   };
 
@@ -60,162 +62,162 @@ const PricingPage = () => {
   const pricingCategories = [
     {
       id: 'shirts',
-      name: 'Shirts and Blouses',
+      name: t('pricing.categories.shirtsAndBlouses'),
       icon: '👔',
       items: [
-        { name: 'Shirts - Laundered On Hanger', price: 6.50 },
-        { name: 'Shirts - Dryclean On Hanger', price: 8.50 },
-        { name: 'Shirts - Dryclean Folded', price: 9.50 },
-        { name: 'Shirts - Polo/Golf', price: 8.50 },
-        { name: 'Blouse', price: 12.00 },
-        { name: 'Blouse - Silk or Linen', price: 15.00 },
-        { name: 'Blouse - Sequined or Beaded', price: 15.00 },
+        { name: t('pricing.items.shirtsLaunderedOnHanger'), price: 6.50 },
+        { name: t('pricing.items.shirtsDrycleanOnHanger'), price: 8.50 },
+        { name: t('pricing.items.shirtsDrycleanFolded'), price: 9.50 },
+        { name: t('pricing.items.shirtsPoloGolf'), price: 8.50 },
+        { name: t('pricing.items.blouse'), price: 12.00 },
+        { name: t('pricing.items.blouseSilkLinen'), price: 15.00 },
+        { name: t('pricing.items.blouseSequinedBeaded'), price: 15.00 },
       ]
     },
     {
       id: 'pants',
-      name: 'Pants and Shorts',
+      name: t('pricing.categories.pantsAndShorts'),
       icon: '👖',
       items: [
-        { name: 'Pants - Regular Poly-Blend', price: 9.50 },
-        { name: 'Pants - Cotton', price: 11.00 },
-        { name: 'Pants - Linen', price: 17.00 },
-        { name: 'Pants - Silk', price: 17.00 },
-        { name: 'Pants - Velvet', price: 16.00 },
-        { name: 'Shorts', price: 8.00 },
+        { name: t('pricing.items.pantsRegularPolyBlend'), price: 9.50 },
+        { name: t('pricing.items.pantsCotton'), price: 11.00 },
+        { name: t('pricing.items.pantsLinen'), price: 17.00 },
+        { name: t('pricing.items.pantsSilk'), price: 17.00 },
+        { name: t('pricing.items.pantsVelvet'), price: 16.00 },
+        { name: t('pricing.items.shorts'), price: 8.00 },
       ]
     },
     {
       id: 'skirts',
-      name: 'Skirts',
+      name: t('pricing.categories.skirts'),
       icon: '👗',
       items: [
-        { name: 'Skirts - Regular Plain', price: 9.00 },
-        { name: 'Skirts - Long Plain or Cotton', price: 14.00 },
-        { name: 'Skirts - Silk', price: 19.00 },
-        { name: 'Skirts - Lined or Linen', price: 19.00 },
+        { name: t('pricing.items.skirtsRegularPlain'), price: 9.00 },
+        { name: t('pricing.items.skirtsLongPlainCotton'), price: 14.00 },
+        { name: t('pricing.items.skirtsSilk'), price: 19.00 },
+        { name: t('pricing.items.skirtsLinedLinen'), price: 19.00 },
       ]
     },
     {
       id: 'dresses',
-      name: 'Dresses',
+      name: t('pricing.categories.dresses'),
       icon: '👗',
       items: [
-        { name: 'Dress - Regular', price: 18.00 },
-        { name: 'Dress - Pleated/Long', price: 20.00 },
-        { name: 'Dress - Cocktail/Fancy', price: 28.00 },
-        { name: 'Dress - Silk', price: 32.00 },
-        { name: 'Dress - Linen, Velvet, Lined', price: 35.00 },
-        { name: 'Dress - Beads & Sequins', price: 35.00 },
+        { name: t('pricing.items.dressRegular'), price: 18.00 },
+        { name: t('pricing.items.dressPleatedLong'), price: 20.00 },
+        { name: t('pricing.items.dressCocktailFancy'), price: 28.00 },
+        { name: t('pricing.items.dressSilk'), price: 32.00 },
+        { name: t('pricing.items.dressLinenVelvetLined'), price: 35.00 },
+        { name: t('pricing.items.dressBeadsSequins'), price: 35.00 },
       ]
     },
     {
       id: 'jackets',
-      name: 'Jackets',
+      name: t('pricing.categories.jackets'),
       icon: '🧥',
       items: [
-        { name: 'Blazer/Suit Jacket', price: 14.00 },
-        { name: 'Heavy Jacket', price: 26.00 },
-        { name: 'Jean Jacket', price: 14.00 },
-        { name: '3/4 Length Jacket', price: 27.00 },
-        { name: 'Full Length Jacket', price: 32.00 },
-        { name: 'Faux Fur Coat - starting from', price: 40.00 },
-        { name: 'Leather Trim Jacket - starting from', price: 42.00 },
-        { name: 'Vest', price: 12.00 },
-        { name: 'Jacket with attached hood', price: 27.00 },
+        { name: t('pricing.items.blazerSuitJacket'), price: 14.00 },
+        { name: t('pricing.items.heavyJacket'), price: 26.00 },
+        { name: t('pricing.items.jeanJacket'), price: 14.00 },
+        { name: t('pricing.items.threeFourthsLengthJacket'), price: 27.00 },
+        { name: t('pricing.items.fullLengthJacket'), price: 32.00 },
+        { name: t('pricing.items.fauxFurCoat'), price: 40.00 },
+        { name: t('pricing.items.leatherTrimJacket'), price: 42.00 },
+        { name: t('pricing.items.vest'), price: 12.00 },
+        { name: t('pricing.items.jacketWithHood'), price: 27.00 },
       ]
     },
     {
       id: 'sweaters',
-      name: 'Sweaters',
+      name: t('pricing.categories.sweaters'),
       icon: '🧶',
       items: [
-        { name: 'Sweater', price: 10.00 },
-        { name: 'Sweater Bulky/Silk', price: 12.00 },
-        { name: 'Sweater Dress', price: 17.00 },
-        { name: 'Sweater Sequins or Beaded', price: 19.00 },
-        { name: 'Sweater Cashmere', price: 19.00 },
+        { name: t('pricing.items.sweater'), price: 10.00 },
+        { name: t('pricing.items.sweaterBulkySilk'), price: 12.00 },
+        { name: t('pricing.items.sweaterDress'), price: 17.00 },
+        { name: t('pricing.items.sweaterSequinsBeaded'), price: 19.00 },
+        { name: t('pricing.items.sweaterCashmere'), price: 19.00 },
       ]
     },
     {
       id: 'wedding',
-      name: 'Wedding/Formal',
+      name: t('pricing.categories.weddingFormal'),
       icon: '👰',
       items: [
-        { name: 'Wedding Gowns Preserved and Boxed - starting from', price: 210.00 },
-        { name: 'Bridal Veil - starting from', price: 50.00 },
-        { name: 'Prom Dress - starting from', price: 28.00 },
-        { name: 'Tuxedo 2 piece', price: 27.00 },
-        { name: 'Tuxedo 3 piece', price: 33.00 },
-        { name: 'Formal Shirt - french cuff or ruffled', price: 11.00 },
+        { name: t('pricing.items.weddingGownsPreserved'), price: 210.00 },
+        { name: t('pricing.items.bridalVeil'), price: 50.00 },
+        { name: t('pricing.items.promDress'), price: 28.00 },
+        { name: t('pricing.items.tuxedo2Piece'), price: 27.00 },
+        { name: t('pricing.items.tuxedo3Piece'), price: 33.00 },
+        { name: t('pricing.items.formalShirt'), price: 11.00 },
       ]
     },
     {
       id: 'suits',
-      name: 'Suits',
+      name: t('pricing.categories.suits'),
       icon: '🤵',
       items: [
-        { name: "Men's or Women's 2 piece suit - starting from", price: 24.00 },
-        { name: "Men's or Women's 3 piece suit - starting from", price: 29.00 },
-        { name: 'Child 2 pc Suit - starting from', price: 15.00 },
-        { name: 'Child 3 pc Suit - starting from', price: 18.00 },
+        { name: t('pricing.items.suit2Piece'), price: 24.00 },
+        { name: t('pricing.items.suit3Piece'), price: 29.00 },
+        { name: t('pricing.items.child2PieceSuit'), price: 15.00 },
+        { name: t('pricing.items.child3PieceSuit'), price: 18.00 },
       ]
     },
     {
       id: 'accessories',
-      name: 'Tie/Scarf/Pocket Square',
+      name: t('pricing.categories.accessories'),
       icon: '🧣',
       items: [
-        { name: 'Tie', price: 6.00 },
-        { name: 'Pocket Square', price: 6.00 },
-        { name: 'Scarf - starting from', price: 7.00 },
+        { name: t('pricing.items.tie'), price: 6.00 },
+        { name: t('pricing.items.pocketSquare'), price: 6.00 },
+        { name: t('pricing.items.scarf'), price: 7.00 },
       ]
     },
     {
       id: 'winter',
-      name: 'Coats/Winter Wear',
+      name: t('pricing.categories.coatsWinterWear'),
       icon: '🧥',
       items: [
-        { name: 'Ski Pants - starting from', price: 18.00 },
-        { name: 'Ski Jacket - starting from', price: 21.00 },
-        { name: 'Ski Suit 2 pieces - starting from', price: 30.00 },
-        { name: 'Ski Suit 2 pieces - Down Filled - starting from', price: 89.00 },
-        { name: '3/4 Length Car Coat - starting from', price: 35.00 },
-        { name: 'Full Length Coat - starting from', price: 40.00 },
-        { name: 'Raincoat, Spring Jacket, Windbreaker - from', price: 26.00 },
-        { name: 'Winter Jacket Men or Women - starting from', price: 26.00 },
-        { name: 'Down Filled Jacket - starting from', price: 50.00 },
-        { name: 'Wool Coat - starting from', price: 50.00 },
-        { name: 'Canada Goose Jackets - starting from', price: 60.00 },
-        { name: 'Laundered - Winter Coat', price: 22.00 },
+        { name: t('pricing.items.skiPants'), price: 18.00 },
+        { name: t('pricing.items.skiJacket'), price: 21.00 },
+        { name: t('pricing.items.skiSuit2Pieces'), price: 30.00 },
+        { name: t('pricing.items.skiSuit2PiecesDownFilled'), price: 89.00 },
+        { name: t('pricing.items.threeFourthsLengthCarCoat'), price: 35.00 },
+        { name: t('pricing.items.fullLengthCoat'), price: 40.00 },
+        { name: t('pricing.items.raincoatSpringJacket'), price: 26.00 },
+        { name: t('pricing.items.winterJacket'), price: 26.00 },
+        { name: t('pricing.items.downFilledJacket'), price: 50.00 },
+        { name: t('pricing.items.woolCoat'), price: 50.00 },
+        { name: t('pricing.items.canadaGooseJackets'), price: 60.00 },
+        { name: t('pricing.items.launderedWinterCoat'), price: 22.00 },
       ]
     },
     {
       id: 'bedding',
-      name: 'Blankets, Comforters and Duvets',
+      name: t('pricing.categories.blanketsComfortersDuvets'),
       icon: '🛏️',
       items: [
-        { name: 'Blanket - Twin or Full', price: 25.00 },
-        { name: 'Blanket - Queen or King', price: 35.00 },
-        { name: 'Comforter - Twin or Full', price: 35.00 },
-        { name: 'Comforter - Queen or King', price: 45.00 },
-        { name: 'Comforter - Down Twin or full', price: 50.00 },
-        { name: 'Comforter - Down Queen or King', price: 66.00 },
-        { name: 'Duvet - starting at', price: 45.00 },
-        { name: 'Duvet Cover - starting at', price: 22.00 },
+        { name: t('pricing.items.blanketTwinFull'), price: 25.00 },
+        { name: t('pricing.items.blanketQueenKing'), price: 35.00 },
+        { name: t('pricing.items.comforterTwinFull'), price: 35.00 },
+        { name: t('pricing.items.comforterQueenKing'), price: 45.00 },
+        { name: t('pricing.items.comforterDownTwinFull'), price: 50.00 },
+        { name: t('pricing.items.comforterDownQueenKing'), price: 66.00 },
+        { name: t('pricing.items.duvet'), price: 45.00 },
+        { name: t('pricing.items.duvetCover'), price: 22.00 },
       ]
     },
     {
       id: 'culinary',
-      name: 'Culinary Linen - Dry Cleaned',
+      name: t('pricing.categories.culinaryLinen'),
       icon: '🍽️',
       items: [
-        { name: 'Table Cloths 90" x 90"', price: 27.00 },
-        { name: 'Table Cloths 120" x 72"', price: 30.00 },
-        { name: 'Table Cloths 120" Round', price: 22.00 },
-        { name: 'Chef Coats/Jackets', price: 16.00 },
-        { name: 'Aprons', price: 9.75 },
-        { name: 'Dinner Napkin', price: 5.00 },
+        { name: t('pricing.items.tableCloths90x90'), price: 27.00 },
+        { name: t('pricing.items.tableCloths120x72'), price: 30.00 },
+        { name: t('pricing.items.tableCloths120Round'), price: 22.00 },
+        { name: t('pricing.items.chefCoatsJackets'), price: 16.00 },
+        { name: t('pricing.items.aprons'), price: 9.75 },
+        { name: t('pricing.items.dinnerNapkin'), price: 5.00 },
       ]
     },
   ];
@@ -223,7 +225,7 @@ const PricingPage = () => {
   const calculatedPrice = () => {
     const weight = calculator.weight;
     const rate = calculator.type === 'regular' ? laundryPricing.regular : laundryPricing.commercial;
-    
+
     if (weight < laundryPricing.minimum) {
       return laundryPricing.flatRate;
     }
@@ -242,13 +244,13 @@ const PricingPage = () => {
           >
             <span className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-full px-4 py-2 mb-6">
               <Star className="w-4 h-4 text-yellow-400" />
-              <span className="text-white font-medium">Transparent Pricing</span>
+              <span className="text-white font-medium">{t('pricing.transparentPricing')}</span>
             </span>
             <h1 className="text-4xl md:text-5xl font-display font-bold text-white mb-4">
-              Our Pricing
+              {t('pricing.title')}
             </h1>
             <p className="text-xl text-gray-300 max-w-2xl mx-auto">
-              Competitive rates for premium quality cleaning services.
+              {t('pricing.subtitle')}
             </p>
           </motion.div>
         </div>
@@ -265,38 +267,38 @@ const PricingPage = () => {
             <div className="bg-gradient-to-br from-amani-500 to-maple-500 p-8 text-white">
               <h2 className="text-3xl font-display font-bold mb-2 flex items-center gap-3">
                 <span className="text-4xl">🧺</span>
-                Wash & Fold Laundry
+                {t('pricing.washFoldLaundry')}
               </h2>
-              <p className="text-white/80">Our most popular service for everyday laundry</p>
+              <p className="text-white/80">{t('pricing.washFoldDescription')}</p>
             </div>
-            
+
             <div className="p-8">
               <div className="grid md:grid-cols-3 gap-8">
                 {/* Regular */}
                 <div className="text-center p-6 bg-gray-50 rounded-2xl">
-                  <h3 className="font-semibold text-navy-900 mb-2">Regular</h3>
+                  <h3 className="font-semibold text-navy-900 mb-2">{t('pricing.regular')}</h3>
                   <p className="text-4xl font-display font-bold text-amani-600">
                     $2.39<span className="text-lg font-normal text-gray-500">/lb</span>
                   </p>
-                  <p className="text-sm text-gray-500 mt-2">For household laundry</p>
+                  <p className="text-sm text-gray-500 mt-2">{t('pricing.forHouseholdLaundry')}</p>
                 </div>
-                
+
                 {/* Commercial */}
                 <div className="text-center p-6 bg-gray-50 rounded-2xl">
-                  <h3 className="font-semibold text-navy-900 mb-2">Commercial</h3>
+                  <h3 className="font-semibold text-navy-900 mb-2">{t('pricing.commercial')}</h3>
                   <p className="text-4xl font-display font-bold text-amani-600">
                     $2.25<span className="text-lg font-normal text-gray-500">/lb</span>
                   </p>
-                  <p className="text-sm text-gray-500 mt-2">For business clients</p>
+                  <p className="text-sm text-gray-500 mt-2">{t('pricing.forBusinessClients')}</p>
                 </div>
-                
+
                 {/* Minimum */}
                 <div className="text-center p-6 bg-amani-50 rounded-2xl border-2 border-amani-200">
-                  <h3 className="font-semibold text-navy-900 mb-2">Minimum Order</h3>
+                  <h3 className="font-semibold text-navy-900 mb-2">{t('pricing.minimumOrder')}</h3>
                   <p className="text-4xl font-display font-bold text-navy-900">
                     23<span className="text-lg font-normal text-gray-500">lb</span>
                   </p>
-                  <p className="text-sm text-amani-600 mt-2">or $64.01 flat rate</p>
+                  <p className="text-sm text-amani-600 mt-2">{t('pricing.orFlatRate')}</p>
                 </div>
               </div>
 
@@ -304,11 +306,11 @@ const PricingPage = () => {
               <div className="mt-8 p-6 bg-blue-50 rounded-2xl">
                 <h4 className="font-semibold text-navy-900 mb-4 flex items-center gap-2">
                   <Calculator className="w-5 h-5 text-blue-600" />
-                  Quick Price Calculator
+                  {t('pricing.quickPriceCalculator')}
                 </h4>
                 <div className="flex flex-wrap items-end gap-4">
                   <div>
-                    <label className="block text-sm text-gray-600 mb-1">Weight (lbs)</label>
+                    <label className="block text-sm text-gray-600 mb-1">{t('pricing.weightLbs')}</label>
                     <input
                       type="number"
                       value={calculator.weight}
@@ -318,23 +320,23 @@ const PricingPage = () => {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm text-gray-600 mb-1">Type</label>
+                    <label className="block text-sm text-gray-600 mb-1">{t('pricing.type')}</label>
                     <select
                       value={calculator.type}
                       onChange={(e) => setCalculator(prev => ({ ...prev, type: e.target.value }))}
                       className="input w-40"
                     >
-                      <option value="regular">Regular</option>
-                      <option value="commercial">Commercial</option>
+                      <option value="regular">{t('pricing.regular')}</option>
+                      <option value="commercial">{t('pricing.commercial')}</option>
                     </select>
                   </div>
                   <div className="bg-white px-6 py-3 rounded-xl">
-                    <span className="text-sm text-gray-500">Estimated Total:</span>
+                    <span className="text-sm text-gray-500">{t('pricing.estimatedTotal')}:</span>
                     <span className="text-2xl font-bold text-amani-600 ml-2">
                       ${calculatedPrice().toFixed(2)}
                     </span>
                     {calculator.weight < laundryPricing.minimum && (
-                      <span className="text-xs text-gray-500 ml-2">(min order)</span>
+                      <span className="text-xs text-gray-500 ml-2">({t('pricing.minOrder')})</span>
                     )}
                   </div>
                 </div>
@@ -351,18 +353,18 @@ const PricingPage = () => {
         >
           <div className="card p-6 bg-gradient-to-br from-green-50 to-emerald-50 border-green-200">
             <Sparkles className="w-8 h-8 text-green-600 mb-3" />
-            <h3 className="font-semibold text-green-900">15% Off First Order</h3>
-            <p className="text-sm text-green-700">Sign up on our app to redeem</p>
+            <h3 className="font-semibold text-green-900">{t('pricing.offers.firstOrder')}</h3>
+            <p className="text-sm text-green-700">{t('pricing.offers.firstOrderDesc')}</p>
           </div>
           <div className="card p-6 bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-200">
             <Truck className="w-8 h-8 text-blue-600 mb-3" />
-            <h3 className="font-semibold text-blue-900">$20 Off First Laundry</h3>
-            <p className="text-sm text-blue-700">On orders over $50</p>
+            <h3 className="font-semibold text-blue-900">{t('pricing.offers.firstLaundry')}</h3>
+            <p className="text-sm text-blue-700">{t('pricing.offers.firstLaundryDesc')}</p>
           </div>
           <div className="card p-6 bg-gradient-to-br from-purple-50 to-pink-50 border-purple-200">
             <Star className="w-8 h-8 text-purple-600 mb-3" />
-            <h3 className="font-semibold text-purple-900">10% Senior Discount</h3>
-            <p className="text-sm text-purple-700">In-store orders only</p>
+            <h3 className="font-semibold text-purple-900">{t('pricing.offers.seniorDiscount')}</h3>
+            <p className="text-sm text-purple-700">{t('pricing.offers.seniorDiscountDesc')}</p>
           </div>
         </motion.div>
 
@@ -378,26 +380,26 @@ const PricingPage = () => {
                 <Zap className="w-7 h-7 text-amber-600" />
               </div>
               <div className="flex-1">
-                <h3 className="font-semibold text-amber-900 text-lg">Same Day Delivery Available</h3>
-                <p className="text-amber-700">Need it fast? Select your rush level below</p>
+                <h3 className="font-semibold text-amber-900 text-lg">{t('pricing.sameDayDeliveryAvailable')}</h3>
+                <p className="text-amber-700">{t('pricing.selectYourRushLevel')}</p>
               </div>
             </div>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-4">
               {sameDayOptions.map((option) => (
                 <button
                   key={option.fee}
                   onClick={() => handleAddSameDayService(option.fee)}
                   className={`p-4 rounded-xl border-2 transition-all text-left hover:scale-[1.02] ${
-                    option.fee === 25 
-                      ? 'border-amber-500 bg-amber-100 shadow-md' 
+                    option.fee === 25
+                      ? 'border-amber-500 bg-amber-100 shadow-md'
                       : 'border-amber-200 bg-white hover:border-amber-400'
                   }`}
                 >
                   <div className="flex items-center justify-between mb-2">
                     <span className="font-bold text-amber-900 text-lg">${option.fee}</span>
                     {option.fee === 25 && (
-                      <span className="text-xs bg-amber-500 text-white px-2 py-0.5 rounded-full">Popular</span>
+                      <span className="text-xs bg-amber-500 text-white px-2 py-0.5 rounded-full">{t('pricing.popular')}</span>
                     )}
                   </div>
                   <div className="font-medium text-amber-800">{option.label}</div>
@@ -407,14 +409,14 @@ const PricingPage = () => {
                   </div>
                   <div className="mt-2 flex items-center gap-1 text-amber-700 text-sm font-medium">
                     <ShoppingCart className="w-4 h-4" />
-                    Add to Order
+                    {t('pricing.addToOrder')}
                   </div>
                 </button>
               ))}
             </div>
-            
+
             <p className="text-xs text-amber-600 mt-3 text-center">
-              * Same day service requires order placed before 10 AM. Subject to availability.
+              {t('pricing.sameDayDisclaimer')}
             </p>
           </div>
         </motion.div>
@@ -425,9 +427,9 @@ const PricingPage = () => {
           animate={{ opacity: 1, y: 0 }}
         >
           <h2 className="text-3xl font-display font-bold text-navy-900 mb-8 text-center">
-            Dry Cleaning Price List
+            {t('pricing.dryCleaningPriceList')}
           </h2>
-          
+
           <div className="space-y-4">
             {pricingCategories.map((category) => (
               <div key={category.id} className="card overflow-hidden">
@@ -438,7 +440,7 @@ const PricingPage = () => {
                   <div className="flex items-center gap-4">
                     <span className="text-3xl">{category.icon}</span>
                     <h3 className="text-xl font-semibold text-navy-900">{category.name}</h3>
-                    <span className="text-sm text-gray-500">({category.items.length} items)</span>
+                    <span className="text-sm text-gray-500">({category.items.length} {t('pricing.items_count')})</span>
                   </div>
                   {expandedCategory === category.id ? (
                     <ChevronUp className="w-6 h-6 text-gray-400" />
@@ -446,7 +448,7 @@ const PricingPage = () => {
                     <ChevronDown className="w-6 h-6 text-gray-400" />
                   )}
                 </button>
-                
+
                 {expandedCategory === category.id && (
                   <motion.div
                     initial={{ opacity: 0, height: 0 }}
@@ -480,13 +482,13 @@ const PricingPage = () => {
           <div className="flex gap-4">
             <Info className="w-6 h-6 text-blue-600 flex-shrink-0 mt-0.5" />
             <div>
-              <h4 className="font-semibold text-blue-900 mb-2">Important Notes</h4>
+              <h4 className="font-semibold text-blue-900 mb-2">{t('pricing.importantNotes')}</h4>
               <ul className="text-sm text-blue-800 space-y-1">
-                <li>• "Starting from" prices indicate items assessed individually based on condition and complexity</li>
-                <li>• Prices are subject to change without notice</li>
-                <li>• Additional charges may apply for heavily soiled items or special treatments</li>
-                <li>• All prices are in Canadian Dollars (CAD)</li>
-                <li>• HST not included in displayed prices</li>
+                <li>• {t('pricing.note1')}</li>
+                <li>• {t('pricing.note2')}</li>
+                <li>• {t('pricing.note3')}</li>
+                <li>• {t('pricing.note4')}</li>
+                <li>• {t('pricing.note5')}</li>
               </ul>
             </div>
           </div>
@@ -499,18 +501,18 @@ const PricingPage = () => {
           className="mt-12 text-center"
         >
           <h3 className="text-2xl font-display font-bold text-navy-900 mb-4">
-            Ready to Get Started?
+            {t('pricing.readyToGetStarted')}
           </h3>
           <p className="text-gray-600 mb-6">
-            Experience premium cleaning service with free pickup and delivery.
+            {t('pricing.experiencePremiumCleaning')}
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link to="/order" className="btn-primary inline-flex items-center gap-2">
               <Sparkles className="w-5 h-5" />
-              Place Your Order
+              {t('pricing.placeYourOrder')}
             </Link>
             <Link to="/subscriptions" className="btn-outline inline-flex items-center gap-2">
-              View Subscription Plans
+              {t('pricing.viewSubscriptionPlans')}
               <ArrowRight className="w-5 h-5" />
             </Link>
           </div>

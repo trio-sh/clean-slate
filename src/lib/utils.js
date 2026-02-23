@@ -677,10 +677,10 @@ export const downloadInvoice = async (order) => {
   }, 500);
 };
 
-// Generate receipt (simpler version)
+// Generate receipt (compact version - fits on single page)
 export const generateReceiptHTML = async (order) => {
   const qrCodeUrl = await generateOrderQRCode(order.reference_code);
-  
+
   return `
 <!DOCTYPE html>
 <html>
@@ -688,65 +688,78 @@ export const generateReceiptHTML = async (order) => {
   <meta charset="UTF-8">
   <title>Receipt #${order.reference_code}</title>
   <style>
-    body { font-family: 'Courier New', monospace; width: 300px; margin: 0 auto; padding: 20px; background: white; }
-    .header { text-align: center; border-bottom: 2px dashed #333; padding-bottom: 15px; margin-bottom: 15px; }
-    .header h1 { font-size: 18px; margin: 0 0 5px 0; }
-    .header p { margin: 3px 0; font-size: 12px; }
-    .items { margin: 15px 0; }
-    .item { display: flex; justify-content: space-between; margin: 5px 0; font-size: 12px; }
-    .divider { border-top: 1px dashed #333; margin: 10px 0; }
-    .total { display: flex; justify-content: space-between; font-weight: bold; font-size: 14px; }
-    .qr { text-align: center; margin-top: 15px; }
-    .qr img { width: 80px; height: 80px; }
-    .footer { text-align: center; font-size: 10px; margin-top: 15px; border-top: 2px dashed #333; padding-top: 15px; }
+    body { font-family: 'Arial', sans-serif; width: 280px; margin: 0 auto; padding: 10px; background: white; }
+    .header { text-align: center; border-bottom: 1px dashed #333; padding-bottom: 8px; margin-bottom: 8px; }
+    .header img { height: 30px; width: auto; margin-bottom: 4px; }
+    .header h1 { font-size: 14px; margin: 0 0 3px 0; }
+    .header p { margin: 2px 0; font-size: 9px; color: #666; }
+    .info { font-size: 9px; color: #555; margin: 6px 0; text-align: center; }
+    .items { margin: 8px 0; font-size: 10px; }
+    .item { display: flex; justify-content: space-between; margin: 3px 0; }
+    .item-name { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 180px; }
+    .divider { border-top: 1px dashed #ccc; margin: 6px 0; }
+    .totals { margin: 6px 0; }
+    .total-row { display: flex; justify-content: space-between; font-size: 10px; margin: 2px 0; }
+    .total-row.final { font-weight: bold; font-size: 12px; border-top: 2px solid #333; padding-top: 4px; margin-top: 4px; }
+    .qr { text-align: center; margin: 8px 0; }
+    .qr img { width: 60px; height: 60px; }
+    .qr p { font-size: 8px; color: #666; margin: 2px 0 0 0; }
+    .footer { text-align: center; font-size: 8px; color: #666; border-top: 1px dashed #333; padding-top: 6px; margin-top: 6px; }
+    .payment-status { font-weight: bold; font-size: 10px; padding: 3px 6px; border-radius: 3px; display: inline-block; margin-top: 4px; }
+    .paid { background: #d1fae5; color: #059669; }
+    .pending { background: #fef3c7; color: #d97706; }
   </style>
 </head>
 <body>
   <div class="header">
-    <img src="${window.location.origin}/logo.png" alt="Amani's Cleaners" style="height: 40px; width: auto; margin-bottom: 8px;">
+    <img src="${window.location.origin}/logo.png" alt="Amani's Cleaners">
     <h1>AMANI'S CLEANERS</h1>
     <p>🍁 Proudly Canadian Since 2013</p>
     <p>${config.business.phone}</p>
-    <p>Order #${order.reference_code}</p>
-    <p>${new Date(order.created_at).toLocaleString('en-CA')}</p>
   </div>
-  
+
+  <div class="info">
+    <p>Order #${order.reference_code}</p>
+    <p>${new Date(order.created_at).toLocaleDateString('en-CA')} ${new Date(order.created_at).toLocaleTimeString('en-CA', {hour: '2-digit', minute:'2-digit'})}</p>
+    <p>${order.customer_name || 'Guest'}</p>
+  </div>
+
   <div class="items">
     ${(order.items || []).map(item => `
       <div class="item">
-        <span>${item.quantity}x ${(item.name || item.service_name || 'Item').substring(0, 20)}</span>
+        <span class="item-name">${item.quantity}x ${(item.name || item.service_name || 'Item').substring(0, 25)}</span>
         <span>$${(Number(item.total_price) || 0).toFixed(2)}</span>
       </div>
     `).join('')}
   </div>
-  
+
   <div class="divider"></div>
-  
-  <div class="item">
-    <span>Subtotal</span>
-    <span>$${(Number(order.subtotal) || 0).toFixed(2)}</span>
+
+  <div class="totals">
+    <div class="total-row">
+      <span>Subtotal</span>
+      <span>$${(Number(order.subtotal) || 0).toFixed(2)}</span>
+    </div>
+    <div class="total-row">
+      <span>HST (13%)</span>
+      <span>$${(Number(order.tax) || 0).toFixed(2)}</span>
+    </div>
+    <div class="total-row final">
+      <span>TOTAL</span>
+      <span>$${(Number(order.total) || 0).toFixed(2)}</span>
+    </div>
   </div>
-  <div class="item">
-    <span>HST (13%)</span>
-    <span>$${(Number(order.tax) || 0).toFixed(2)}</span>
-  </div>
-  
-  <div class="divider"></div>
-  
-  <div class="total">
-    <span>TOTAL</span>
-    <span>$${(Number(order.total) || 0).toFixed(2)}</span>
-  </div>
-  
+
   <div class="qr">
     <img src="${qrCodeUrl}" alt="QR Code">
-    <p style="font-size: 10px; margin-top: 5px;">Scan to track order</p>
+    <p>Scan to track order</p>
   </div>
-  
+
   <div class="footer">
     <p>Thank you for your business!</p>
-    <p>Customer: ${order.customer_name || 'Guest'}</p>
-    <p>${order.payment_status === 'paid' ? '*** PAID ***' : '*** PAYMENT PENDING ***'}</p>
+    <p class="payment-status ${order.payment_status === 'paid' ? 'paid' : 'pending'}">
+      ${order.payment_status === 'paid' ? '✓ PAID' : '○ PAYMENT PENDING'}
+    </p>
   </div>
 </body>
 </html>

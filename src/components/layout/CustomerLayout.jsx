@@ -1,15 +1,18 @@
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  Menu, X, ShoppingCart, User, MapPin, Phone, Mail, 
+import {
+  Menu, X, ShoppingCart, User, MapPin, Phone, Mail,
   Facebook, Instagram, Twitter, ChevronDown, Sparkles,
   Shirt, Clock, Truck, Star, Leaf, Bell, CheckCircle, Trash2
 } from 'lucide-react';
 import { useAuthStore, useCartStore, useAppStore, useNotificationStore } from '../../stores';
 import { format } from 'date-fns';
+import LanguageSwitcher from '../LanguageSwitcher';
+import { useLanguage } from '../../i18n/LanguageContext';
 
 const CustomerLayout = () => {
+  const { t } = useLanguage();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const notifRef = useRef(null);
@@ -67,12 +70,12 @@ const CustomerLayout = () => {
   };
 
   const navigation = [
-    { name: 'Home', href: '/' },
-    { name: 'Services', href: '/services' },
-    { name: 'Pricing', href: '/pricing' },
-    { name: 'Subscriptions', href: '/subscriptions' },
-    { name: 'Track Order', href: '/track' },
-    { name: 'Drive With Us', href: '/drive-with-us' },
+    { name: t('navigation.home'), href: '/' },
+    { name: t('navigation.services'), href: '/services' },
+    { name: t('navigation.pricing'), href: '/pricing' },
+    { name: t('navigation.subscriptions'), href: '/subscriptions' },
+    { name: t('navigation.trackOrder'), href: '/track' },
+    { name: t('navigation.driveWithUs'), href: '/drive-with-us' },
   ];
 
   const isActive = (href) => location.pathname === href;
@@ -98,9 +101,9 @@ const CustomerLayout = () => {
               <div className="flex items-center gap-4">
                 <span className="flex items-center gap-2">
                   <Leaf className="w-4 h-4 text-green-400" />
-                  Proudly Canadian Since 2013
+                  {t('hero.proudlyCanadian')}
                 </span>
-                <span className="text-amani-400 font-medium">🍁 15% Off First Order!</span>
+                <span className="text-amani-400 font-medium">{t('header.firstOrderPromo')}</span>
               </div>
             </div>
           </div>
@@ -175,22 +178,22 @@ const CustomerLayout = () => {
                         className="absolute right-0 top-full mt-2 w-80 sm:w-96 bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden z-50"
                       >
                         <div className="p-4 border-b border-gray-100 flex items-center justify-between">
-                          <h3 className="font-semibold text-navy-900">Notifications</h3>
+                          <h3 className="font-semibold text-navy-900">{t('notifications.title')}</h3>
                           {unreadCount > 0 && (
                             <button
                               onClick={() => markAllAsRead(user?.id)}
                               className="text-xs text-amani-600 hover:text-amani-700"
                             >
-                              Mark all as read
+                              {t('notifications.markAllRead')}
                             </button>
                           )}
                         </div>
-                        
+
                         <div className="max-h-96 overflow-y-auto">
                           {notifications.length === 0 ? (
                             <div className="p-8 text-center text-gray-500">
                               <Bell className="w-12 h-12 mx-auto mb-3 opacity-30" />
-                              <p>No notifications yet</p>
+                              <p>{t('notifications.noNotifications')}</p>
                             </div>
                           ) : (
                             notifications.slice(0, 10).map(notif => (
@@ -235,7 +238,7 @@ const CustomerLayout = () => {
                               onClick={() => setShowNotifications(false)}
                               className="text-sm text-amani-600 hover:text-amani-700"
                             >
-                              View all notifications
+                              {t('notifications.viewAll')}
                             </Link>
                           </div>
                         )}
@@ -244,6 +247,9 @@ const CustomerLayout = () => {
                   </AnimatePresence>
                 </div>
               )}
+
+              {/* Language Switcher */}
+              <LanguageSwitcher variant="button" />
 
               {/* Auth */}
               {isAuthenticated ? (
@@ -262,24 +268,24 @@ const CustomerLayout = () => {
                       <p className="text-sm text-gray-500">{user?.email}</p>
                     </div>
                     <div className="p-2">
-                      <Link to="/account" className="block px-3 py-2 rounded-lg text-navy-700 hover:bg-gray-50">My Account</Link>
+                      <Link to="/account" className="block px-3 py-2 rounded-lg text-navy-700 hover:bg-gray-50">{t('userMenu.myAccount')}</Link>
                       {user?.role !== 'customer' && (
                         <Link to={`/${user?.role}`} className="block px-3 py-2 rounded-lg text-navy-700 hover:bg-gray-50">
-                          {user?.role === 'admin' ? 'Admin Panel' : user?.role === 'driver' ? 'Driver Dashboard' : 'Staff Dashboard'}
+                          {user?.role === 'admin' ? t('userMenu.adminPanel') : user?.role === 'driver' ? t('userMenu.driverDashboard') : t('userMenu.staffDashboard')}
                         </Link>
                       )}
                       <button onClick={logout} className="w-full text-left px-3 py-2 rounded-lg text-red-600 hover:bg-red-50">
-                        Sign Out
+                        {t('userMenu.signOut')}
                       </button>
                     </div>
                   </div>
                 </div>
               ) : (
                 <div className="flex items-center gap-2">
-                  <Link to="/login" className="btn-ghost text-sm">Sign In</Link>
+                  <Link to="/login" className="btn-ghost text-sm">{t('auth.signIn')}</Link>
                   <Link to="/order" className="btn-primary text-sm">
                     <Sparkles className="w-4 h-4" />
-                    Order Now
+                    {t('navigation.orderNow')}
                   </Link>
                 </div>
               )}
@@ -333,7 +339,7 @@ const CustomerLayout = () => {
       {/* Footer */}
       <footer className="bg-navy-900 text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8">
             {/* Brand */}
             <div>
               <div className="flex items-center gap-3 mb-6">
@@ -346,7 +352,7 @@ const CustomerLayout = () => {
                 </div>
               </div>
               <p className="text-gray-400 mb-6">
-                Proudly Canadian owned since 2013. Premium laundry and dry cleaning services for the Greater Toronto Area.
+                {t('footer.description')}
               </p>
               <div className="flex gap-4">
                 <a href="#" className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-amani-500 transition-colors">
@@ -361,9 +367,15 @@ const CustomerLayout = () => {
               </div>
             </div>
 
+            {/* Language */}
+            <div>
+              <h4 className="font-semibold text-lg mb-6">{t('footer.language')}</h4>
+              <LanguageSwitcher variant="menu" />
+            </div>
+
             {/* Quick Links */}
             <div>
-              <h4 className="font-semibold text-lg mb-6">Quick Links</h4>
+              <h4 className="font-semibold text-lg mb-6">{t('footer.quickLinks')}</h4>
               <ul className="space-y-3">
                 {navigation.map((item) => (
                   <li key={item.name}>
@@ -374,17 +386,17 @@ const CustomerLayout = () => {
                 ))}
                 <li>
                   <Link to="/partner" className="text-gray-400 hover:text-amani-400 transition-colors">
-                    Become a Laundry Partner
+                    {t('footer.becomePartner')}
                   </Link>
                 </li>
                 <li>
                   <Link to="/driver" className="text-gray-400 hover:text-amani-400 transition-colors">
-                    Become a Driver
+                    {t('footer.becomeDriver')}
                   </Link>
                 </li>
                 <li>
                   <Link to="/careers" className="text-gray-400 hover:text-amani-400 transition-colors">
-                    Careers
+                    {t('navigation.careers')}
                   </Link>
                 </li>
               </ul>
@@ -392,22 +404,22 @@ const CustomerLayout = () => {
 
             {/* Service Areas */}
             <div>
-              <h4 className="font-semibold text-lg mb-6">Service Areas</h4>
+              <h4 className="font-semibold text-lg mb-6">{t('footer.serviceAreas')}</h4>
               <ul className="space-y-2 text-gray-400 text-sm">
-                <li>Toronto</li>
-                <li>North York</li>
-                <li>Brampton</li>
-                <li>Mississauga</li>
-                <li>Vaughan</li>
-                <li>Richmond Hill</li>
-                <li>Markham</li>
-                <li>+ More GTA regions</li>
+                <li>{t('locations.toronto')}</li>
+                <li>{t('locations.northYork')}</li>
+                <li>{t('locations.brampton')}</li>
+                <li>{t('locations.mississauga')}</li>
+                <li>{t('locations.vaughan')}</li>
+                <li>{t('locations.richmondHill')}</li>
+                <li>{t('locations.markham')}</li>
+                <li>{t('footer.moreAreas')}</li>
               </ul>
             </div>
 
             {/* Contact */}
             <div>
-              <h4 className="font-semibold text-lg mb-6">Contact Us</h4>
+              <h4 className="font-semibold text-lg mb-6">{t('footer.contactUs')}</h4>
               <ul className="space-y-4">
                 <li className="flex items-start gap-3">
                   <MapPin className="w-5 h-5 text-amani-500 mt-0.5" />
@@ -433,7 +445,7 @@ const CustomerLayout = () => {
                 <li className="flex items-center gap-3">
                   <Clock className="w-5 h-5 text-amani-500" />
                   <div className="text-gray-400 text-sm">
-                    <p>Pickup: 7AM-11AM, 6PM-10PM</p>
+                    <p>{t('footer.pickupHours')}</p>
                   </div>
                 </li>
               </ul>
@@ -443,16 +455,16 @@ const CustomerLayout = () => {
           {/* Bottom */}
           <div className="mt-12 pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-4">
             <p className="text-gray-500 text-sm">
-              © {new Date().getFullYear()} Amani's Cleaners. All rights reserved. 🍁
+              {t('footer.copyright', { year: new Date().getFullYear() })}
             </p>
             <div className="flex items-center gap-4 text-sm text-gray-500">
               <span className="flex items-center gap-2">
                 <Star className="w-4 h-4 text-yellow-500" />
-                4.9/5 Google Rating
+                {t('footer.googleRating')}
               </span>
               <span className="flex items-center gap-2">
                 <Truck className="w-4 h-4 text-amani-500" />
-                Free Pickup & Delivery
+                {t('footer.freeDelivery')}
               </span>
             </div>
           </div>

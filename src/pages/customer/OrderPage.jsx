@@ -1,27 +1,56 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  ShoppingCart, Trash2, Plus, Minus, MapPin, Clock, 
-  Truck, Package, Calendar, CheckCircle2, 
+import {
+  ShoppingCart, Trash2, Plus, Minus, MapPin, Clock,
+  Truck, Package, Calendar, CheckCircle2,
   AlertCircle, ChevronRight, Sparkles, Phone, Mail,
   Home, Building, User, ArrowLeft, FileText, Receipt, Download,
   Star, Check, X, Tag, Percent, Zap
 } from 'lucide-react';
 import { useCartStore, useAuthStore, useOrderStore, useAppStore } from '../../stores';
 import { downloadInvoice, downloadReceipt, generateOrderQRCode, formatPhone, notificationService, notificationTemplates, sendSMS, smsTemplates } from '../../lib/utils';
+import { useLanguage } from '../../i18n/LanguageContext';
 import db from '../../lib/db';
 import toast from 'react-hot-toast';
 
 const OrderPage = () => {
   const navigate = useNavigate();
-  const { items, updateQuantity, removeItem, laundryWeight, setLaundryWeight, clearCart } = useCartStore();
+  const { t } = useLanguage();
+  const { items, updateQuantity, removeItem, laundryWeight, commercialLaundryWeight, setLaundryWeight, setCommercialLaundryWeight, clearCart, addItem: addCartItem } = useCartStore();
   const { user, isAuthenticated } = useAuthStore();
   const { createOrder, loading } = useOrderStore();
   const { mode } = useAppStore();
 
   const [step, setStep] = useState(1);
   const [orderType, setOrderType] = useState('pickup'); // pickup or drop-off
+
+  // Add-ons state
+  const [selectedAddons, setSelectedAddons] = useState({
+    lowHeatDry: false,
+    hypoallergenic: false,
+    laundrySorting: false,
+    sameDayRush: false,
+    fabricSoftener: false,
+    stainRemoval: false,
+    scentBooster: false,
+  });
+
+  // Add-on prices
+  const addonPrices = {
+    lowHeatDry: 5.00,
+    hypoallergenic: 5.00,
+    laundrySorting: 15.00,
+    sameDayRush: 25.00, // Average of $20-$35
+    fabricSoftener: 1.00,
+    stainRemoval: 3.00,
+    scentBooster: 1.00,
+  };
+
+  // Calculate add-ons total
+  const addonsTotal = Object.entries(selectedAddons).reduce((sum, [key, isSelected]) => {
+    return isSelected ? sum + addonPrices[key] : sum;
+  }, 0);
   
   // Saved addresses
   const [savedAddresses, setSavedAddresses] = useState([]);
@@ -68,8 +97,8 @@ const OrderPage = () => {
   const [qrCodeUrl, setQrCodeUrl] = useState('');
 
   const timeSlots = [
-    { value: 'morning', label: 'Morning (7AM - 11AM)' },
-    { value: 'evening', label: 'Evening (6PM - 10PM)' },
+    { value: 'morning', label: t('order.morningSlot') },
+    { value: 'evening', label: t('order.eveningSlot') },
   ];
 
   const laundryRate = 2.39;
@@ -79,17 +108,20 @@ const OrderPage = () => {
 
   // Promo codes available
   const promoCodes = {
-    'FIRST15': { type: 'percent', value: 15, description: '15% off first order', firstOrderOnly: true },
-    'SUMMER10': { type: 'percent', value: 10, description: '10% off summer special' },
-    'SAVE5': { type: 'fixed', value: 5, description: '$5 off your order' },
+    'FIRST15': { type: 'percent', value: 15, description: t('order.promo15off'), firstOrderOnly: true },
+    'SUMMER10': { type: 'percent', value: 10, description: t('order.promo10off') },
+    'SAVE5': { type: 'fixed', value: 5, description: t('order.promo5off') },
   };
 
   // Calculate totals
   const itemsTotal = items.reduce((sum, item) => sum + ((item.price || 0) * item.quantity), 0);
-  const laundryTotal = laundryWeight > 0 
+  const laundryTotal = laundryWeight > 0
     ? (laundryWeight >= minimumLaundry ? laundryWeight * laundryRate : flatRate)
     : 0;
-  const subtotal = itemsTotal + laundryTotal;
+  const commercialLaundryTotal = commercialLaundryWeight > 0
+    ? (commercialLaundryWeight >= minimumLaundry ? commercialLaundryWeight * laundryRate : flatRate)
+    : 0;
+  const subtotal = itemsTotal + laundryTotal + commercialLaundryTotal + addonsTotal;
   
   // Apply promo discount
   let discount = 0;
@@ -191,12 +223,12 @@ const OrderPage = () => {
 
   const validateStep = (currentStep) => {
     const newErrors = {};
-    
+
     if (currentStep === 2) {
-      if (!formData.firstName) newErrors.firstName = 'First name is required';
-      if (!formData.lastName) newErrors.lastName = 'Last name is required';
-      if (!formData.email) newErrors.email = 'Email is required';
-      if (!formData.phone) newErrors.phone = 'Phone is required';
+      if (!formData.firstName) newErrors.firstName = t('order.firstNameRequired');
+      if (!formData.lastName) newErrors.lastName = t('order.lastNameRequired');
+      if (!formData.email) newErrors.email = t('order.emailRequired');
+      if (!formData.phone) newErrors.phone = t('order.phoneRequired');
       
       if (orderType === 'pickup') {
         // Check if user has a valid address (either saved selection OR manual entry)
@@ -206,21 +238,21 @@ const OrderPage = () => {
         if (!hasManualAddress && !hasSavedAddress) {
           // Neither manual nor saved address is valid
           if (isAuthenticated && savedAddresses.length > 0 && addressMode === 'saved') {
-            newErrors.address = 'Please select an address';
+            newErrors.address = t('order.selectAddressRequired');
           } else {
             // Guest or no saved addresses - require manual entry
-            if (!formData.address) newErrors.address = 'Street address is required';
-            if (!formData.city) newErrors.city = 'City is required';
-            if (!formData.postalCode) newErrors.postalCode = 'Postal code is required';
+            if (!formData.address) newErrors.address = t('order.streetAddressRequired');
+            if (!formData.city) newErrors.city = t('order.cityRequired');
+            if (!formData.postalCode) newErrors.postalCode = t('order.postalCodeRequired');
           }
         }
       }
     }
-    
+
     if (currentStep === 3) {
       if (orderType === 'pickup') {
-        if (!formData.pickupDate) newErrors.pickupDate = 'Pickup date is required';
-        if (!formData.pickupTime) newErrors.pickupTime = 'Pickup time is required';
+        if (!formData.pickupDate) newErrors.pickupDate = t('order.pickupDateRequired');
+        if (!formData.pickupTime) newErrors.pickupTime = t('order.pickupTimeRequired');
       }
     }
     
@@ -266,14 +298,36 @@ const OrderPage = () => {
     if (!validateStep(step)) return;
 
     try {
-      // Check for same day service addon
-      const sameDayAddon = items.find(item => item.isAddon && item.addonType === 'same-day');
-      
-      // Build customer notes with same day service info if applicable
+      // Build customer notes with add-on info
       let customerNotes = formData.notes || '';
-      if (sameDayAddon) {
-        const sameDayNote = `\n\n⚡ SAME DAY SERVICE REQUESTED ⚡\nService: ${sameDayAddon.name}\nTurnaround: ${sameDayAddon.turnaround || 'Same day'}\nFee: $${sameDayAddon.price}\n\nCustomer acknowledges: Same day service requires order placed before 10 AM. Subject to item type and availability. Rush processing may not include all services.`;
-        customerNotes = customerNotes ? customerNotes + sameDayNote : sameDayNote.trim();
+      
+      // Add add-ons information to notes
+      const addonNotes = [];
+      if (selectedAddons.lowHeatDry) {
+        addonNotes.push('⚠️ LOW HEAT DRY REQUESTED - Gentle drying for delicate fabrics');
+      }
+      if (selectedAddons.hypoallergenic) {
+        addonNotes.push('🌿 HYPOALLERGENIC WASH - Fragrance Free, Dye Free, Hypo-allergenic detergent');
+      }
+      if (selectedAddons.laundrySorting) {
+        addonNotes.push('📋 LAUNDRY SORTING - Sort by color, empty pockets, separate dry cleaning');
+      }
+      if (selectedAddons.sameDayRush) {
+        addonNotes.push('⚡ SAME DAY RUSH - Expedited same-day service (order before 10 AM)');
+      }
+      if (selectedAddons.fabricSoftener) {
+        addonNotes.push('✨ FABRIC SOFTENER added');
+      }
+      if (selectedAddons.stainRemoval) {
+        addonNotes.push('🧼 STAIN REMOVAL treatment requested (does not guarantee removal)');
+      }
+      if (selectedAddons.scentBooster) {
+        addonNotes.push('🌸 SCENT BOOSTER added');
+      }
+      
+      if (addonNotes.length > 0) {
+        const addonsSection = '\n\n=== ADD-ONS REQUESTED ===\n' + addonNotes.join('\n');
+        customerNotes = customerNotes ? customerNotes + addonsSection : addonsSection.trim();
       }
 
       // Determine if using manual address entry
@@ -343,11 +397,76 @@ const OrderPage = () => {
           })),
           ...(laundryWeight > 0 ? [{
             service_id: 'laundry',
-            service_name: 'Wash & Fold',
-            name: 'Wash & Fold',
+            service_name: 'Wash & Fold (Regular)',
+            name: 'Wash & Fold (Regular)',
             quantity: laundryWeight,
             unit_price: laundryRate,
             total_price: laundryTotal
+          }] : []),
+          ...(commercialLaundryWeight > 0 ? [{
+            service_id: 'laundry-commercial',
+            service_name: 'Wash & Fold (Commercial)',
+            name: 'Wash & Fold (Commercial)',
+            quantity: commercialLaundryWeight,
+            unit_price: laundryRate,
+            total_price: commercialLaundryTotal
+          }] : []),
+          // Add-ons
+          ...(selectedAddons.lowHeatDry ? [{
+            service_id: 'addon-low-heat-dry',
+            service_name: 'Low Heat Dry',
+            name: 'Low Heat Dry',
+            quantity: 1,
+            unit_price: addonPrices.lowHeatDry,
+            total_price: addonPrices.lowHeatDry
+          }] : []),
+          ...(selectedAddons.hypoallergenic ? [{
+            service_id: 'addon-hypoallergenic',
+            service_name: 'Hypoallergenic Wash',
+            name: 'Hypoallergenic Wash',
+            quantity: 1,
+            unit_price: addonPrices.hypoallergenic,
+            total_price: addonPrices.hypoallergenic
+          }] : []),
+          ...(selectedAddons.laundrySorting ? [{
+            service_id: 'addon-laundry-sorting',
+            service_name: 'Laundry Sorting',
+            name: 'Laundry Sorting',
+            quantity: 1,
+            unit_price: addonPrices.laundrySorting,
+            total_price: addonPrices.laundrySorting
+          }] : []),
+          ...(selectedAddons.sameDayRush ? [{
+            service_id: 'addon-same-day-rush',
+            service_name: 'Same Day Rush',
+            name: 'Same Day Rush',
+            quantity: 1,
+            unit_price: addonPrices.sameDayRush,
+            total_price: addonPrices.sameDayRush
+          }] : []),
+          ...(selectedAddons.fabricSoftener ? [{
+            service_id: 'addon-fabric-softener',
+            service_name: 'Fabric Softener',
+            name: 'Fabric Softener',
+            quantity: 1,
+            unit_price: addonPrices.fabricSoftener,
+            total_price: addonPrices.fabricSoftener
+          }] : []),
+          ...(selectedAddons.stainRemoval ? [{
+            service_id: 'addon-stain-removal',
+            service_name: 'Stain Removal',
+            name: 'Stain Removal',
+            quantity: 1,
+            unit_price: addonPrices.stainRemoval,
+            total_price: addonPrices.stainRemoval
+          }] : []),
+          ...(selectedAddons.scentBooster ? [{
+            service_id: 'addon-scent-booster',
+            service_name: 'Scent Booster',
+            name: 'Scent Booster',
+            quantity: 1,
+            unit_price: addonPrices.scentBooster,
+            total_price: addonPrices.scentBooster
           }] : [])
         ],
       };
@@ -457,49 +576,49 @@ const OrderPage = () => {
               >
                 <CheckCircle2 className="w-12 h-12" />
               </motion.div>
-              <h1 className="text-3xl font-display font-bold mb-2">Order Confirmed!</h1>
-              <p className="text-green-100">Thank you for choosing Amani's Cleaners</p>
+              <h1 className="text-3xl font-display font-bold mb-2">{t('order.orderConfirmed')}</h1>
+              <p className="text-green-100">{t('order.thankYouMessage')}</p>
             </div>
 
             <div className="p-8">
               <div className="text-center mb-8">
-                <p className="text-gray-600 mb-2">Your Reference Code:</p>
+                <p className="text-gray-600 mb-2">{t('order.yourReferenceCode')}</p>
                 <div className="inline-block bg-navy-900 text-white text-3xl font-mono px-6 py-3 rounded-xl tracking-wider">
                   {orderReference}
                 </div>
-                <p className="text-sm text-gray-500 mt-2">Save this code to track your order</p>
+                <p className="text-sm text-gray-500 mt-2">{t('order.saveCodeToTrack')}</p>
               </div>
 
               {qrCodeUrl && (
                 <div className="text-center mb-8">
-                  <p className="text-gray-600 mb-2">Scan to track:</p>
+                  <p className="text-gray-600 mb-2">{t('order.scanToTrack')}</p>
                   <img src={qrCodeUrl} alt="Order QR Code" className="mx-auto w-32 h-32" />
                 </div>
               )}
 
               <div className="bg-gray-50 rounded-xl p-6 mb-6">
-                <h3 className="font-semibold text-navy-900 mb-4">Order Summary</h3>
+                <h3 className="font-semibold text-navy-900 mb-4">{t('order.orderSummary')}</h3>
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Items</span>
-                    <span className="font-medium">{completedOrder?.items?.length || 0} services</span>
+                    <span className="text-gray-600">{t('order.items')}</span>
+                    <span className="font-medium">{completedOrder?.items?.length || 0} {t('order.services')}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Subtotal</span>
+                    <span className="text-gray-600">{t('order.subtotal')}</span>
                     <span className="font-medium">${(completedOrder?.subtotal || 0).toFixed(2)}</span>
                   </div>
                   {(completedOrder?.discount_amount || 0) > 0 && (
                     <div className="flex justify-between text-green-600">
-                      <span>Discount {completedOrder?.discount_code ? `(${completedOrder.discount_code})` : ''}</span>
+                      <span>{t('order.discount')} {completedOrder?.discount_code ? `(${completedOrder.discount_code})` : ''}</span>
                       <span>-${(completedOrder?.discount_amount || 0).toFixed(2)}</span>
                     </div>
                   )}
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Tax (HST 13%)</span>
+                    <span className="text-gray-600">{t('order.tax')}</span>
                     <span className="font-medium">${(completedOrder?.tax || 0).toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between text-lg pt-2 border-t border-gray-200">
-                    <span className="font-semibold">Total</span>
+                    <span className="font-semibold">{t('order.total')}</span>
                     <span className="font-bold text-amani-600">${(completedOrder?.total || 0).toFixed(2)}</span>
                   </div>
                 </div>
@@ -507,12 +626,12 @@ const OrderPage = () => {
 
               {completedOrder?.pickup_date && (
                 <div className="bg-amani-50 rounded-xl p-6 mb-6">
-                  <h3 className="font-semibold text-navy-900 mb-2">Pickup Scheduled</h3>
+                  <h3 className="font-semibold text-navy-900 mb-2">{t('order.pickupScheduled')}</h3>
                   <p className="text-gray-700">
                     📅 {new Date(completedOrder.pickup_date).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
                   </p>
                   <p className="text-gray-600 text-sm">
-                    ⏰ {completedOrder.pickup_time_slot === 'morning' ? '7AM - 11AM' : '6PM - 10PM'}
+                    ⏰ {completedOrder.pickup_time_slot === 'morning' ? t('order.morningTime') : t('order.eveningTime')}
                   </p>
                 </div>
               )}
@@ -524,14 +643,14 @@ const OrderPage = () => {
                   className="flex items-center justify-center gap-2 py-3 px-4 border-2 border-navy-200 rounded-xl hover:bg-navy-50 transition-colors"
                 >
                   <FileText className="w-5 h-5 text-navy-600" />
-                  <span className="font-medium text-navy-900">Invoice</span>
+                  <span className="font-medium text-navy-900">{t('order.invoice')}</span>
                 </button>
                 <button
                   onClick={() => downloadReceipt(completedOrder)}
                   className="flex items-center justify-center gap-2 py-3 px-4 border-2 border-navy-200 rounded-xl hover:bg-navy-50 transition-colors"
                 >
                   <Receipt className="w-5 h-5 text-navy-600" />
-                  <span className="font-medium text-navy-900">Receipt</span>
+                  <span className="font-medium text-navy-900">{t('order.receipt')}</span>
                 </button>
               </div>
 
@@ -540,13 +659,13 @@ const OrderPage = () => {
                   onClick={() => navigate(`/track/${orderReference}`)}
                   className="flex-1 btn-primary"
                 >
-                  Track Order
+                  {t('order.trackOrder')}
                 </button>
                 <button
                   onClick={() => navigate('/')}
                   className="flex-1 btn-secondary"
                 >
-                  Continue Shopping
+                  {t('order.continueShopping')}
                 </button>
               </div>
             </div>
@@ -557,7 +676,7 @@ const OrderPage = () => {
   }
 
   // Empty cart view
-  if (items.length === 0 && laundryWeight === 0) {
+  if (items.length === 0 && laundryWeight === 0 && commercialLaundryWeight === 0) {
     return (
       <div className="min-h-screen bg-gray-50 py-12 px-4">
         <div className="max-w-2xl mx-auto text-center">
@@ -569,13 +688,13 @@ const OrderPage = () => {
             <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
               <ShoppingCart className="w-12 h-12 text-gray-400" />
             </div>
-            <h2 className="text-2xl font-display font-bold text-navy-900 mb-2">Your cart is empty</h2>
-            <p className="text-gray-600 mb-8">Add some items to get started with your laundry order.</p>
+            <h2 className="text-2xl font-display font-bold text-navy-900 mb-2">{t('order.emptyCart')}</h2>
+            <p className="text-gray-600 mb-8">{t('order.emptyCartDesc')}</p>
             <button
               onClick={() => navigate('/services')}
               className="btn-primary"
             >
-              Browse Services
+              {t('order.browseServices')}
             </button>
           </motion.div>
         </div>
@@ -593,15 +712,15 @@ const OrderPage = () => {
             className="flex items-center gap-2 text-gray-600 hover:text-navy-900"
           >
             <ArrowLeft className="w-5 h-5" />
-            Back
+            {t('common.back')}
           </button>
-          <h1 className="text-2xl font-display font-bold text-navy-900">Checkout</h1>
+          <h1 className="text-2xl font-display font-bold text-navy-900">{t('order.checkout')}</h1>
           <div className="w-20" />
         </div>
 
         {/* Progress Steps */}
         <div className="flex items-center justify-center mb-8">
-          {['Cart', 'Details', 'Schedule', 'Payment'].map((label, index) => (
+          {[t('order.cart'), t('order.details'), t('order.schedule'), t('order.payment')].map((label, index) => (
             <div key={label} className="flex items-center">
               <div className={`flex items-center gap-2 ${index + 1 <= step ? 'text-amani-600' : 'text-gray-400'}`}>
                 <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold ${
@@ -637,7 +756,7 @@ const OrderPage = () => {
                 >
                   {/* Order Type Selection */}
                   <div className="card p-6">
-                    <h2 className="text-xl font-semibold text-navy-900 mb-4">How would you like to order?</h2>
+                    <h2 className="text-xl font-semibold text-navy-900 mb-4">{t('order.orderType')}</h2>
                     <div className="grid sm:grid-cols-2 gap-4">
                       <button
                         onClick={() => setOrderType('pickup')}
@@ -648,8 +767,8 @@ const OrderPage = () => {
                         }`}
                       >
                         <Truck className={`w-8 h-8 mb-3 ${orderType === 'pickup' ? 'text-amani-600' : 'text-gray-400'}`} />
-                        <h3 className="font-semibold text-navy-900 mb-1">Pickup & Delivery</h3>
-                        <p className="text-sm text-gray-600">We'll pick up and deliver to your address</p>
+                        <h3 className="font-semibold text-navy-900 mb-1">{t('order.pickup')}</h3>
+                        <p className="text-sm text-gray-600">{t('order.pickupDesc')}</p>
                       </button>
                       <button
                         onClick={() => setOrderType('drop-off')}
@@ -660,8 +779,8 @@ const OrderPage = () => {
                         }`}
                       >
                         <Building className={`w-8 h-8 mb-3 ${orderType === 'drop-off' ? 'text-amani-600' : 'text-gray-400'}`} />
-                        <h3 className="font-semibold text-navy-900 mb-1">Drop Off</h3>
-                        <p className="text-sm text-gray-600">Bring items to one of our locations</p>
+                        <h3 className="font-semibold text-navy-900 mb-1">{t('order.dropOff')}</h3>
+                        <p className="text-sm text-gray-600">{t('order.dropOffDesc')}</p>
                       </button>
                     </div>
                   </div>
@@ -670,7 +789,7 @@ const OrderPage = () => {
                   <div className="card p-6">
                     <h2 className="text-xl font-semibold text-navy-900 mb-4 flex items-center gap-2">
                       <ShoppingCart className="w-6 h-6" />
-                      Your Items ({items.length})
+                      {t('order.yourItems')} ({items.length})
                     </h2>
                     
                     {items.length > 0 && (
@@ -688,12 +807,12 @@ const OrderPage = () => {
                                 )}
                               </div>
                               <p className="text-sm text-gray-500">
-                                ${(item.price || 0).toFixed(2)} {item.isAddon ? 'fee' : 'each'}
+                                ${(item.price || 0).toFixed(2)} {item.isAddon ? t('order.fee') : t('order.each')}
                               </p>
                               {item.turnaround && (
                                 <p className="text-xs text-amber-600 flex items-center gap-1 mt-1">
                                   <Clock className="w-3 h-3" />
-                                  {item.turnaround} turnaround
+                                  {item.turnaround} {t('order.turnaroundTime')}
                                 </p>
                               )}
                             </div>
@@ -730,13 +849,13 @@ const OrderPage = () => {
                       </div>
                     )}
 
-                    {/* Laundry Weight */}
+                    {/* Laundry Weight - Regular */}
                     <div className="mt-6 pt-6 border-t border-gray-100">
                       <div className="flex items-center justify-between mb-4">
                         <div>
-                          <h3 className="font-medium text-navy-900">Wash & Fold Laundry</h3>
+                          <h3 className="font-medium text-navy-900">{t('order.laundryRegular')}</h3>
                           <p className="text-sm text-gray-500">
-                            ${laundryRate}/lb (Min {minimumLaundry} lbs or ${flatRate.toFixed(2)} flat rate)
+                            {t('order.laundryRegularDesc')} — ${laundryRate}/{t('order.perLb')} ({t('order.minOrder')} {minimumLaundry} {t('order.lbs')} or ${flatRate.toFixed(2)} {t('order.flatRate')})
                           </p>
                         </div>
                         <div className="flex items-center gap-2">
@@ -748,15 +867,203 @@ const OrderPage = () => {
                             placeholder="0"
                             min="0"
                           />
-                          <span className="text-gray-600">lbs</span>
+                          <span className="text-gray-600">{t('order.lbs')}</span>
                         </div>
                       </div>
                       {laundryWeight > 0 && (
                         <div className="text-right text-sm text-gray-600">
-                          Laundry total: <span className="font-medium text-navy-900">${laundryTotal.toFixed(2)}</span>
+                          {t('order.laundryRegular')}: <span className="font-medium text-navy-900">${laundryTotal.toFixed(2)}</span>
                           {laundryWeight < minimumLaundry && (
-                            <span className="text-orange-600 ml-2">(flat rate applies)</span>
+                            <span className="text-orange-600 ml-2">({t('order.flatRate')})</span>
                           )}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Laundry Weight - Commercial */}
+                    <div className="mt-4 pt-4 border-t border-gray-100">
+                      <div className="flex items-center justify-between mb-4">
+                        <div>
+                          <h3 className="font-medium text-navy-900">{t('order.laundryCommercial')}</h3>
+                          <p className="text-sm text-gray-500">
+                            {t('order.laundryCommercialDesc')} — ${laundryRate}/{t('order.perLb')} ({t('order.minOrder')} {minimumLaundry} {t('order.lbs')} or ${flatRate.toFixed(2)} {t('order.flatRate')})
+                          </p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="number"
+                            value={commercialLaundryWeight || ''}
+                            onChange={(e) => setCommercialLaundryWeight(Math.max(0, parseInt(e.target.value) || 0))}
+                            className="w-20 input text-center"
+                            placeholder="0"
+                            min="0"
+                          />
+                          <span className="text-gray-600">{t('order.lbs')}</span>
+                        </div>
+                      </div>
+                      {commercialLaundryWeight > 0 && (
+                        <div className="text-right text-sm text-gray-600">
+                          {t('order.commercialLaundryTotal')}: <span className="font-medium text-navy-900">${commercialLaundryTotal.toFixed(2)}</span>
+                          {commercialLaundryWeight < minimumLaundry && (
+                            <span className="text-orange-600 ml-2">({t('order.flatRate')})</span>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Add-ons Section */}
+                  <div className="card p-6">
+                    <h2 className="text-xl font-semibold text-navy-900 mb-2 flex items-center gap-2">
+                      <Sparkles className="w-6 h-6 text-amani-500" />
+                      {t('order.addons')}
+                    </h2>
+                    <p className="text-sm text-gray-500 mb-6">{t('order.addonsDesc')}</p>
+
+                    <div className="space-y-4">
+                      {/* Low Heat Dry */}
+                      <label className={`flex items-start gap-4 p-4 rounded-xl border-2 cursor-pointer transition-all ${
+                        selectedAddons.lowHeatDry ? 'border-amani-500 bg-amani-50' : 'border-gray-200 hover:border-amani-200'
+                      }`}>
+                        <input
+                          type="checkbox"
+                          checked={selectedAddons.lowHeatDry}
+                          onChange={(e) => setSelectedAddons(prev => ({ ...prev, lowHeatDry: e.target.checked }))}
+                          className="w-5 h-5 text-amani-500 rounded mt-0.5"
+                        />
+                        <div className="flex-1">
+                          <div className="flex items-center justify-between">
+                            <h3 className="font-medium text-navy-900">{t('order.lowHeatDry')}</h3>
+                            <span className="font-semibold text-amani-600">+$5.00</span>
+                          </div>
+                          <p className="text-sm text-gray-600 mt-1">{t('order.lowHeatDryDesc')}</p>
+                        </div>
+                      </label>
+
+                      {/* Hypoallergenic Wash */}
+                      <label className={`flex items-start gap-4 p-4 rounded-xl border-2 cursor-pointer transition-all ${
+                        selectedAddons.hypoallergenic ? 'border-amani-500 bg-amani-50' : 'border-gray-200 hover:border-amani-200'
+                      }`}>
+                        <input
+                          type="checkbox"
+                          checked={selectedAddons.hypoallergenic}
+                          onChange={(e) => setSelectedAddons(prev => ({ ...prev, hypoallergenic: e.target.checked }))}
+                          className="w-5 h-5 text-amani-500 rounded mt-0.5"
+                        />
+                        <div className="flex-1">
+                          <div className="flex items-center justify-between">
+                            <h3 className="font-medium text-navy-900">{t('order.hypoallergenic')}</h3>
+                            <span className="font-semibold text-amani-600">+$5.00</span>
+                          </div>
+                          <p className="text-sm text-gray-600 mt-1">{t('order.hypoallergenicDesc')}</p>
+                        </div>
+                      </label>
+
+                      {/* Laundry Sorting */}
+                      <label className={`flex items-start gap-4 p-4 rounded-xl border-2 cursor-pointer transition-all ${
+                        selectedAddons.laundrySorting ? 'border-amani-500 bg-amani-50' : 'border-gray-200 hover:border-amani-200'
+                      }`}>
+                        <input
+                          type="checkbox"
+                          checked={selectedAddons.laundrySorting}
+                          onChange={(e) => setSelectedAddons(prev => ({ ...prev, laundrySorting: e.target.checked }))}
+                          className="w-5 h-5 text-amani-500 rounded mt-0.5"
+                        />
+                        <div className="flex-1">
+                          <div className="flex items-center justify-between">
+                            <h3 className="font-medium text-navy-900">{t('order.laundrySorting')}</h3>
+                            <span className="font-semibold text-amani-600">+$15.00</span>
+                          </div>
+                          <p className="text-sm text-gray-600 mt-1">{t('order.laundrySortingDesc')}</p>
+                        </div>
+                      </label>
+
+                      {/* Same Day Rush */}
+                      <label className={`flex items-start gap-4 p-4 rounded-xl border-2 cursor-pointer transition-all ${
+                        selectedAddons.sameDayRush ? 'border-amani-500 bg-amani-50' : 'border-gray-200 hover:border-amani-200'
+                      }`}>
+                        <input
+                          type="checkbox"
+                          checked={selectedAddons.sameDayRush}
+                          onChange={(e) => setSelectedAddons(prev => ({ ...prev, sameDayRush: e.target.checked }))}
+                          className="w-5 h-5 text-amani-500 rounded mt-0.5"
+                        />
+                        <div className="flex-1">
+                          <div className="flex items-center justify-between">
+                            <h3 className="font-medium text-navy-900 flex items-center gap-2">
+                              <Zap className="w-4 h-4 text-yellow-500" />
+                              {t('order.sameDayRush')}
+                            </h3>
+                            <span className="font-semibold text-amani-600">+$25.00</span>
+                          </div>
+                          <p className="text-sm text-gray-600 mt-1">{t('order.sameDayRushDesc')}</p>
+                        </div>
+                      </label>
+
+                      {/* Additional Small Add-ons Row */}
+                      <div className="grid sm:grid-cols-3 gap-3 pt-4 border-t border-gray-100">
+                        {/* Fabric Softener */}
+                        <label className={`flex items-center gap-3 p-3 rounded-xl border-2 cursor-pointer transition-all ${
+                          selectedAddons.fabricSoftener ? 'border-amani-500 bg-amani-50' : 'border-gray-200 hover:border-amani-200'
+                        }`}>
+                          <input
+                            type="checkbox"
+                            checked={selectedAddons.fabricSoftener}
+                            onChange={(e) => setSelectedAddons(prev => ({ ...prev, fabricSoftener: e.target.checked }))}
+                            className="w-4 h-4 text-amani-500 rounded"
+                          />
+                          <div className="flex-1">
+                            <div className="flex items-center justify-between">
+                              <h3 className="font-medium text-navy-900 text-sm">{t('order.fabricSoftener')}</h3>
+                              <span className="font-semibold text-amani-600 text-sm">+$1.00</span>
+                            </div>
+                          </div>
+                        </label>
+
+                        {/* Stain Removal */}
+                        <label className={`flex items-center gap-3 p-3 rounded-xl border-2 cursor-pointer transition-all ${
+                          selectedAddons.stainRemoval ? 'border-amani-500 bg-amani-50' : 'border-gray-200 hover:border-amani-200'
+                        }`}>
+                          <input
+                            type="checkbox"
+                            checked={selectedAddons.stainRemoval}
+                            onChange={(e) => setSelectedAddons(prev => ({ ...prev, stainRemoval: e.target.checked }))}
+                            className="w-4 h-4 text-amani-500 rounded"
+                          />
+                          <div className="flex-1">
+                            <div className="flex items-center justify-between">
+                              <h3 className="font-medium text-navy-900 text-sm">{t('order.stainRemoval')}</h3>
+                              <span className="font-semibold text-amani-600 text-sm">+$3.00</span>
+                            </div>
+                          </div>
+                        </label>
+
+                        {/* Scent Booster */}
+                        <label className={`flex items-center gap-3 p-3 rounded-xl border-2 cursor-pointer transition-all ${
+                          selectedAddons.scentBooster ? 'border-amani-500 bg-amani-50' : 'border-gray-200 hover:border-amani-200'
+                        }`}>
+                          <input
+                            type="checkbox"
+                            checked={selectedAddons.scentBooster}
+                            onChange={(e) => setSelectedAddons(prev => ({ ...prev, scentBooster: e.target.checked }))}
+                            className="w-4 h-4 text-amani-500 rounded"
+                          />
+                          <div className="flex-1">
+                            <div className="flex items-center justify-between">
+                              <h3 className="font-medium text-navy-900 text-sm">{t('order.scentBooster')}</h3>
+                              <span className="font-semibold text-amani-600 text-sm">+$1.00</span>
+                            </div>
+                          </div>
+                        </label>
+                      </div>
+
+                      {/* Add-ons Total */}
+                      {addonsTotal > 0 && (
+                        <div className="bg-amani-50 rounded-xl p-4 mt-4">
+                          <div className="flex items-center justify-between">
+                            <span className="font-medium text-navy-900">{t('order.addonsTotal')}</span>
+                            <span className="font-bold text-amani-600 text-lg">+${addonsTotal.toFixed(2)}</span>
+                          </div>
                         </div>
                       )}
                     </div>
@@ -776,12 +1083,12 @@ const OrderPage = () => {
                   <div className="card p-6">
                     <h2 className="text-xl font-semibold text-navy-900 mb-6 flex items-center gap-2">
                       <User className="w-6 h-6" />
-                      Contact Information
+                      {t('order.contactInfo')}
                     </h2>
-                    
+
                     <div className="grid sm:grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-sm font-medium text-navy-700 mb-1">First Name *</label>
+                        <label className="block text-sm font-medium text-navy-700 mb-1">{t('order.firstName')} *</label>
                         <input
                           type="text"
                           value={formData.firstName}
@@ -792,7 +1099,7 @@ const OrderPage = () => {
                         {errors.firstName && <p className="text-red-500 text-sm mt-1">{errors.firstName}</p>}
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-navy-700 mb-1">Last Name *</label>
+                        <label className="block text-sm font-medium text-navy-700 mb-1">{t('order.lastName')} *</label>
                         <input
                           type="text"
                           value={formData.lastName}
@@ -803,7 +1110,7 @@ const OrderPage = () => {
                         {errors.lastName && <p className="text-red-500 text-sm mt-1">{errors.lastName}</p>}
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-navy-700 mb-1">Email *</label>
+                        <label className="block text-sm font-medium text-navy-700 mb-1">{t('order.email')} *</label>
                         <input
                           type="email"
                           value={formData.email}
@@ -814,7 +1121,7 @@ const OrderPage = () => {
                         {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-navy-700 mb-1">Phone *</label>
+                        <label className="block text-sm font-medium text-navy-700 mb-1">{t('order.phone')} *</label>
                         <input
                           type="tel"
                           value={formData.phone}
@@ -831,14 +1138,14 @@ const OrderPage = () => {
                     <div className="card p-6">
                       <h2 className="text-xl font-semibold text-navy-900 mb-6 flex items-center gap-2">
                         <MapPin className="w-6 h-6" />
-                        Pickup Address
+                        {t('order.pickupAddress')}
                       </h2>
 
                       {/* Saved Addresses - Only show for authenticated users with saved addresses */}
                       {isAuthenticated && savedAddresses.length > 0 && (
                         <div className="mb-6">
                           <div className="flex items-center justify-between mb-3">
-                            <label className="text-sm font-medium text-navy-700">Select a Saved Address</label>
+                            <label className="text-sm font-medium text-navy-700">{t('order.savedAddress')}</label>
                           </div>
                           
                           <div className="space-y-3">
@@ -869,10 +1176,10 @@ const OrderPage = () => {
                                     </div>
                                     <div>
                                       <div className="flex items-center gap-2">
-                                        <span className="font-medium text-navy-900">{address.label || 'Address'}</span>
+                                        <span className="font-medium text-navy-900">{address.label || t('order.address')}</span>
                                         {address.is_default && (
                                           <span className="text-xs bg-amani-100 text-amani-700 px-2 py-0.5 rounded-full">
-                                            Default
+                                            {t('order.default')}
                                           </span>
                                         )}
                                       </div>
@@ -890,10 +1197,10 @@ const OrderPage = () => {
                               </div>
                             ))}
                           </div>
-                          
+
                           <div className="mt-4 flex items-center gap-2">
                             <div className="flex-1 h-px bg-gray-200"></div>
-                            <span className="text-sm text-gray-500">or enter address manually</span>
+                            <span className="text-sm text-gray-500">{t('order.orEnterManually')}</span>
                             <div className="flex-1 h-px bg-gray-200"></div>
                           </div>
                         </div>
@@ -903,7 +1210,7 @@ const OrderPage = () => {
                       <div className="space-y-4">
                         <div>
                           <label className="block text-sm font-medium text-navy-700 mb-1">
-                            Street Address {!isAuthenticated || savedAddresses.length === 0 ? '*' : ''}
+                            {t('order.streetAddress')} {!isAuthenticated || savedAddresses.length === 0 ? '*' : ''}
                           </label>
                           <input
                             type="text"
@@ -923,7 +1230,7 @@ const OrderPage = () => {
                         </div>
                         <div className="grid sm:grid-cols-3 gap-4">
                           <div>
-                            <label className="block text-sm font-medium text-navy-700 mb-1">Unit/Apt</label>
+                            <label className="block text-sm font-medium text-navy-700 mb-1">{t('order.unit')}</label>
                             <input
                               type="text"
                               value={formData.unit}
@@ -934,7 +1241,7 @@ const OrderPage = () => {
                           </div>
                           <div>
                             <label className="block text-sm font-medium text-navy-700 mb-1">
-                              City {!isAuthenticated || savedAddresses.length === 0 ? '*' : ''}
+                              {t('order.city')} {!isAuthenticated || savedAddresses.length === 0 ? '*' : ''}
                             </label>
                             <input
                               type="text"
@@ -947,7 +1254,7 @@ const OrderPage = () => {
                           </div>
                           <div>
                             <label className="block text-sm font-medium text-navy-700 mb-1">
-                              Postal Code {!isAuthenticated || savedAddresses.length === 0 ? '*' : ''}
+                              {t('order.postalCode')} {!isAuthenticated || savedAddresses.length === 0 ? '*' : ''}
                             </label>
                             <input
                               type="text"
@@ -963,7 +1270,7 @@ const OrderPage = () => {
 
                           {/* Delivery Instructions */}
                           <div>
-                            <label className="block text-sm font-medium text-navy-700 mb-1">Delivery Instructions (Optional)</label>
+                            <label className="block text-sm font-medium text-navy-700 mb-1">{t('order.deliveryInstructions')}</label>
                             <textarea
                               value={formData.deliveryInstructions}
                               onChange={(e) => setFormData(prev => ({ ...prev, deliveryInstructions: e.target.value }))}
@@ -983,20 +1290,20 @@ const OrderPage = () => {
                                   onChange={(e) => setSaveNewAddress(e.target.checked)}
                                   className="w-5 h-5 rounded border-gray-300 text-amani-500 focus:ring-amani-500"
                                 />
-                                <span className="text-navy-900">Save this address for future orders</span>
+                                <span className="text-navy-900">{t('order.saveAddress')}</span>
                               </label>
-                              
+
                               {saveNewAddress && (
                                 <div className="mt-3 ml-8">
-                                  <label className="block text-sm text-gray-600 mb-1">Address Label</label>
+                                  <label className="block text-sm text-gray-600 mb-1">{t('order.addressLabel')}</label>
                                   <select
                                     value={newAddressLabel}
                                     onChange={(e) => setNewAddressLabel(e.target.value)}
                                     className="input w-auto"
                                   >
-                                    <option value="Home">Home</option>
-                                    <option value="Work">Work</option>
-                                    <option value="Other">Other</option>
+                                    <option value="Home">{t('order.home')}</option>
+                                    <option value="Work">{t('order.work')}</option>
+                                    <option value="Other">{t('order.other')}</option>
                                   </select>
                                 </div>
                               )}
@@ -1008,15 +1315,15 @@ const OrderPage = () => {
 
                   {orderType === 'drop-off' && (
                     <div className="card p-6 bg-blue-50 border-blue-200">
-                      <h3 className="font-semibold text-blue-900 mb-4">Our Locations</h3>
+                      <h3 className="font-semibold text-blue-900 mb-4">{t('order.ourLocations')}</h3>
                       <div className="space-y-4">
                         <div className="bg-white rounded-xl p-4">
-                          <h4 className="font-semibold text-navy-900">Toronto - Weston Road</h4>
+                          <h4 className="font-semibold text-navy-900">{t('order.locationToronto')}</h4>
                           <p className="text-gray-600">325 Weston Road, Unit 5D, M6N 3P1</p>
                           <p className="text-sm text-gray-500 mt-1">437-215-6321</p>
                         </div>
                         <div className="bg-white rounded-xl p-4">
-                          <h4 className="font-semibold text-navy-900">North York - Weston Road</h4>
+                          <h4 className="font-semibold text-navy-900">{t('order.locationNorthYork')}</h4>
                           <p className="text-gray-600">3455 Weston Road, M9M 0G4</p>
                           <p className="text-sm text-gray-500 mt-1">647-764-5658</p>
                         </div>
@@ -1038,13 +1345,13 @@ const OrderPage = () => {
                   <div className="card p-6">
                     <h2 className="text-xl font-semibold text-navy-900 mb-6 flex items-center gap-2">
                       <Calendar className="w-6 h-6" />
-                      {orderType === 'pickup' ? 'Schedule Pickup' : 'Order Notes'}
+                      {orderType === 'pickup' ? t('order.schedulePickup') : t('order.orderNotes')}
                     </h2>
-                    
+
                     {orderType === 'pickup' && (
                       <div className="space-y-6">
                         <div>
-                          <label className="block text-sm font-medium text-navy-700 mb-3">Pickup Date *</label>
+                          <label className="block text-sm font-medium text-navy-700 mb-3">{t('order.pickupDate')} *</label>
                           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                             {availableDates.map((date) => (
                               <button
@@ -1057,7 +1364,7 @@ const OrderPage = () => {
                                 }`}
                               >
                                 <p className="font-medium text-navy-900">{date.label}</p>
-                                {date.isToday && <p className="text-xs text-amani-600">Today</p>}
+                                {date.isToday && <p className="text-xs text-amani-600">{t('order.today')}</p>}
                               </button>
                             ))}
                           </div>
@@ -1065,7 +1372,7 @@ const OrderPage = () => {
                         </div>
 
                         <div>
-                          <label className="block text-sm font-medium text-navy-700 mb-3">Pickup Time *</label>
+                          <label className="block text-sm font-medium text-navy-700 mb-3">{t('order.pickupTime')} *</label>
                           <div className="grid sm:grid-cols-2 gap-4">
                             {timeSlots.map((slot) => (
                               <button
@@ -1086,26 +1393,26 @@ const OrderPage = () => {
                         </div>
                       </div>
                     )}
-                    
+
                     <div className={orderType === 'pickup' ? 'mt-6 pt-6 border-t border-gray-100' : ''}>
-                      <label className="block text-sm font-medium text-navy-700 mb-2">Special Instructions (Optional)</label>
+                      <label className="block text-sm font-medium text-navy-700 mb-2">{t('order.specialInstructions')}</label>
                       <textarea
                         value={formData.notes}
                         onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value }))}
                         className="input"
                         rows={3}
-                        placeholder="Any special requests for your order..."
+                        placeholder={t('order.specialInstructionsPlaceholder')}
                       />
                     </div>
 
                     <div className="mt-4">
-                      <label className="block text-sm font-medium text-navy-700 mb-2">Reference Notes (Optional)</label>
+                      <label className="block text-sm font-medium text-navy-700 mb-2">{t('order.referenceNotes')}</label>
                       <input
                         type="text"
                         value={formData.referenceNotes}
                         onChange={(e) => setFormData(prev => ({ ...prev, referenceNotes: e.target.value }))}
                         className="input"
-                        placeholder="Your internal reference number or notes"
+                        placeholder={t('order.referenceNotesPlaceholder')}
                       />
                     </div>
                   </div>
@@ -1122,12 +1429,12 @@ const OrderPage = () => {
                   className="space-y-6"
                 >
                   <div className="card p-6">
-                    <h2 className="text-xl font-semibold text-navy-900 mb-6">Payment Method</h2>
-                    
+                    <h2 className="text-xl font-semibold text-navy-900 mb-6">{t('order.paymentMethod')}</h2>
+
                     <div className="grid sm:grid-cols-2 gap-4">
                       {[
-                        { value: 'cash', label: 'Cash on Delivery', icon: '💵' },
-                        { value: 'card', label: 'Card on Delivery', icon: '💳' },
+                        { value: 'cash', label: t('order.cashOnDelivery'), icon: '💵' },
+                        { value: 'card', label: t('order.cardOnDelivery'), icon: '💳' },
                       ].map((method) => (
                         <button
                           key={method.value}
@@ -1149,7 +1456,7 @@ const OrderPage = () => {
                   <div className="card p-6">
                     <h2 className="text-xl font-semibold text-navy-900 mb-4 flex items-center gap-2">
                       <Tag className="w-6 h-6" />
-                      Promo Code
+                      {t('order.promoCode')}
                     </h2>
                     
                     {appliedPromo ? (
@@ -1181,19 +1488,19 @@ const OrderPage = () => {
                               setPromoError('');
                             }}
                             className="input flex-1"
-                            placeholder="Enter promo code"
+                            placeholder={t('order.enterPromoCode')}
                           />
                           <button
                             onClick={handleApplyPromo}
                             className="btn-primary px-6"
                           >
-                            Apply
+                            {t('order.apply')}
                           </button>
                         </div>
                         {promoError && <p className="text-red-500 text-sm mt-2">{promoError}</p>}
                         {!user?.first_order_discount_used && (
                           <p className="text-sm text-gray-500 mt-2">
-                            💡 First time? Try <span className="font-mono bg-gray-100 px-1 rounded">FIRST15</span> for 15% off!
+                            💡 {t('order.firstTimePromoHint')}
                           </p>
                         )}
                       </div>
@@ -1202,8 +1509,8 @@ const OrderPage = () => {
 
                   {/* Order Review */}
                   <div className="card p-6">
-                    <h2 className="text-xl font-semibold text-navy-900 mb-4">Order Review</h2>
-                    
+                    <h2 className="text-xl font-semibold text-navy-900 mb-4">{t('order.orderReview')}</h2>
+
                     <div className="space-y-4 mb-6">
                       <div className="flex items-start gap-3 p-3 bg-gray-50 rounded-xl">
                         <User className="w-5 h-5 text-gray-500 mt-0.5" />
@@ -1218,7 +1525,7 @@ const OrderPage = () => {
                         <div className="flex items-start gap-3 p-3 bg-gray-50 rounded-xl">
                           <MapPin className="w-5 h-5 text-gray-500 mt-0.5" />
                           <div>
-                            <p className="font-medium text-navy-900">Pickup Address</p>
+                            <p className="font-medium text-navy-900">{t('order.pickupAddress')}</p>
                             <p className="text-sm text-gray-600">{getAddressString()}</p>
                           </div>
                         </div>
@@ -1228,11 +1535,11 @@ const OrderPage = () => {
                         <div className="flex items-start gap-3 p-3 bg-gray-50 rounded-xl">
                           <Calendar className="w-5 h-5 text-gray-500 mt-0.5" />
                           <div>
-                            <p className="font-medium text-navy-900">Scheduled Pickup</p>
+                            <p className="font-medium text-navy-900">{t('order.scheduledPickup')}</p>
                             <p className="text-sm text-gray-600">
                               {new Date(formData.pickupDate).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
                               {' • '}
-                              {formData.pickupTime === 'morning' ? '7AM - 11AM' : '6PM - 10PM'}
+                              {formData.pickupTime === 'morning' ? t('order.morningTime') : t('order.eveningTime')}
                             </p>
                           </div>
                         </div>
@@ -1250,10 +1557,10 @@ const OrderPage = () => {
                             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
                             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                           </svg>
-                          Processing...
+                          {t('common.processing') || 'Processing...'}
                         </span>
                       ) : (
-                        `Place Order • $${total.toFixed(2)}`
+                        `${t('order.placeOrder')} • $${total.toFixed(2)}`
                       )}
                     </button>
                   </div>
@@ -1266,14 +1573,14 @@ const OrderPage = () => {
               {step > 1 ? (
                 <button onClick={prevStep} className="btn-secondary">
                   <ArrowLeft className="w-5 h-5" />
-                  Back
+                  {t('common.back')}
                 </button>
               ) : (
                 <div />
               )}
               {step < 4 && (
                 <button onClick={nextStep} className="btn-primary">
-                  Continue
+                  {t('common.continue')}
                   <ChevronRight className="w-5 h-5" />
                 </button>
               )}
@@ -1283,8 +1590,8 @@ const OrderPage = () => {
           {/* Order Summary Sidebar */}
           <div className="lg:col-span-1">
             <div className="card p-6 sticky top-24">
-              <h2 className="text-xl font-semibold text-navy-900 mb-4">Order Summary</h2>
-              
+              <h2 className="text-xl font-semibold text-navy-900 mb-4">{t('order.orderSummary')}</h2>
+
               <div className="space-y-3 mb-6">
                 {items.map((item) => (
                   <div key={item.id} className={`flex justify-between text-sm ${item.isAddon ? 'bg-amber-50 -mx-2 px-2 py-1 rounded border-l-2 border-amber-400' : ''}`}>
@@ -1297,29 +1604,86 @@ const OrderPage = () => {
                 ))}
                 {laundryWeight > 0 && (
                   <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">Wash & Fold ({laundryWeight} lbs)</span>
+                    <span className="text-gray-600">{t('order.laundryRegular')} ({laundryWeight} {t('order.lbs')})</span>
                     <span className="font-medium">${laundryTotal.toFixed(2)}</span>
+                  </div>
+                )}
+                {commercialLaundryWeight > 0 && (
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-600">{t('order.laundryCommercial')} ({commercialLaundryWeight} {t('order.lbs')})</span>
+                    <span className="font-medium">${commercialLaundryTotal.toFixed(2)}</span>
+                  </div>
+                )}
+                {/* Add-ons */}
+                {addonsTotal > 0 && (
+                  <div className="space-y-2 pt-2 border-t border-gray-100">
+                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">{t('order.addons')}</p>
+                    {selectedAddons.lowHeatDry && (
+                      <div className="flex justify-between text-sm">
+                        <span className="text-gray-600">{t('order.lowHeatDry')}</span>
+                        <span className="font-medium">$5.00</span>
+                      </div>
+                    )}
+                    {selectedAddons.hypoallergenic && (
+                      <div className="flex justify-between text-sm">
+                        <span className="text-gray-600">{t('order.hypoallergenic')}</span>
+                        <span className="font-medium">$5.00</span>
+                      </div>
+                    )}
+                    {selectedAddons.laundrySorting && (
+                      <div className="flex justify-between text-sm">
+                        <span className="text-gray-600">{t('order.laundrySorting')}</span>
+                        <span className="font-medium">$15.00</span>
+                      </div>
+                    )}
+                    {selectedAddons.sameDayRush && (
+                      <div className="flex justify-between text-sm">
+                        <span className="text-gray-600 flex items-center gap-1">
+                          <Zap className="w-3 h-3 text-yellow-500" />
+                          {t('order.sameDayRush')}
+                        </span>
+                        <span className="font-medium">$25.00</span>
+                      </div>
+                    )}
+                    {selectedAddons.fabricSoftener && (
+                      <div className="flex justify-between text-sm">
+                        <span className="text-gray-600">{t('order.fabricSoftener')}</span>
+                        <span className="font-medium">$1.00</span>
+                      </div>
+                    )}
+                    {selectedAddons.stainRemoval && (
+                      <div className="flex justify-between text-sm">
+                        <span className="text-gray-600">{t('order.stainRemoval')}</span>
+                        <span className="font-medium">$3.00</span>
+                      </div>
+                    )}
+                    {selectedAddons.scentBooster && (
+                      <div className="flex justify-between text-sm">
+                        <span className="text-gray-600">{t('order.scentBooster')}</span>
+                        <span className="font-medium">$1.00</span>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
 
               <div className="border-t border-gray-100 pt-4 space-y-2">
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Subtotal</span>
+                  <span className="text-gray-600">{t('order.subtotal')}</span>
                   <span className="font-medium">${subtotal.toFixed(2)}</span>
                 </div>
                 {discount > 0 && (
                   <div className="flex justify-between text-sm text-green-600">
-                    <span>Discount ({appliedPromo?.code})</span>
+                    <span>{t('order.discount')} ({appliedPromo?.code})</span>
                     <span>-${discount.toFixed(2)}</span>
                   </div>
                 )}
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">HST (13%)</span>
+                  <span className="text-gray-600">{t('order.tax')}</span>
                   <span className="font-medium">${tax.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between text-lg font-bold pt-2 border-t border-gray-100">
-                  <span>Total</span>
+                  <span>{t('order.total')}</span>
                   <span className="text-amani-600">${total.toFixed(2)}</span>
                 </div>
               </div>
@@ -1328,15 +1692,15 @@ const OrderPage = () => {
               <div className="mt-6 pt-6 border-t border-gray-100">
                 <div className="flex items-center gap-2 text-sm text-gray-600 mb-3">
                   <CheckCircle2 className="w-5 h-5 text-green-500" />
-                  <span>Free pickup & delivery</span>
+                  <span>{t('order.freePickupDelivery')}</span>
                 </div>
                 <div className="flex items-center gap-2 text-sm text-gray-600 mb-3">
                   <CheckCircle2 className="w-5 h-5 text-green-500" />
-                  <span>48-hour turnaround</span>
+                  <span>{t('order.turnaround')}</span>
                 </div>
                 <div className="flex items-center gap-2 text-sm text-gray-600">
                   <CheckCircle2 className="w-5 h-5 text-green-500" />
-                  <span>100% satisfaction guaranteed</span>
+                  <span>{t('order.satisfaction')}</span>
                 </div>
               </div>
             </div>

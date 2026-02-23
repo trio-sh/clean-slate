@@ -2,16 +2,18 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
 
-import { 
-  Shirt, Mail, Lock, Eye, EyeOff, Sparkles, 
+import {
+  Shirt, Mail, Lock, Eye, EyeOff, Sparkles,
   ArrowRight, Leaf, AlertCircle, Database, Cloud,
   Phone
 } from 'lucide-react';
 import { useAuthStore, useAppStore } from '../../stores';
+import { useLanguage } from '../../i18n/LanguageContext';
 import toast from 'react-hot-toast';
 
 const LoginPage = () => {
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const { login, loginWithPhone, loginAsRole, isLoading } = useAuthStore();
   const { mode, setMode, demoEnabled } = useAppStore();
   
@@ -39,26 +41,26 @@ const LoginPage = () => {
   const validateForm = () => {
     if (loginMethod === 'email') {
       if (!formData.email.trim()) {
-        setError('Email is required');
+        setError(t('validation.emailRequired'));
         return false;
       }
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-        setError('Please enter a valid email');
+        setError(t('validation.invalidEmail'));
         return false;
       }
     } else {
       if (!formData.phone.trim()) {
-        setError('Phone number is required');
+        setError(t('validation.phoneRequired'));
         return false;
       }
       const digits = formData.phone.replace(/\D/g, '');
       if (digits.length < 10) {
-        setError('Please enter a valid phone number');
+        setError(t('validation.invalidPhone'));
         return false;
       }
     }
     if (!formData.password) {
-      setError('Password is required');
+      setError(t('validation.passwordRequired'));
       return false;
     }
     return true;
@@ -89,27 +91,27 @@ const LoginPage = () => {
         const phone = formData.phone.replace(/\D/g, '');
         result = await loginWithPhone(phone, formData.password);
       }
-      toast.success('Welcome back! 🍁');
+      toast.success(t('auth.welcomeBack'));
       navigate(getRoleRoute(result?.user?.role));
     } catch (err) {
-      setError(err.message || 'Invalid credentials');
+      setError(err.message || t('auth.invalidCredentials'));
     }
   };
 
   const handleDemoLogin = async (role) => {
     try {
       await loginAsRole(role);
-      toast.success(`Logged in as demo ${role}! 🧪`);
+      toast.success(t('auth.demoLoginSuccess', { role }));
       navigate(getRoleRoute(role));
     } catch (err) {
-      setError(err.message || 'Demo login failed');
+      setError(err.message || t('auth.demoLoginFailed'));
     }
   };
 
   const toggleMode = () => {
     const newMode = mode === 'demo' ? 'live' : 'demo';
     setMode(newMode);
-    toast.success(newMode === 'demo' ? 'Switched to Demo Mode 🧪' : 'Switched to Live Mode ☁️');
+    toast.success(newMode === 'demo' ? t('auth.switchedToDemoMode') : t('auth.switchedToLiveMode'));
   };
 
   return (
@@ -128,30 +130,30 @@ const LoginPage = () => {
                 <Shirt className="w-9 h-9 text-white" />
               </div>
               <div>
-                <h1 className="text-3xl font-display font-bold text-white">Amani's</h1>
-                <p className="text-amani-400">Premium Cleaners</p>
+                <h1 className="text-3xl font-display font-bold text-white">{t('auth.brandName')}</h1>
+                <p className="text-amani-400">{t('auth.brandTagline')}</p>
               </div>
             </div>
             
             <h2 className="text-4xl xl:text-5xl font-display font-bold text-white mb-6 leading-tight">
-              Canada's Most Trusted<br />
+              {t('auth.heroTitle1')}<br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-amani-400 to-maple-400">
-                Laundry Service
+                {t('auth.heroTitle2')}
               </span>
             </h2>
-            
+
             <p className="text-xl text-gray-300 mb-8 max-w-md">
-              Professional dry cleaning and laundry since 2013. Serving the Greater Toronto Area with excellence.
+              {t('auth.heroDescription')}
             </p>
 
             <div className="flex items-center gap-6 text-gray-400">
               <div className="flex items-center gap-2">
                 <Leaf className="w-5 h-5 text-green-400" />
-                <span>Eco-Friendly</span>
+                <span>{t('auth.ecoFriendly')}</span>
               </div>
               <div className="flex items-center gap-2">
                 <span className="text-2xl">🍁</span>
-                <span>Canadian Owned</span>
+                <span>{t('auth.canadianOwned')}</span>
               </div>
             </div>
           </motion.div>
@@ -184,14 +186,14 @@ const LoginPage = () => {
                 {mode === 'demo' ? (
                   <>
                     <Database className="w-5 h-5" />
-                    <span className="font-medium">Demo Mode</span>
-                    <span className="text-xs opacity-70">(Local Data)</span>
+                    <span className="font-medium">{t('auth.demoMode')}</span>
+                    <span className="text-xs opacity-70">{t('auth.localData')}</span>
                   </>
                 ) : (
                   <>
                     <Cloud className="w-5 h-5" />
-                    <span className="font-medium">Live Mode</span>
-                    <span className="text-xs opacity-70">(Supabase)</span>
+                    <span className="font-medium">{t('auth.liveMode')}</span>
+                    <span className="text-xs opacity-70">{t('auth.supabase')}</span>
                   </>
                 )}
               </button>
@@ -204,17 +206,17 @@ const LoginPage = () => {
               <Shirt className="w-7 h-7 text-white" />
             </div>
             <div>
-              <h1 className="text-xl font-display font-bold text-white">Amani's</h1>
-              <p className="text-xs text-gray-400">Premium Cleaners</p>
+              <h1 className="text-xl font-display font-bold text-white">{t('auth.brandName')}</h1>
+              <p className="text-xs text-gray-400">{t('auth.brandTagline')}</p>
             </div>
           </div>
 
           <div className="bg-white/5 backdrop-blur-xl rounded-3xl p-8 border border-white/10">
             <h2 className="text-2xl font-display font-bold text-white mb-2 text-center">
-              Welcome Back
+              {t('auth.welcome')}
             </h2>
             <p className="text-gray-400 text-center mb-6">
-              Sign in to manage your orders
+              {t('auth.signInDesc')}
             </p>
 
             {/* Login Method Tabs */}
@@ -228,7 +230,7 @@ const LoginPage = () => {
                 }`}
               >
                 <Mail className="w-4 h-4" />
-                Email
+                {t('auth.email')}
               </button>
               <button
                 onClick={() => { setLoginMethod('phone'); setError(''); }}
@@ -239,7 +241,7 @@ const LoginPage = () => {
                 }`}
               >
                 <Phone className="w-4 h-4" />
-                Phone
+                {t('auth.phone')}
               </button>
             </div>
 
@@ -264,7 +266,7 @@ const LoginPage = () => {
                     exit={{ opacity: 0, x: 20 }}
                   >
                     <label className="block text-sm font-medium text-gray-300 mb-2">
-                      Email Address
+                      {t('auth.email')}
                     </label>
                     <div className="relative">
                       <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
@@ -285,7 +287,7 @@ const LoginPage = () => {
                     exit={{ opacity: 0, x: 20 }}
                   >
                     <label className="block text-sm font-medium text-gray-300 mb-2">
-                      Phone Number
+                      {t('auth.phoneNumber')}
                     </label>
                     <div className="relative">
                       <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
@@ -304,7 +306,7 @@ const LoginPage = () => {
 
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-2">
-                  Password
+                  {t('auth.password')}
                 </label>
                 <div className="relative">
                   <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
@@ -328,10 +330,10 @@ const LoginPage = () => {
               <div className="flex items-center justify-between text-sm">
                 <label className="flex items-center gap-2 text-gray-400">
                   <input type="checkbox" className="rounded border-gray-600 bg-white/5 text-amani-500 focus:ring-amani-500/20" />
-                  Remember me
+                  {t('auth.rememberMe')}
                 </label>
                 <a href="#" className="text-amani-400 hover:text-amani-300">
-                  Forgot password?
+                  {t('auth.forgotPassword')}
                 </a>
               </div>
 
@@ -346,11 +348,11 @@ const LoginPage = () => {
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                     </svg>
-                    Signing in...
+                    {t('auth.signingIn')}
                   </span>
                 ) : (
                   <>
-                    Sign In
+                    {t('auth.signIn')}
                     <ArrowRight className="w-5 h-5" />
                   </>
                 )}
@@ -361,18 +363,18 @@ const LoginPage = () => {
             {demoEnabled && mode === 'demo' && (
               <div className="mt-8 pt-6 border-t border-white/10">
                 <p className="text-center text-sm text-gray-400 mb-2">
-                  🧪 Quick Demo Access
+                  {t('auth.quickDemoAccess')}
                 </p>
                 <p className="text-center text-xs text-gray-500 mb-4">
-                  Password for all demo accounts: <code className="bg-white/10 px-2 py-0.5 rounded">demo123</code>
+                  {t('auth.demoPassword')}: <code className="bg-white/10 px-2 py-0.5 rounded">demo123</code>
                 </p>
                 <div className="grid grid-cols-2 gap-3">
                   {[
-                    { role: 'customer', label: 'Customer' },
-                    { role: 'driver', label: 'Driver' },
-                    { role: 'staff', label: 'Staff' },
-                    { role: 'admin', label: 'Admin' },
-                    { role: 'partner', label: 'Partner' },
+                    { role: 'customer', label: t('auth.roleCustomer') },
+                    { role: 'driver', label: t('auth.roleDriver') },
+                    { role: 'staff', label: t('auth.roleStaff') },
+                    { role: 'admin', label: t('auth.roleAdmin') },
+                    { role: 'partner', label: t('auth.rolePartner') },
                   ].map((item) => (
                     <button
                       key={item.role}
@@ -387,9 +389,9 @@ const LoginPage = () => {
             )}
 
             <p className="text-center text-gray-400 mt-8">
-              Don't have an account?{' '}
+              {t('auth.noAccount')}{' '}
               <Link to="/register" className="text-amani-400 hover:text-amani-300 font-medium">
-                Sign up free
+                {t('auth.signUp')}
               </Link>
             </p>
           </div>
@@ -405,8 +407,8 @@ const LoginPage = () => {
               <Sparkles className="w-6 h-6 text-amani-400" />
             </div>
             <div>
-              <p className="text-white font-medium">15% Off First Order!</p>
-              <p className="text-gray-400 text-sm">Sign up now & save on your first order</p>
+              <p className="text-white font-medium">{t('auth.promoTitle')}</p>
+              <p className="text-gray-400 text-sm">{t('auth.promoDescription')}</p>
             </div>
           </motion.div>
         </motion.div>

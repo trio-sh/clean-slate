@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  Search, Package, Truck, CheckCircle, Clock, 
+import {
+  Search, Package, Truck, CheckCircle, Clock,
   MapPin, Phone, RefreshCw, Calendar, ArrowRight,
   Shirt, Sparkles, AlertCircle, Bell, Send, X,
   CreditCard, CalendarDays, Scale
@@ -11,8 +11,10 @@ import db from '../../lib/db';
 import { formatAddress, notificationService } from '../../lib/utils';
 import { format } from 'date-fns';
 import toast from 'react-hot-toast';
+import { useLanguage } from '../../i18n/LanguageContext';
 
 const TrackOrderPage = () => {
+  const { t } = useLanguage();
   const { referenceCode: urlCode } = useParams();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
@@ -33,12 +35,12 @@ const TrackOrderPage = () => {
   const subscriptionId = searchParams.get('subscription');
 
   const statusSteps = [
-    { status: 'pending_pickup', label: 'Order Placed', icon: Package, description: 'Your order has been received' },
-    { status: 'picked_up', label: 'Picked Up', icon: Truck, description: 'Items collected from your location' },
-    { status: 'processing', label: 'Processing', icon: Sparkles, description: 'Items being cleaned' },
-    { status: 'ready', label: 'Ready', icon: Shirt, description: 'Items ready for delivery' },
-    { status: 'out_for_delivery', label: 'Out for Delivery', icon: Truck, description: 'Driver on the way' },
-    { status: 'delivered', label: 'Delivered', icon: CheckCircle, description: 'Order completed!' },
+    { status: 'pending_pickup', label: t('track.statusSteps.pending_pickup.label'), icon: Package, description: t('track.statusSteps.pending_pickup.description') },
+    { status: 'picked_up', label: t('track.statusSteps.picked_up.label'), icon: Truck, description: t('track.statusSteps.picked_up.description') },
+    { status: 'processing', label: t('track.statusSteps.processing.label'), icon: Sparkles, description: t('track.statusSteps.processing.description') },
+    { status: 'ready', label: t('track.statusSteps.ready.label'), icon: Shirt, description: t('track.statusSteps.ready.description') },
+    { status: 'out_for_delivery', label: t('track.statusSteps.out_for_delivery.label'), icon: Truck, description: t('track.statusSteps.out_for_delivery.description') },
+    { status: 'delivered', label: t('track.statusSteps.delivered.label'), icon: CheckCircle, description: t('track.statusSteps.delivered.description') },
   ];
 
   useEffect(() => {
@@ -62,7 +64,7 @@ const TrackOrderPage = () => {
       // Load subscription details
       const sub = await db.getById('customer_subscriptions', subscriptionId);
       if (!sub) {
-        setError('Subscription not found.');
+        setError(t('track.subscriptionNotFoundDesc'));
         return;
       }
       
@@ -80,7 +82,7 @@ const TrackOrderPage = () => {
       
       setSubscription(sub);
     } catch (err) {
-      setError('Failed to fetch subscription. Please try again.');
+      setError(t('track.fetchSubscriptionError'));
     } finally {
       setLoading(false);
     }
@@ -102,10 +104,10 @@ const TrackOrderPage = () => {
           navigate(`/track/${searchCode.trim().toUpperCase()}`);
         }
       } else {
-        setError('Order not found. Please check your reference code.');
+        setError(t('track.orderNotFoundDesc'));
       }
     } catch (err) {
-      setError('Failed to fetch order. Please try again.');
+      setError(t('track.fetchError'));
     } finally {
       setLoading(false);
     }
@@ -126,7 +128,7 @@ const TrackOrderPage = () => {
 
   const handleSendNotification = async () => {
     if (!notificationForm.title.trim() || !notificationForm.message.trim()) {
-      toast.error('Please enter both title and message');
+      toast.error(t('track.notificationTitleRequired'));
       return;
     }
 
@@ -155,15 +157,15 @@ const TrackOrderPage = () => {
       const adminResults = await notificationService.broadcastToRole('admin', notification);
       results.push(...adminResults);
 
-      toast.success(`Notification sent to ${results.length} team members`);
-      
+      toast.success(t('track.notificationSentSuccess').replace('{count}', results.length));
+
       // Reset form and close modal
       setNotificationForm({ title: '', message: '' });
       setShowNotificationModal(false);
-      
+
     } catch (error) {
       console.error('Failed to send notification:', error);
-      toast.error('Failed to send notification. Please try again.');
+      toast.error(t('track.notificationSentError'));
     } finally {
       setSendingNotification(false);
     }
@@ -194,12 +196,10 @@ const TrackOrderPage = () => {
               )}
             </div>
             <h1 className="text-3xl md:text-4xl font-display font-bold text-white mb-4">
-              {viewMode === 'subscription' ? 'Track Your Subscription' : 'Track Your Order'}
+              {t('track.title')}
             </h1>
             <p className="text-gray-400 mb-8">
-              {viewMode === 'subscription' 
-                ? 'View your subscription details and status' 
-                : 'Enter your 7-digit reference code to see your order status'}
+              {t('track.enterReference')}
             </p>
 
             {viewMode === 'order' && (
@@ -208,7 +208,7 @@ const TrackOrderPage = () => {
                   type="text"
                   value={searchCode}
                   onChange={(e) => setSearchCode(e.target.value.toUpperCase())}
-                  placeholder="Enter code (e.g., A123456)"
+                  placeholder={t('track.placeholder')}
                   className="w-full bg-white/10 border border-white/20 rounded-2xl pl-14 pr-4 py-4 text-white text-lg font-mono placeholder-gray-500 focus:outline-none focus:border-amani-500/50 focus:ring-2 focus:ring-amani-500/20 tracking-wider"
                   maxLength={7}
                 />
@@ -221,7 +221,7 @@ const TrackOrderPage = () => {
                   {loading ? (
                     <RefreshCw className="w-5 h-5 animate-spin" />
                   ) : (
-                    'Track'
+                    t('track.track')
                   )}
                 </button>
               </form>
@@ -243,7 +243,7 @@ const TrackOrderPage = () => {
               <AlertCircle className="w-6 h-6 text-red-500 flex-shrink-0" />
               <div>
                 <h3 className="font-semibold text-red-800 mb-1">
-                  {viewMode === 'subscription' ? 'Subscription Not Found' : 'Order Not Found'}
+                  {viewMode === 'subscription' ? t('track.subscriptionNotFound') : t('track.orderNotFound')}
                 </h3>
                 <p className="text-red-600 text-sm">{error}</p>
               </div>
@@ -261,7 +261,7 @@ const TrackOrderPage = () => {
               <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-6">
                 <div className="flex flex-wrap items-center justify-between gap-4">
                   <div>
-                    <p className="text-sm text-gray-500 mb-1">Reference Code</p>
+                    <p className="text-sm text-gray-500 mb-1">{t('track.referenceCode')}</p>
                     <p className="text-2xl font-mono font-bold text-navy-900 tracking-wider">
                       {order.reference_code}
                     </p>
@@ -281,25 +281,25 @@ const TrackOrderPage = () => {
                       className="flex items-center gap-2 bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 rounded-xl font-medium transition-colors"
                     >
                       <Bell className="w-4 h-4" />
-                      <span className="hidden sm:inline">Notify Team</span>
-                      <span className="sm:hidden">Notify</span>
+                      <span className="hidden sm:inline">{t('track.notifyTeam')}</span>
+                      <span className="sm:hidden">{t('track.notify')}</span>
                     </button>
                   </div>
                 </div>
 
                 <div className="grid sm:grid-cols-3 gap-6 mt-6 pt-6 border-t border-gray-100">
                   <div>
-                    <p className="text-sm text-gray-500 mb-1">Order Date</p>
+                    <p className="text-sm text-gray-500 mb-1">{t('track.orderDate')}</p>
                     <p className="font-medium text-navy-900">
                       {format(new Date(order.created_at), 'MMM d, yyyy h:mm a')}
                     </p>
                   </div>
                   <div>
-                    <p className="text-sm text-gray-500 mb-1">Order Type</p>
+                    <p className="text-sm text-gray-500 mb-1">{t('track.orderType')}</p>
                     <p className="font-medium text-navy-900 capitalize">{order.order_type}</p>
                   </div>
                   <div>
-                    <p className="text-sm text-gray-500 mb-1">Total</p>
+                    <p className="text-sm text-gray-500 mb-1">{t('track.total')}</p>
                     <p className="font-bold text-navy-900 text-lg">${order.total?.toFixed(2)}</p>
                   </div>
                 </div>
@@ -307,7 +307,7 @@ const TrackOrderPage = () => {
 
               {/* Status Timeline */}
               <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-6">
-                <h3 className="font-display font-bold text-navy-900 mb-6">Order Progress</h3>
+                <h3 className="font-display font-bold text-navy-900 mb-6">{t('track.orderProgress')}</h3>
                 
                 <div className="relative">
                   {statusSteps.slice(0, order.status === 'cancelled' ? currentIndex + 1 : undefined).map((step, index) => {
@@ -345,7 +345,7 @@ const TrackOrderPage = () => {
                           </p>
                           {isCurrent && order.status_updated_at && (
                             <p className="text-xs text-amani-600 mt-1">
-                              Updated: {format(new Date(order.status_updated_at), 'MMM d, h:mm a')}
+                              {t('track.updated')}: {format(new Date(order.status_updated_at), 'MMM d, h:mm a')}
                             </p>
                           )}
                         </div>
@@ -358,7 +358,7 @@ const TrackOrderPage = () => {
               {/* Delivery Info */}
               {(order.delivery_address || order.pickup_address) && (
                 <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-6">
-                  <h3 className="font-display font-bold text-navy-900 mb-4">Delivery Address</h3>
+                  <h3 className="font-display font-bold text-navy-900 mb-4">{t('track.deliveryAddress')}</h3>
                   <div className="flex items-start gap-3">
                     <MapPin className="w-5 h-5 text-amani-500 flex-shrink-0 mt-0.5" />
                     <div>
@@ -371,7 +371,7 @@ const TrackOrderPage = () => {
               {/* Order Items */}
               {order.items && order.items.length > 0 && (
                 <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-                  <h3 className="font-display font-bold text-navy-900 mb-4">Order Items</h3>
+                  <h3 className="font-display font-bold text-navy-900 mb-4">{t('track.orderItems')}</h3>
                   <div className="space-y-3">
                     {order.items.map((item, idx) => {
                       const price = Number(item.unit_price) || Number(item.price) || 0;
@@ -379,8 +379,8 @@ const TrackOrderPage = () => {
                       return (
                         <div key={idx} className="flex justify-between items-center py-3 border-b border-gray-100 last:border-0">
                           <div>
-                            <p className="font-medium text-navy-900">{item.service_name || item.name || 'Service Item'}</p>
-                            <p className="text-sm text-gray-500">Qty: {qty}</p>
+                            <p className="font-medium text-navy-900">{item.service_name || item.name || t('track.serviceItem')}</p>
+                            <p className="text-sm text-gray-500">{t('track.qty')}: {qty}</p>
                           </div>
                           <p className="font-medium text-navy-900">${(price * qty).toFixed(2)}</p>
                         </div>
@@ -392,13 +392,13 @@ const TrackOrderPage = () => {
 
               {/* Contact Support */}
               <div className="mt-6 text-center">
-                <p className="text-gray-600 mb-3">Need help with your order?</p>
+                <p className="text-gray-600 mb-3">{t('track.needHelp')}</p>
                 <a
                   href="tel:437-215-6321"
                   className="inline-flex items-center gap-2 text-amani-600 font-medium hover:text-amani-700"
                 >
                   <Phone className="w-4 h-4" />
-                  Call 437-215-6321
+                  {t('track.callPhone')}
                 </a>
               </div>
             </motion.div>
@@ -415,13 +415,13 @@ const TrackOrderPage = () => {
               <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-6">
                 <div className="flex flex-wrap items-center justify-between gap-4">
                   <div>
-                    <p className="text-sm text-gray-500 mb-1">Subscription ID</p>
+                    <p className="text-sm text-gray-500 mb-1">{t('track.subscriptionId')}</p>
                     <p className="text-2xl font-mono font-bold text-navy-900 tracking-wider">
                       {subscription.id?.slice(0, 8)}...
                     </p>
                   </div>
                   <div className={`px-4 py-2 rounded-xl font-medium text-sm ${
-                    subscription.status === 'active' 
+                    subscription.status === 'active'
                       ? 'bg-purple-100 text-purple-700'
                       : subscription.status === 'pending_payment'
                       ? 'bg-yellow-100 text-yellow-700'
@@ -433,21 +433,21 @@ const TrackOrderPage = () => {
 
                 <div className="grid sm:grid-cols-3 gap-6 mt-6 pt-6 border-t border-gray-100">
                   <div>
-                    <p className="text-sm text-gray-500 mb-1">Plan</p>
+                    <p className="text-sm text-gray-500 mb-1">{t('track.plan')}</p>
                     <p className="font-medium text-navy-900">
-                      {subscription.plan_details?.name || 'Unknown Plan'}
+                      {subscription.plan_details?.name || t('track.unknownPlan')}
                     </p>
                   </div>
                   <div>
-                    <p className="text-sm text-gray-500 mb-1">Price</p>
+                    <p className="text-sm text-gray-500 mb-1">{t('track.price')}</p>
                     <p className="font-bold text-navy-900 text-lg">
-                      ${subscription.plan_details?.price || 0}/month
+                      ${subscription.plan_details?.price || 0}{t('track.perMonth')}
                     </p>
                   </div>
                   <div>
-                    <p className="text-sm text-gray-500 mb-1">Pounds Included</p>
+                    <p className="text-sm text-gray-500 mb-1">{t('track.poundsIncluded')}</p>
                     <p className="font-medium text-navy-900">
-                      {subscription.plan_details?.pounds_included || 0} lbs
+                      {subscription.plan_details?.pounds_included || 0} {t('track.lbs')}
                     </p>
                   </div>
                 </div>
@@ -459,25 +459,25 @@ const TrackOrderPage = () => {
                 <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
                   <h3 className="font-display font-bold text-navy-900 mb-4 flex items-center gap-2">
                     <CalendarDays className="w-5 h-5 text-amani-500" />
-                    Subscription Period
+                    {t('track.subscriptionPeriod')}
                   </h3>
                   <div className="space-y-3">
                     <div>
-                      <p className="text-sm text-gray-500">Start Date</p>
+                      <p className="text-sm text-gray-500">{t('track.startDate')}</p>
                       <p className="font-medium text-navy-900">
                         {format(new Date(subscription.start_date), 'MMMM d, yyyy')}
                       </p>
                     </div>
                     <div>
-                      <p className="text-sm text-gray-500">End Date</p>
+                      <p className="text-sm text-gray-500">{t('track.endDate')}</p>
                       <p className="font-medium text-navy-900">
                         {format(new Date(subscription.end_date), 'MMMM d, yyyy')}
                       </p>
                     </div>
                     <div>
-                      <p className="text-sm text-gray-500">Days Remaining</p>
+                      <p className="text-sm text-gray-500">{t('track.daysRemaining')}</p>
                       <p className="font-medium text-navy-900">
-                        {Math.max(0, Math.ceil((new Date(subscription.end_date) - new Date()) / (1000 * 60 * 60 * 24)))} days
+                        {Math.max(0, Math.ceil((new Date(subscription.end_date) - new Date()) / (1000 * 60 * 60 * 24)))} {t('track.days')}
                       </p>
                     </div>
                   </div>
@@ -487,31 +487,31 @@ const TrackOrderPage = () => {
                 <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
                   <h3 className="font-display font-bold text-navy-900 mb-4 flex items-center gap-2">
                     <Scale className="w-5 h-5 text-amani-500" />
-                    Usage Details
+                    {t('track.usageDetails')}
                   </h3>
                   <div className="space-y-3">
                     <div>
-                      <p className="text-sm text-gray-500">Pounds Remaining</p>
+                      <p className="text-sm text-gray-500">{t('track.poundsRemaining')}</p>
                       <p className="font-medium text-navy-900">
-                        {subscription.pounds_remaining || 0} lbs
+                        {subscription.pounds_remaining || 0} {t('track.lbs')}
                       </p>
                       <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
-                        <div 
-                          className="bg-amani-500 h-2 rounded-full" 
-                          style={{ 
-                            width: `${((subscription.pounds_remaining || 0) / (subscription.plan_details?.pounds_included || 1)) * 100}%` 
+                        <div
+                          className="bg-amani-500 h-2 rounded-full"
+                          style={{
+                            width: `${((subscription.pounds_remaining || 0) / (subscription.plan_details?.pounds_included || 1)) * 100}%`
                           }}
                         />
                       </div>
                     </div>
                     <div>
-                      <p className="text-sm text-gray-500">Auto Renew</p>
+                      <p className="text-sm text-gray-500">{t('track.autoRenew')}</p>
                       <p className="font-medium text-navy-900">
-                        {subscription.auto_renew ? 'Enabled' : 'Disabled'}
+                        {subscription.auto_renew ? t('track.enabled') : t('track.disabled')}
                       </p>
                     </div>
                     <div>
-                      <p className="text-sm text-gray-500">Created</p>
+                      <p className="text-sm text-gray-500">{t('track.created')}</p>
                       <p className="font-medium text-navy-900">
                         {format(new Date(subscription.created_at), 'MMM d, yyyy')}
                       </p>
@@ -523,16 +523,16 @@ const TrackOrderPage = () => {
               {/* Customer Information */}
               {subscription.user_details && (
                 <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-6">
-                  <h3 className="font-display font-bold text-navy-900 mb-4">Customer Information</h3>
+                  <h3 className="font-display font-bold text-navy-900 mb-4">{t('track.customerInformation')}</h3>
                   <div className="grid sm:grid-cols-2 gap-4">
                     <div>
-                      <p className="text-sm text-gray-500">Name</p>
+                      <p className="text-sm text-gray-500">{t('track.name')}</p>
                       <p className="font-medium text-navy-900">
                         {subscription.user_details.first_name} {subscription.user_details.last_name}
                       </p>
                     </div>
                     <div>
-                      <p className="text-sm text-gray-500">Email</p>
+                      <p className="text-sm text-gray-500">{t('common.email')}</p>
                       <p className="font-medium text-navy-900">{subscription.user_details.email}</p>
                     </div>
                   </div>
@@ -541,13 +541,13 @@ const TrackOrderPage = () => {
 
               {/* Contact Support */}
               <div className="mt-6 text-center">
-                <p className="text-gray-600 mb-3">Need help with your subscription?</p>
+                <p className="text-gray-600 mb-3">{t('track.needHelpSubscription')}</p>
                 <a
                   href="tel:437-215-6321"
                   className="inline-flex items-center gap-2 text-amani-600 font-medium hover:text-amani-700"
                 >
                   <Phone className="w-4 h-4" />
-                  Call 437-215-6321
+                  {t('track.callPhone')}
                 </a>
               </div>
             </motion.div>
@@ -567,12 +567,12 @@ const TrackOrderPage = () => {
                 )}
               </div>
               <h3 className="text-xl font-display font-bold text-navy-900 mb-2">
-                {viewMode === 'subscription' ? 'Enter Subscription ID' : 'Enter Your Reference Code'}
+                {viewMode === 'subscription' ? t('track.enterSubscriptionId') : t('track.enterReferenceCode')}
               </h3>
               <p className="text-gray-600 max-w-md mx-auto">
-                {viewMode === 'subscription' 
-                  ? 'Access your subscription details using the subscription ID from your confirmation email.'
-                  : 'Your reference code was provided when you placed your order. It\'s a 7-character code starting with a letter.'}
+                {viewMode === 'subscription'
+                  ? t('track.subscriptionIdDescription')
+                  : t('track.referenceCodeDescription')}
               </p>
             </motion.div>
           )}
@@ -599,7 +599,7 @@ const TrackOrderPage = () => {
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-xl font-display font-bold text-navy-900 flex items-center gap-2">
                   <Bell className="w-6 h-6 text-amber-500" />
-                  Notify Delivery Team
+                  {t('track.notifyDeliveryTeam')}
                 </h3>
                 <button
                   onClick={() => setShowNotificationModal(false)}
@@ -610,19 +610,19 @@ const TrackOrderPage = () => {
               </div>
 
               <p className="text-gray-600 mb-6">
-                Send an urgent notification to all drivers, staff, and admins about your order.
+                {t('track.notifyDescription')}
               </p>
 
               <div className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Subject <span className="text-red-500">*</span>
+                    {t('track.subject')} <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="text"
                     value={notificationForm.title}
                     onChange={(e) => handleNotificationChange('title', e.target.value)}
-                    placeholder="e.g., Not home for delivery"
+                    placeholder={t('track.subjectPlaceholder')}
                     className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-amani-500 focus:border-amani-500"
                     maxLength={100}
                   />
@@ -630,25 +630,24 @@ const TrackOrderPage = () => {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Message <span className="text-red-500">*</span>
+                    {t('track.message')} <span className="text-red-500">*</span>
                   </label>
                   <textarea
                     value={notificationForm.message}
                     onChange={(e) => handleNotificationChange('message', e.target.value)}
-                    placeholder="Please provide details about your situation..."
+                    placeholder={t('track.messagePlaceholder')}
                     rows={4}
                     className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-amani-500 focus:border-amani-500 resize-none"
                     maxLength={500}
                   />
                   <p className="text-xs text-gray-500 mt-1">
-                    {notificationForm.message.length}/500 characters
+                    {t('track.charactersCount').replace('{count}', notificationForm.message.length)}
                   </p>
                 </div>
 
                 <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
                   <p className="text-sm text-amber-800">
-                    <strong>Note:</strong> This notification will be sent to all drivers, staff, and admins. 
-                    They will be able to see your order details and contact information.
+                    <strong>{t('common.ok')}:</strong> {t('track.notifyNote')}
                   </p>
                 </div>
 
@@ -657,7 +656,7 @@ const TrackOrderPage = () => {
                     onClick={() => setShowNotificationModal(false)}
                     className="flex-1 py-3 px-4 border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 font-medium transition-colors"
                   >
-                    Cancel
+                    {t('common.cancel')}
                   </button>
                   <button
                     onClick={handleSendNotification}
@@ -667,12 +666,12 @@ const TrackOrderPage = () => {
                     {sendingNotification ? (
                       <>
                         <RefreshCw className="w-4 h-4 animate-spin" />
-                        Sending...
+                        {t('track.sending')}
                       </>
                     ) : (
                       <>
                         <Send className="w-4 h-4" />
-                        Send Notification
+                        {t('track.sendNotification')}
                       </>
                     )}
                   </button>

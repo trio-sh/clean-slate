@@ -2,13 +2,15 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 
-import { 
+import {
   Shirt, Search, Plus, Minus, ShoppingCart, Filter,
   Sparkles, Clock, CheckCircle2, Info, ChevronDown
 } from 'lucide-react';
 import { useServicesStore, useCartStore, useAppStore } from '../../stores';
+import { useLanguage } from '../../i18n/LanguageContext';
 
 const ServicesPage = () => {
+  const { t } = useLanguage();
   const { categories, services, fetchServices, loading } = useServicesStore();
   const { addItem, items } = useCartStore();
   const { mode } = useAppStore();
@@ -79,7 +81,7 @@ const ServicesPage = () => {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="w-16 h-16 border-4 border-amani-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-gray-600">Loading services...</p>
+          <p className="text-gray-600">{t('common.loading')}</p>
         </div>
       </div>
     );
@@ -105,13 +107,13 @@ const ServicesPage = () => {
           >
             <span className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-full px-4 py-2 mb-6">
               <Sparkles className="w-4 h-4 text-amani-400" />
-              <span className="text-white font-medium">Premium Quality</span>
+              <span className="text-white font-medium">{t('services.premiumQuality')}</span>
             </span>
             <h1 className="text-4xl md:text-6xl font-display font-bold text-white mb-4">
-              Our Services
+              {t('services.title')}
             </h1>
             <p className="text-xl text-gray-300 max-w-2xl mx-auto">
-              Professional cleaning for all your garments. Select items below to add to your order.
+              {t('services.subtitle')}
             </p>
           </motion.div>
         </div>
@@ -123,15 +125,15 @@ const ServicesPage = () => {
           <div className="flex flex-wrap items-center justify-center gap-6 text-sm">
             <span className="flex items-center gap-2 text-gray-600">
               <Clock className="w-4 h-4 text-amani-500" />
-              48-72 Hour Turnaround
+              {t('services.turnaround')}
             </span>
             <span className="flex items-center gap-2 text-gray-600">
               <CheckCircle2 className="w-4 h-4 text-green-500" />
-              Quality Guaranteed
+              {t('services.qualityGuaranteed')}
             </span>
             <span className="flex items-center gap-2 text-amani-600 font-medium">
               <Sparkles className="w-4 h-4" />
-              15% Off First Order!
+              {t('services.firstOrderDiscount')}
             </span>
           </div>
         </div>
@@ -145,7 +147,7 @@ const ServicesPage = () => {
               {/* Search */}
               <div className="card p-4">
                 <label className="block text-sm font-medium text-navy-700 mb-2">
-                  Search Services
+                  {t('services.searchServices')}
                 </label>
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -153,7 +155,7 @@ const ServicesPage = () => {
                     type="text"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Search..."
+                    placeholder={t('services.searchPlaceholder')}
                     className="input pl-10"
                   />
                 </div>
@@ -163,18 +165,18 @@ const ServicesPage = () => {
               <div className="card p-4">
                 <h3 className="font-semibold text-navy-900 mb-4 flex items-center gap-2">
                   <Filter className="w-5 h-5" />
-                  Categories
+                  {t('services.categories')}
                 </h3>
                 <div className="space-y-2">
                   <button
                     onClick={() => setSelectedCategory(null)}
                     className={`w-full text-left px-3 py-2 rounded-lg transition-colors ${
-                      !selectedCategory 
-                        ? 'bg-amani-100 text-amani-700 font-medium' 
+                      !selectedCategory
+                        ? 'bg-amani-100 text-amani-700 font-medium'
                         : 'text-gray-600 hover:bg-gray-100'
                     }`}
                   >
-                    All Services
+                    {t('services.allServices')}
                   </button>
                   {categories.map(category => (
                     <button
@@ -198,7 +200,7 @@ const ServicesPage = () => {
                 <div className="card p-4 bg-amani-50 border-amani-200">
                   <h3 className="font-semibold text-navy-900 mb-3 flex items-center gap-2">
                     <ShoppingCart className="w-5 h-5 text-amani-600" />
-                    Your Cart
+                    {t('services.yourCart')}
                   </h3>
                   <div className="space-y-2 mb-4">
                     {items.slice(0, 3).map(item => (
@@ -208,11 +210,11 @@ const ServicesPage = () => {
                       </div>
                     ))}
                     {items.length > 3 && (
-                      <p className="text-sm text-gray-500">+{items.length - 3} more items</p>
+                      <p className="text-sm text-gray-500">+{items.length - 3} {t('services.moreItems')}</p>
                     )}
                   </div>
                   <Link to="/order" className="btn-primary w-full text-center text-sm">
-                    View Cart & Checkout
+                    {t('services.viewCartCheckout')}
                   </Link>
                 </div>
               )}
@@ -224,8 +226,8 @@ const ServicesPage = () => {
             {Object.keys(groupedServices).length === 0 ? (
               <div className="card p-12 text-center">
                 <Shirt className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                <h3 className="text-xl font-semibold text-navy-900 mb-2">No services found</h3>
-                <p className="text-gray-600">Try adjusting your search or filters.</p>
+                <h3 className="text-xl font-semibold text-navy-900 mb-2">{t('services.noServicesFound')}</h3>
+                <p className="text-gray-600">{t('services.tryAdjusting')}</p>
               </div>
             ) : (
               Object.entries(groupedServices).map(([categoryName, categoryServices]) => (
@@ -267,7 +269,7 @@ const ServicesPage = () => {
                           </div>
 
                           {service.unit && (
-                            <p className="text-xs text-gray-400 mb-3">Per {service.unit}</p>
+                            <p className="text-xs text-gray-400 mb-3">{t('services.perUnit', { unit: service.unit })}</p>
                           )}
 
                           <div className="flex items-center gap-3">
@@ -295,14 +297,14 @@ const ServicesPage = () => {
                               }`}
                             >
                               <ShoppingCart className="w-4 h-4 mr-1" />
-                              Add
+                              {t('common.add')}
                             </button>
                           </div>
 
                           {cartItem && (
                             <p className="text-xs text-green-600 mt-2 flex items-center gap-1">
                               <CheckCircle2 className="w-3 h-3" />
-                              {cartItem.quantity} in cart
+                              {t('services.inCart', { quantity: cartItem.quantity })}
                             </p>
                           )}
                         </div>
@@ -324,28 +326,27 @@ const ServicesPage = () => {
                   <div className="flex-1">
                     <h2 className="text-2xl font-display font-bold text-navy-900 mb-3 flex items-center gap-3">
                       <span className="text-3xl">🧺</span>
-                      Wash & Fold Laundry
+                      {t('services.washFoldLaundry')}
                     </h2>
                     <p className="text-gray-600 mb-4">
-                      Perfect for everyday laundry. We wash, dry, and neatly fold your clothes.
-                      Minimum order: 23lb or $64.01 flat rate.
+                      {t('services.washFoldDescription')}
                     </p>
                     <div className="grid sm:grid-cols-2 gap-4">
                       <div className="bg-white rounded-xl p-4">
-                        <h4 className="font-semibold text-navy-900">Regular</h4>
+                        <h4 className="font-semibold text-navy-900">{t('services.regular')}</h4>
                         <p className="text-2xl font-bold text-amani-600">$2.39<span className="text-sm font-normal text-gray-500">/lb</span></p>
-                        <p className="text-sm text-gray-500">For household laundry</p>
+                        <p className="text-sm text-gray-500">{t('services.forHousehold')}</p>
                       </div>
                       <div className="bg-white rounded-xl p-4">
-                        <h4 className="font-semibold text-navy-900">Commercial</h4>
+                        <h4 className="font-semibold text-navy-900">{t('services.commercial')}</h4>
                         <p className="text-2xl font-bold text-amani-600">$2.25<span className="text-sm font-normal text-gray-500">/lb</span></p>
-                        <p className="text-sm text-gray-500">For business clients</p>
+                        <p className="text-sm text-gray-500">{t('services.forBusiness')}</p>
                       </div>
                     </div>
                   </div>
                   <div className="md:w-48 text-center">
                     <Link to="/order" className="btn-primary w-full inline-flex items-center justify-center gap-2">
-                      Order Laundry
+                      {t('services.orderLaundry')}
                       <ShoppingCart className="w-4 h-4" />
                     </Link>
                   </div>
@@ -358,12 +359,12 @@ const ServicesPage = () => {
               <div className="flex gap-4">
                 <Info className="w-6 h-6 text-blue-600 flex-shrink-0 mt-0.5" />
                 <div>
-                  <h4 className="font-semibold text-blue-900 mb-2">Price Notes</h4>
+                  <h4 className="font-semibold text-blue-900 mb-2">{t('services.priceNotes')}</h4>
                   <ul className="text-sm text-blue-800 space-y-1">
-                    <li>• Prices shown are starting prices. Complex items may cost more.</li>
-                    <li>• "Starting from" items are assessed individually.</li>
-                    <li>• Same day service available for an additional fee.</li>
-                    <li>• 10% senior discount available in-store.</li>
+                    <li>• {t('services.priceNote1')}</li>
+                    <li>• {t('services.priceNote2')}</li>
+                    <li>• {t('services.priceNote3')}</li>
+                    <li>• {t('services.priceNote4')}</li>
                   </ul>
                 </div>
               </div>

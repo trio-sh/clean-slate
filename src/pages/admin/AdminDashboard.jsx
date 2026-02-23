@@ -8,8 +8,10 @@ import {
   Shirt, Star, AlertCircle, CheckCircle, RefreshCcw
 } from 'lucide-react';
 import { useOrderStore, useAppStore } from '../../stores';
+import { useLanguage } from '../../i18n/LanguageContext';
 
 const AdminDashboard = () => {
+  const { t } = useLanguage();
   const { orders, fetchOrders, loading } = useOrderStore();
   
   const [dateRange, setDateRange] = useState('week');
@@ -118,7 +120,7 @@ const AdminDashboard = () => {
   // Stats cards configuration
   const statCards = [
     {
-      title: 'Total Revenue',
+      title: t('dashboard.totalRevenue') || 'Total Revenue',
       value: `$${stats.revenue.toLocaleString('en-CA', { minimumFractionDigits: 2 })}`,
       change: '+12.5%',
       trend: 'up',
@@ -126,7 +128,7 @@ const AdminDashboard = () => {
       color: 'from-emerald-500 to-teal-500'
     },
     {
-      title: 'Total Orders',
+      title: t('orders.title') || 'Total Orders',
       value: stats.orders.toString(),
       change: '+8.2%',
       trend: 'up',
@@ -134,7 +136,7 @@ const AdminDashboard = () => {
       color: 'from-amani-500 to-maple-500'
     },
     {
-      title: 'Active Customers',
+      title: t('customers.activeCustomers') || 'Active Customers',
       value: stats.customers.toString(),
       change: '+15.3%',
       trend: 'up',
@@ -142,7 +144,7 @@ const AdminDashboard = () => {
       color: 'from-purple-500 to-indigo-500'
     },
     {
-      title: 'Avg Order Value',
+      title: t('dashboard.avgOrderValue') || 'Avg Order Value',
       value: `$${stats.avgOrderValue.toFixed(2)}`,
       change: '-2.1%',
       trend: 'down',
@@ -156,8 +158,8 @@ const AdminDashboard = () => {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-display font-bold text-navy-900">Dashboard Overview</h1>
-          <p className="text-gray-600">Welcome back! Here's what's happening with your business.</p>
+          <h1 className="text-2xl font-display font-bold text-navy-900">{t('dashboard.overview')}</h1>
+          <p className="text-gray-600">{t('dashboard.welcome')}! {t('dashboard.statsDesc') || "Here's what's happening with your business."}</p>
         </div>
         <div className="flex items-center gap-3">
           <select
@@ -309,9 +311,9 @@ const AdminDashboard = () => {
         {/* Recent Orders */}
         <div className="bg-white rounded-2xl border border-gray-200 p-6">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-lg font-semibold text-navy-900">Recent Orders</h2>
+            <h2 className="text-lg font-semibold text-navy-900">{t('dashboard.recentOrders')}</h2>
             <Link to="/admin/orders" className="text-sm text-amani-600 hover:text-amani-700 flex items-center gap-1">
-              View All <ArrowUpRight className="w-4 h-4" />
+              {t('dashboard.viewAll')} <ArrowUpRight className="w-4 h-4" />
             </Link>
           </div>
 

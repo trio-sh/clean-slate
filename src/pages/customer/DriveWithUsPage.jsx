@@ -1,77 +1,79 @@
 import { useState } from 'react'; // kept for future local state
 import { motion } from 'framer-motion';
-import { 
-  Car, DollarSign, Clock, MapPin, Star, CheckCircle, 
+import {
+  Car, DollarSign, Clock, MapPin, Star, CheckCircle,
   ArrowRight, Phone, Mail, Users, Award, Shield,
   Calendar, Navigation, Zap, ThumbsUp
 } from 'lucide-react';
 import DriverApplicationForm from '../../components/DriverApplicationForm';
+import { useLanguage } from '../../i18n/LanguageContext';
 
 const DriveWithUsPage = () => {
+  const { t } = useLanguage();
 
   const benefits = [
     {
       icon: Clock,
-      title: 'Flexible Hours',
-      description: 'Work when you want - no fixed schedules or obligations!'
+      title: t('driveWithUs.benefits.flexibleHours.title'),
+      description: t('driveWithUs.benefits.flexibleHours.description')
     },
     {
       icon: DollarSign,
-      title: 'Competitive Pay',
-      description: 'Get paid for every pickup and delivery. $25-35 per completed route.'
+      title: t('driveWithUs.benefits.competitivePay.title'),
+      description: t('driveWithUs.benefits.competitivePay.description')
     },
     {
       icon: Calendar,
-      title: 'Quick Start',
-      description: 'Start driving in just 1-2 days after application approval.'
+      title: t('driveWithUs.benefits.quickStart.title'),
+      description: t('driveWithUs.benefits.quickStart.description')
     },
     {
       icon: Shield,
-      title: 'Support System',
-      description: 'Full training and 24/7 support team available.'
+      title: t('driveWithUs.benefits.supportSystem.title'),
+      description: t('driveWithUs.benefits.supportSystem.description')
     },
     {
       icon: Car,
-      title: 'Own Your Schedule',
-      description: 'Choose your routes and work as much or as little as you want.'
+      title: t('driveWithUs.benefits.ownSchedule.title'),
+      description: t('driveWithUs.benefits.ownSchedule.description')
     },
     {
       icon: Zap,
-      title: 'Weekly Payments',
-      description: 'Get paid every week for completed deliveries directly to your bank.'
+      title: t('driveWithUs.benefits.weeklyPayments.title'),
+      description: t('driveWithUs.benefits.weeklyPayments.description')
     }
   ];
 
   const requirements = [
-    'Valid driver\'s license and clean driving record',
-    'Reliable vehicle (car, van, or truck)',
-    'Valid car insurance',
-    'Smartphone with data plan',
-    '18+ years old',
-    'Ability to lift 25-30 lbs occasionally',
-    '3+ days availability per week preferred'
+    t('driveWithUs.requirements.license'),
+    t('driveWithUs.requirements.vehicle'),
+    t('driveWithUs.requirements.insurance'),
+    t('driveWithUs.requirements.smartphone'),
+    t('driveWithUs.requirements.age'),
+    t('driveWithUs.requirements.lifting'),
+    t('driveWithUs.requirements.availability')
   ];
 
   const faqs = [
     {
-      question: 'How much can I expect to earn?',
-      answer: 'Drivers typically earn $25-35 per completed route. With 10-15 routes per week, most drivers make $300-500 weekly. Pay depends on your effort and availability.'
+      question: t('driveWithUs.faqs.earnings.question'),
+      answer: t('driveWithUs.faqs.earnings.answer')
     },
     {
-      question: 'Do I need delivery experience?',
-      answer: 'No experience required! We provide full training on our system, customer service, and efficient route planning.'
+      question: t('driveWithUs.faqs.experience.question'),
+      answer: t('driveWithUs.faqs.experience.answer')
     },
     {
-      question: 'What areas do you serve?',
-      answer: 'Currently serving the Greater Toronto Area including Toronto, North York, Scarborough, Etobicoke, Mississauga, Brampton, and Vaughan.'
+      question: t('driveWithUs.faqs.areas.question'),
+      answer: t('driveWithUs.faqs.areas.answer')
     },
     {
-      question: 'When do I get paid?',
-      answer: 'Payments are processed weekly for all completed deliveries. Direct deposit to your bank account every Friday.'
+      question: t('driveWithUs.faqs.payment.question'),
+      answer: t('driveWithUs.faqs.payment.answer')
     },
     {
-      question: 'What are my responsibilities?',
-      answer: 'Pick up laundry from customers, transport to our facility, then deliver clean clothes back. Minimal customer interaction required.'
+      question: t('driveWithUs.faqs.responsibilities.question'),
+      answer: t('driveWithUs.faqs.responsibilities.answer')
     }
   ];
 
@@ -94,29 +96,29 @@ const DriveWithUsPage = () => {
             >
               <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-full px-4 py-2 mb-6">
                 <span className="text-2xl">🚗</span>
-                <span className="font-medium">Join Our Team</span>
+                <span className="font-medium">{t('driveWithUs.hero.joinTeam')}</span>
               </div>
-              
+
               <h1 className="text-5xl md:text-6xl font-display font-bold mb-6 leading-tight">
-                Drive With <span className="text-amani-400">Amani's</span> Cleaners
+                {t('driveWithUs.hero.title')} <span className="text-amani-400">{t('driveWithUs.hero.brandName')}</span> {t('driveWithUs.hero.titleSuffix')}
               </h1>
-              
+
               <p className="text-xl text-gray-300 mb-8 max-w-xl">
-                Be your own boss. Work flexible hours. Earn great money while providing an essential service to your community.
+                {t('driveWithUs.hero.description')}
               </p>
               
               <div className="flex flex-col sm:flex-row gap-4">
-                <button 
+                <button
                   onClick={() => document.getElementById('application-form').scrollIntoView({ behavior: 'smooth' })}
                   className="bg-gradient-to-r from-amani-500 to-maple-500 text-white px-8 py-4 rounded-xl font-semibold hover:opacity-90 transition-all inline-flex items-center justify-center gap-2"
                 >
                   <Car className="w-5 h-5" />
-                  Apply Now
+                  {t('driveWithUs.hero.applyNow')}
                   <ArrowRight className="w-5 h-5" />
                 </button>
                 <a href="tel:437-215-6321" className="bg-white/10 backdrop-blur-sm text-white px-8 py-4 rounded-xl font-semibold hover:bg-white/20 transition-all inline-flex items-center justify-center gap-2">
                   <Phone className="w-5 h-5" />
-                  Call: 437-215-6321
+                  {t('driveWithUs.hero.callUs')}
                 </a>
               </div>
             </motion.div>
@@ -140,10 +142,10 @@ const DriveWithUsPage = () => {
               <div className="absolute bottom-0 left-0 right-0 p-6">
                 <div className="grid grid-cols-2 gap-3">
                   {[
-                    { value: '$25–35', label: 'Per Route' },
-                    { value: 'Weekly', label: 'Direct Deposit' },
-                    { value: '1–2 Days', label: 'To Get Started' },
-                    { value: 'Flexible', label: 'Your Schedule' },
+                    { value: '$25–35', label: t('driveWithUs.hero.stats.perRoute') },
+                    { value: t('driveWithUs.hero.stats.weeklyValue'), label: t('driveWithUs.hero.stats.weeklyLabel') },
+                    { value: t('driveWithUs.hero.stats.daysValue'), label: t('driveWithUs.hero.stats.daysLabel') },
+                    { value: t('driveWithUs.hero.stats.flexibleValue'), label: t('driveWithUs.hero.stats.flexibleLabel') },
                   ].map(({ value, label }) => (
                     <div key={label} className="bg-white/10 backdrop-blur-sm rounded-xl p-3 text-center border border-white/10">
                       <div className="text-xl font-bold text-amani-400">{value}</div>
@@ -166,12 +168,12 @@ const DriveWithUsPage = () => {
             viewport={{ once: true }}
             className="text-center mb-16"
           >
-            <span className="inline-block text-amani-600 font-semibold mb-4">WHY DRIVE WITH US</span>
+            <span className="inline-block text-amani-600 font-semibold mb-4">{t('driveWithUs.benefits.sectionTitle')}</span>
             <h2 className="text-4xl md:text-5xl font-display font-bold text-navy-900 mb-4">
-              Great Benefits, Great Pay
+              {t('driveWithUs.benefits.heading')}
             </h2>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Join hundreds of drivers who love working with Amani's Cleaners
+              {t('driveWithUs.benefits.subtitle')}
             </p>
           </motion.div>
 
@@ -208,12 +210,12 @@ const DriveWithUsPage = () => {
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
             >
-              <span className="inline-block text-amani-600 font-semibold mb-4">REQUIREMENTS</span>
+              <span className="inline-block text-amani-600 font-semibold mb-4">{t('driveWithUs.requirements.sectionTitle')}</span>
               <h2 className="text-4xl font-display font-bold text-navy-900 mb-6">
-                What You Need to Get Started
+                {t('driveWithUs.requirements.heading')}
               </h2>
               <p className="text-gray-600 mb-8">
-                We keep requirements simple so you can start earning quickly. Most people qualify!
+                {t('driveWithUs.requirements.subtitle')}
               </p>
               
               <ul className="space-y-4">
@@ -235,7 +237,7 @@ const DriveWithUsPage = () => {
               <div className="mt-8 p-4 bg-amani-50 rounded-xl">
                 <p className="text-amani-700 font-medium flex items-center gap-2">
                   <ThumbsUp className="w-5 h-5" />
-                  Previous delivery experience is NOT required!
+                  {t('driveWithUs.requirements.noExperience')}
                 </p>
               </div>
             </motion.div>
@@ -246,46 +248,46 @@ const DriveWithUsPage = () => {
               viewport={{ once: true }}
               className="bg-white rounded-3xl p-8 shadow-xl"
             >
-              <h3 className="text-2xl font-display font-bold text-navy-900 mb-6">Quick Facts</h3>
-              
+              <h3 className="text-2xl font-display font-bold text-navy-900 mb-6">{t('driveWithUs.quickFacts.heading')}</h3>
+
               <div className="space-y-6">
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
                     <DollarSign className="w-6 h-6 text-blue-600" />
                   </div>
                   <div>
-                    <p className="font-semibold text-navy-900">$25-35 per route</p>
-                    <p className="text-sm text-gray-600">Average earnings</p>
+                    <p className="font-semibold text-navy-900">{t('driveWithUs.quickFacts.earnings.value')}</p>
+                    <p className="text-sm text-gray-600">{t('driveWithUs.quickFacts.earnings.label')}</p>
                   </div>
                 </div>
-                
+
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
                     <Clock className="w-6 h-6 text-green-600" />
                   </div>
                   <div>
-                    <p className="font-semibold text-navy-900">1-2 Days to Start</p>
-                    <p className="text-sm text-gray-600">Fast approval process</p>
+                    <p className="font-semibold text-navy-900">{t('driveWithUs.quickFacts.startTime.value')}</p>
+                    <p className="text-sm text-gray-600">{t('driveWithUs.quickFacts.startTime.label')}</p>
                   </div>
                 </div>
-                
+
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
                     <Users className="w-6 h-6 text-purple-600" />
                   </div>
                   <div>
-                    <p className="font-semibold text-navy-900">500+ Drivers</p>
-                    <p className="text-sm text-gray-600">Already partnered with us</p>
+                    <p className="font-semibold text-navy-900">{t('driveWithUs.quickFacts.drivers.value')}</p>
+                    <p className="text-sm text-gray-600">{t('driveWithUs.quickFacts.drivers.label')}</p>
                   </div>
                 </div>
-                
+
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center">
                     <Star className="w-6 h-6 text-amber-600" />
                   </div>
                   <div>
-                    <p className="font-semibold text-navy-900">4.9/5 Rating</p>
-                    <p className="text-sm text-gray-600">From our drivers</p>
+                    <p className="font-semibold text-navy-900">{t('driveWithUs.quickFacts.rating.value')}</p>
+                    <p className="text-sm text-gray-600">{t('driveWithUs.quickFacts.rating.label')}</p>
                   </div>
                 </div>
               </div>
@@ -303,12 +305,12 @@ const DriveWithUsPage = () => {
             viewport={{ once: true }}
             className="text-center mb-16"
           >
-            <span className="inline-block text-amani-600 font-semibold mb-4">FAQ</span>
+            <span className="inline-block text-amani-600 font-semibold mb-4">{t('driveWithUs.faq.sectionTitle')}</span>
             <h2 className="text-4xl font-display font-bold text-navy-900 mb-4">
-              Frequently Asked Questions
+              {t('driveWithUs.faq.heading')}
             </h2>
             <p className="text-xl text-gray-600">
-              Everything you need to know about driving with Amani's
+              {t('driveWithUs.faq.subtitle')}
             </p>
           </motion.div>
 
@@ -339,12 +341,12 @@ const DriveWithUsPage = () => {
             viewport={{ once: true }}
             className="text-center mb-16"
           >
-            <span className="inline-block text-amani-600 font-semibold mb-4">GET STARTED</span>
+            <span className="inline-block text-amani-600 font-semibold mb-4">{t('driveWithUs.application.sectionTitle')}</span>
             <h2 className="text-4xl font-display font-bold text-navy-900 mb-4">
-              Ready to Join Our Team?
+              {t('driveWithUs.application.heading')}
             </h2>
             <p className="text-xl text-gray-600">
-              Fill out this simple form and we'll contact you within 24-48 hours
+              {t('driveWithUs.application.subtitle')}
             </p>
           </motion.div>
 
@@ -364,29 +366,29 @@ const DriveWithUsPage = () => {
           >
             <Award className="w-16 h-16 text-white/80 mx-auto mb-6" />
             <h2 className="text-4xl md:text-5xl font-display font-bold mb-4">
-              Ready to Start Driving?
+              {t('driveWithUs.cta.heading')}
             </h2>
             <p className="text-xl text-white/80 mb-8 max-w-2xl mx-auto">
-              Join our team of professional drivers and start earning on your schedule today.
+              {t('driveWithUs.cta.subtitle')}
             </p>
-            
+
             <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
-              <button 
+              <button
                 onClick={() => document.getElementById('application-form').scrollIntoView({ behavior: 'smooth' })}
                 className="bg-white text-amani-600 px-8 py-4 rounded-xl font-semibold hover:bg-gray-100 transition-all inline-flex items-center justify-center gap-2 shadow-lg"
               >
                 <Car className="w-5 h-5" />
-                Apply Now - Start in 1-2 Days
+                {t('driveWithUs.cta.applyNow')}
               </button>
               <a href="mailto:amaniscleaners@gmail.com" className="bg-white/10 backdrop-blur-sm text-white px-8 py-4 rounded-xl font-semibold hover:bg-white/20 transition-all inline-flex items-center justify-center gap-2">
                 <Mail className="w-5 h-5" />
-                Email: amaniscleaners@gmail.com
+                {t('driveWithUs.cta.email')}
               </a>
             </div>
-            
+
             <div className="text-white/70 text-sm">
-              <p>Or call us at 437-215-6321</p>
-              <p className="mt-2">Applications processed within 24-48 hours</p>
+              <p>{t('driveWithUs.cta.phoneText')}</p>
+              <p className="mt-2">{t('driveWithUs.cta.processingTime')}</p>
             </div>
           </motion.div>
         </div>

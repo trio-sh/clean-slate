@@ -6,6 +6,9 @@ import { useEffect } from 'react';
 import { useAuthStore, useAppStore, useServicesStore } from './stores';
 import db from './lib/db';
 
+// i18n
+import { LanguageProvider } from './i18n/LanguageContext';
+
 // Layouts
 import CustomerLayout from './components/layout/CustomerLayout';
 import DashboardLayout from './components/layout/DashboardLayout';
@@ -92,131 +95,133 @@ function App() {
   }, [fetchServices, loadAppModeSettings]);
 
   return (
-    <BrowserRouter>
-      {/* Mode indicator - only show when demo is enabled by admin */}
-      {demoEnabled && mode === 'demo' && (
-        <div className="fixed top-0 left-0 right-0 bg-gradient-to-r from-amani-500 to-maple-500 text-white text-center py-1 text-sm font-medium z-50">
-          🧪 Demo Mode - Data stored locally | <a href="/login" className="underline">Switch to Live Mode</a>
-        </div>
-      )}
-      
-      <Toaster
-        position="top-right"
-        toastOptions={{
-          duration: 4000,
-          style: {
-            background: '#1a2055',
-            color: '#fff',
-            borderRadius: '12px',
-          },
-          success: {
-            iconTheme: { primary: '#10b981', secondary: '#fff' },
-          },
-          error: {
-            iconTheme: { primary: '#ef4444', secondary: '#fff' },
-          },
-        }}
-      />
+    <LanguageProvider>
+      <BrowserRouter>
+        {/* Mode indicator - only show when demo is enabled by admin */}
+        {demoEnabled && mode === 'demo' && (
+          <div className="fixed top-0 left-0 right-0 bg-gradient-to-r from-amani-500 to-maple-500 text-white text-center py-1 text-sm font-medium z-50">
+            🧪 Demo Mode - Data stored locally | <a href="/login" className="underline">Switch to Live Mode</a>
+          </div>
+        )}
 
-      <Routes>
-        {/* Auth Routes */}
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/register" element={<RegisterPage />} />
-        <Route path="/select-role" element={<RoleSelectPage />} />
+        <Toaster
+          position="top-right"
+          toastOptions={{
+            duration: 4000,
+            style: {
+              background: '#1a2055',
+              color: '#fff',
+              borderRadius: '12px',
+            },
+            success: {
+              iconTheme: { primary: '#10b981', secondary: '#fff' },
+            },
+            error: {
+              iconTheme: { primary: '#ef4444', secondary: '#fff' },
+            },
+          }}
+        />
 
-        {/* Temporary SMS Test Route */}
-        <Route path="/sms-test" element={<SMSTestComponent />} />
-        
-        {/* Customer Routes */}
-        <Route path="/" element={<CustomerLayout />}>
-          <Route index element={<HomePage />} />
-          <Route path="services" element={<ServicesPage />} />
-          <Route path="pricing" element={<PricingPage />} />
-          <Route path="order" element={<OrderPage />} />
-          <Route path="track" element={<TrackOrderPage />} />
-          <Route path="track/:referenceCode" element={<TrackOrderPage />} />
-          <Route path="subscriptions" element={<SubscriptionsPage />} />
-          <Route path="drive-with-us" element={<DriveWithUsPage />} />
-          <Route path="partner" element={<PartnerApplicationPage />} />
-          <Route path="driver" element={<DriverApplicationPage />} />
-          <Route path="careers" element={<CareerApplicationPage />} />
-          <Route path="account" element={
-            <ProtectedRoute allowedRoles={['customer']}>
-              <AccountPage />
+        <Routes>
+          {/* Auth Routes */}
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
+          <Route path="/select-role" element={<RoleSelectPage />} />
+
+          {/* Temporary SMS Test Route */}
+          <Route path="/sms-test" element={<SMSTestComponent />} />
+
+          {/* Customer Routes */}
+          <Route path="/" element={<CustomerLayout />}>
+            <Route index element={<HomePage />} />
+            <Route path="services" element={<ServicesPage />} />
+            <Route path="pricing" element={<PricingPage />} />
+            <Route path="order" element={<OrderPage />} />
+            <Route path="track" element={<TrackOrderPage />} />
+            <Route path="track/:referenceCode" element={<TrackOrderPage />} />
+            <Route path="subscriptions" element={<SubscriptionsPage />} />
+            <Route path="drive-with-us" element={<DriveWithUsPage />} />
+            <Route path="partner" element={<PartnerApplicationPage />} />
+            <Route path="driver" element={<DriverApplicationPage />} />
+            <Route path="careers" element={<CareerApplicationPage />} />
+            <Route path="account" element={
+              <ProtectedRoute allowedRoles={['customer']}>
+                <AccountPage />
+              </ProtectedRoute>
+            } />
+          </Route>
+
+          {/* Driver Routes */}
+          <Route path="/driver" element={
+            <ProtectedRoute allowedRoles={['driver', 'admin']}>
+              <DashboardLayout type="driver" />
             </ProtectedRoute>
-          } />
-        </Route>
+          }>
+            <Route index element={<DriverDashboard />} />
+            <Route path="routes" element={<DriverRoutes />} />
+            <Route path="delivery/:orderId" element={<DriverDelivery />} />
+          </Route>
 
-        {/* Driver Routes */}
-        <Route path="/driver" element={
-          <ProtectedRoute allowedRoles={['driver', 'admin']}>
-            <DashboardLayout type="driver" />
-          </ProtectedRoute>
-        }>
-          <Route index element={<DriverDashboard />} />
-          <Route path="routes" element={<DriverRoutes />} />
-          <Route path="delivery/:orderId" element={<DriverDelivery />} />
-        </Route>
+          {/* Staff Routes */}
+          <Route path="/staff" element={
+            <ProtectedRoute allowedRoles={['staff', 'admin']}>
+              <DashboardLayout type="staff" />
+            </ProtectedRoute>
+          }>
+            <Route index element={<StaffDashboard />} />
+            <Route path="orders" element={<StaffOrders />} />
+            <Route path="processing" element={<StaffProcessing />} />
+            <Route path="messaging" element={<StaffMessaging />} />
+            <Route path="applications" element={<StaffApplications />} />
+          </Route>
 
-        {/* Staff Routes */}
-        <Route path="/staff" element={
-          <ProtectedRoute allowedRoles={['staff', 'admin']}>
-            <DashboardLayout type="staff" />
-          </ProtectedRoute>
-        }>
-          <Route index element={<StaffDashboard />} />
-          <Route path="orders" element={<StaffOrders />} />
-          <Route path="processing" element={<StaffProcessing />} />
-          <Route path="messaging" element={<StaffMessaging />} />
-          <Route path="applications" element={<StaffApplications />} />
-        </Route>
+          {/* Admin Routes */}
+          <Route path="/admin" element={
+            <ProtectedRoute allowedRoles={['admin']}>
+              <DashboardLayout type="admin" />
+            </ProtectedRoute>
+          }>
+            <Route index element={<AdminDashboard />} />
+            <Route path="orders" element={<AdminOrders />} />
+            <Route path="customers" element={<AdminCustomers />} />
+            <Route path="drivers" element={<AdminDrivers />} />
+            <Route path="staff" element={<AdminStaff />} />
+            <Route path="checkins" element={<AdminCheckins />} />
+            <Route path="subscriptions" element={<AdminSubscriptions />} />
+            <Route path="applications" element={<AdminApplications />} />
+            <Route path="depots" element={<AdminDepots />} />
+            <Route path="services" element={<AdminServices />} />
+            <Route path="messaging" element={<AdminMessaging />} />
+            <Route path="notifications" element={<AdminNotifications />} />
+            <Route path="reports" element={<AdminReports />} />
+            <Route path="settings" element={<AdminSettings />} />
+          </Route>
 
-        {/* Admin Routes */}
-        <Route path="/admin" element={
-          <ProtectedRoute allowedRoles={['admin']}>
-            <DashboardLayout type="admin" />
-          </ProtectedRoute>
-        }>
-          <Route index element={<AdminDashboard />} />
-          <Route path="orders" element={<AdminOrders />} />
-          <Route path="customers" element={<AdminCustomers />} />
-          <Route path="drivers" element={<AdminDrivers />} />
-          <Route path="staff" element={<AdminStaff />} />
-          <Route path="checkins" element={<AdminCheckins />} />
-          <Route path="subscriptions" element={<AdminSubscriptions />} />
-          <Route path="applications" element={<AdminApplications />} />
-          <Route path="depots" element={<AdminDepots />} />
-          <Route path="services" element={<AdminServices />} />
-          <Route path="messaging" element={<AdminMessaging />} />
-          <Route path="notifications" element={<AdminNotifications />} />
-          <Route path="reports" element={<AdminReports />} />
-          <Route path="settings" element={<AdminSettings />} />
-        </Route>
+          {/* Staff Depots Route */}
+          <Route path="/staff/depots" element={
+            <ProtectedRoute allowedRoles={['staff', 'admin']}>
+              <DashboardLayout type="staff" />
+            </ProtectedRoute>
+          }>
+            <Route index element={<AdminDepots />} />
+          </Route>
 
-        {/* Staff Depots Route */}
-        <Route path="/staff/depots" element={
-          <ProtectedRoute allowedRoles={['staff', 'admin']}>
-            <DashboardLayout type="staff" />
-          </ProtectedRoute>
-        }>
-          <Route index element={<AdminDepots />} />
-        </Route>
+          {/* Partner Portal Routes */}
+          <Route path="/partner-portal" element={
+            <ProtectedRoute allowedRoles={['partner', 'admin']}>
+              <DashboardLayout type="partner" />
+            </ProtectedRoute>
+          }>
+            <Route index element={<PartnerDashboard />} />
+            <Route path="orders" element={<PartnerOrders />} />
+            <Route path="depot" element={<PartnerDepotInfo />} />
+          </Route>
 
-        {/* Partner Portal Routes */}
-        <Route path="/partner-portal" element={
-          <ProtectedRoute allowedRoles={['partner', 'admin']}>
-            <DashboardLayout type="partner" />
-          </ProtectedRoute>
-        }>
-          <Route index element={<PartnerDashboard />} />
-          <Route path="orders" element={<PartnerOrders />} />
-          <Route path="depot" element={<PartnerDepotInfo />} />
-        </Route>
-
-        {/* Catch all */}
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
-    </BrowserRouter>
+          {/* Catch all */}
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </BrowserRouter>
+    </LanguageProvider>
   );
 }
 

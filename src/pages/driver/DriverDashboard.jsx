@@ -2,13 +2,14 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
 
-import { 
-  Truck, Package, MapPin, Clock, CheckCircle, 
+import {
+  Truck, Package, MapPin, Clock, CheckCircle,
   Navigation, Phone, ChevronRight, Calendar, TrendingUp,
   AlertCircle, Star, RefreshCw, Eye, PlayCircle,
   LogIn, LogOut, Send, MessageSquare
 } from 'lucide-react';
 import { useAuthStore, useNotificationStore } from '../../stores';
+import { useLanguage } from '../../i18n/LanguageContext';
 import db from '../../lib/db';
 import { sendSMS, smsTemplates, formatAddress } from '../../lib/utils';
 import { format, isToday, parseISO } from 'date-fns';
@@ -16,6 +17,7 @@ import toast from 'react-hot-toast';
 import CheckInModal from '../../components/CheckInModal';
 
 const DriverDashboard = () => {
+  const { t } = useLanguage();
   const navigate = useNavigate();
   const { user } = useAuthStore();
   const { addNotification } = useNotificationStore();

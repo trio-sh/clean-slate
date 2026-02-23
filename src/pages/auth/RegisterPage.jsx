@@ -2,15 +2,17 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
 
-import { 
+import {
   Shirt, Mail, Lock, Eye, EyeOff, User, Phone,
   ArrowRight, ArrowLeft, CheckCircle, AlertCircle, MapPin
 } from 'lucide-react';
 import { useAuthStore, useAppStore } from '../../stores';
+import { useLanguage } from '../../i18n/LanguageContext';
 import toast from 'react-hot-toast';
 
 const RegisterPage = () => {
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const { register, isLoading } = useAuthStore();
   const { mode } = useAppStore();
   
@@ -51,30 +53,30 @@ const RegisterPage = () => {
   };
 
   const validateStep1 = () => {
-    if (!formData.firstName.trim()) return 'First name is required';
-    if (!formData.lastName.trim()) return 'Last name is required';
-    if (!formData.phone.trim()) return 'Phone number is required';
+    if (!formData.firstName.trim()) return t('auth.validation.firstNameRequired');
+    if (!formData.lastName.trim()) return t('auth.validation.lastNameRequired');
+    if (!formData.phone.trim()) return t('auth.validation.phoneRequired');
     const phoneDigits = formData.phone.replace(/\D/g, '');
-    if (phoneDigits.length < 10) return 'Enter a valid 10-digit phone number';
-    if (!formData.email.trim()) return 'Email is required';
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) return 'Enter a valid email';
+    if (phoneDigits.length < 10) return t('auth.validation.phoneInvalid');
+    if (!formData.email.trim()) return t('auth.validation.emailRequired');
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) return t('validation.invalidEmail');
     return null;
   };
 
   const validateStep2 = () => {
-    if (!formData.address.trim()) return 'Street address is required';
-    if (!formData.city.trim()) return 'City is required';
-    if (!formData.postalCode.trim()) return 'Postal code is required';
+    if (!formData.address.trim()) return t('auth.validation.addressRequired');
+    if (!formData.city.trim()) return t('auth.validation.cityRequired');
+    if (!formData.postalCode.trim()) return t('auth.validation.postalCodeRequired');
     if (!/^[A-Za-z]\d[A-Za-z][ -]?\d[A-Za-z]\d$/.test(formData.postalCode.trim())) {
-      return 'Enter a valid Canadian postal code (e.g., M5V 2H1)';
+      return t('auth.validation.postalCodeInvalid');
     }
     return null;
   };
 
   const validateStep3 = () => {
-    if (formData.password.length < 6) return 'Password must be at least 6 characters';
-    if (formData.password !== formData.confirmPassword) return 'Passwords do not match';
-    if (!formData.acceptTerms) return 'You must accept the terms';
+    if (formData.password.length < 6) return t('auth.validation.passwordTooShort');
+    if (formData.password !== formData.confirmPassword) return t('validation.passwordMismatch');
+    if (!formData.acceptTerms) return t('auth.validation.termsRequired');
     return null;
   };
 
@@ -118,18 +120,18 @@ const RegisterPage = () => {
           country: 'Canada',
         }
       });
-      toast.success("Account created! Welcome to Amani's! 🍁");
+      toast.success(t('auth.accountCreated'));
       navigate('/');
     } catch (err) {
-      setError(err.message || 'Registration failed');
+      setError(err.message || t('auth.registrationFailed'));
     }
   };
 
   const benefits = [
-    'Track orders in real-time',
-    'Earn loyalty rewards',
-    'Schedule pickups easily',
-    '15% off your first order',
+    t('auth.benefits.trackOrders'),
+    t('auth.benefits.earnRewards'),
+    t('auth.benefits.schedulePickups'),
+    t('auth.benefits.firstOrderDiscount'),
   ];
 
   return (
@@ -149,19 +151,19 @@ const RegisterPage = () => {
               </div>
               <div>
                 <h1 className="text-3xl font-display font-bold text-white">Amani's</h1>
-                <p className="text-amani-400">Premium Cleaners</p>
+                <p className="text-amani-400">{t('auth.premiumCleaners')}</p>
               </div>
             </div>
-            
+
             <h2 className="text-4xl xl:text-5xl font-display font-bold text-white mb-6 leading-tight">
-              Join Our<br />
+              {t('auth.joinOur')}<br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-amani-400 to-maple-400">
-                Laundry Family
+                {t('auth.laundryFamily')}
               </span>
             </h2>
-            
+
             <p className="text-xl text-gray-300 mb-10 max-w-md">
-              Create your free account and experience premium laundry service like never before.
+              {t('auth.registerDescription')}
             </p>
 
             <div className="space-y-4">
@@ -203,7 +205,7 @@ const RegisterPage = () => {
             </div>
             <div>
               <h1 className="text-xl font-display font-bold text-white">Amani's</h1>
-              <p className="text-xs text-gray-400">Premium Cleaners</p>
+              <p className="text-xs text-gray-400">{t('auth.premiumCleaners')}</p>
             </div>
           </div>
 
@@ -225,14 +227,14 @@ const RegisterPage = () => {
             </div>
 
             <h2 className="text-2xl font-display font-bold text-white mb-2 text-center">
-              {step === 1 && 'Your Information'}
-              {step === 2 && 'Your Address'}
-              {step === 3 && 'Set Password'}
+              {step === 1 && t('auth.steps.step1Title')}
+              {step === 2 && t('auth.steps.step2Title')}
+              {step === 3 && t('auth.steps.step3Title')}
             </h2>
             <p className="text-gray-400 text-center mb-6">
-              {step === 1 && 'Tell us about yourself'}
-              {step === 2 && 'Where should we pick up?'}
-              {step === 3 && 'Secure your account'}
+              {step === 1 && t('auth.steps.step1Desc')}
+              {step === 2 && t('auth.steps.step2Desc')}
+              {step === 3 && t('auth.steps.step3Desc')}
             </p>
 
             {error && (
@@ -256,7 +258,7 @@ const RegisterPage = () => {
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-300 mb-2">
-                        First Name *
+                        {t('auth.firstName')} *
                       </label>
                       <div className="relative">
                         <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
@@ -271,7 +273,7 @@ const RegisterPage = () => {
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-300 mb-2">
-                        Last Name *
+                        {t('auth.lastName')} *
                       </label>
                       <input
                         type="text"
@@ -285,7 +287,7 @@ const RegisterPage = () => {
 
                   <div>
                     <label className="block text-sm font-medium text-gray-300 mb-2">
-                      Phone Number *
+                      {t('auth.phone')} *
                     </label>
                     <div className="relative">
                       <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
@@ -302,7 +304,7 @@ const RegisterPage = () => {
 
                   <div>
                     <label className="block text-sm font-medium text-gray-300 mb-2">
-                      Email Address *
+                      {t('auth.email')} *
                     </label>
                     <div className="relative">
                       <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
@@ -321,7 +323,7 @@ const RegisterPage = () => {
                     onClick={handleNext}
                     className="w-full bg-gradient-to-r from-amani-500 to-maple-500 text-white font-semibold py-4 rounded-xl hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
                   >
-                    Continue
+                    {t('common.continue')}
                     <ArrowRight className="w-5 h-5" />
                   </button>
                 </motion.div>
@@ -335,7 +337,7 @@ const RegisterPage = () => {
                 >
                   <div>
                     <label className="block text-sm font-medium text-gray-300 mb-2">
-                      Street Address *
+                      {t('order.streetAddress')} *
                     </label>
                     <div className="relative">
                       <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
@@ -351,7 +353,7 @@ const RegisterPage = () => {
 
                   <div>
                     <label className="block text-sm font-medium text-gray-300 mb-2">
-                      Unit / Apt (Optional)
+                      {t('order.unit')}
                     </label>
                     <input
                       type="text"
@@ -365,7 +367,7 @@ const RegisterPage = () => {
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-300 mb-2">
-                        City *
+                        {t('order.city')} *
                       </label>
                       <input
                         type="text"
@@ -377,7 +379,7 @@ const RegisterPage = () => {
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-300 mb-2">
-                        Postal Code *
+                        {t('order.postalCode')} *
                       </label>
                       <input
                         type="text"
@@ -397,14 +399,14 @@ const RegisterPage = () => {
                       className="px-6 py-4 rounded-xl border border-white/10 text-white hover:bg-white/5 transition-colors flex items-center gap-2"
                     >
                       <ArrowLeft className="w-5 h-5" />
-                      Back
+                      {t('common.back')}
                     </button>
                     <button
                       type="button"
                       onClick={handleNext}
                       className="flex-1 bg-gradient-to-r from-amani-500 to-maple-500 text-white font-semibold py-4 rounded-xl hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
                     >
-                      Continue
+                      {t('common.continue')}
                       <ArrowRight className="w-5 h-5" />
                     </button>
                   </div>
@@ -419,7 +421,7 @@ const RegisterPage = () => {
                 >
                   <div>
                     <label className="block text-sm font-medium text-gray-300 mb-2">
-                      Password *
+                      {t('auth.password')} *
                     </label>
                     <div className="relative">
                       <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
@@ -438,12 +440,12 @@ const RegisterPage = () => {
                         {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                       </button>
                     </div>
-                    <p className="text-xs text-gray-500 mt-1">Minimum 6 characters</p>
+                    <p className="text-xs text-gray-500 mt-1">{t('auth.passwordHint')}</p>
                   </div>
 
                   <div>
                     <label className="block text-sm font-medium text-gray-300 mb-2">
-                      Confirm Password *
+                      {t('auth.confirmPassword')} *
                     </label>
                     <div className="relative">
                       <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
@@ -466,7 +468,7 @@ const RegisterPage = () => {
                         className="mt-0.5 rounded border-gray-600 bg-white/5 text-amani-500 focus:ring-amani-500/20"
                       />
                       <span className="text-sm text-gray-400">
-                        I agree to the <a href="#" className="text-amani-400 hover:underline">Terms of Service</a> and <a href="#" className="text-amani-400 hover:underline">Privacy Policy</a> *
+                        {t('auth.agreeToTermsStart')} <a href="#" className="text-amani-400 hover:underline">{t('auth.termsOfService')}</a> {t('auth.and')} <a href="#" className="text-amani-400 hover:underline">{t('auth.privacyPolicy')}</a> *
                       </span>
                     </label>
                     <label className="flex items-start gap-3 cursor-pointer">
@@ -477,7 +479,7 @@ const RegisterPage = () => {
                         className="mt-0.5 rounded border-gray-600 bg-white/5 text-amani-500 focus:ring-amani-500/20"
                       />
                       <span className="text-sm text-gray-400">
-                        Send me order updates and promotions via email
+                        {t('auth.receiveUpdates')}
                       </span>
                     </label>
                   </div>
@@ -489,7 +491,7 @@ const RegisterPage = () => {
                       className="px-6 py-4 rounded-xl border border-white/10 text-white hover:bg-white/5 transition-colors flex items-center gap-2"
                     >
                       <ArrowLeft className="w-5 h-5" />
-                      Back
+                      {t('common.back')}
                     </button>
                     <button
                       type="submit"
@@ -502,11 +504,11 @@ const RegisterPage = () => {
                             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
                             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                           </svg>
-                          Creating...
+                          {t('auth.creating')}
                         </span>
                       ) : (
                         <>
-                          Create Account
+                          {t('auth.createAccount')}
                           <ArrowRight className="w-5 h-5" />
                         </>
                       )}
@@ -517,9 +519,9 @@ const RegisterPage = () => {
             </form>
 
             <p className="text-center text-gray-400 mt-8">
-              Already have an account?{' '}
+              {t('auth.hasAccount')}{' '}
               <Link to="/login" className="text-amani-400 hover:text-amani-300 font-medium">
-                Sign in
+                {t('auth.signIn')}
               </Link>
             </p>
           </div>

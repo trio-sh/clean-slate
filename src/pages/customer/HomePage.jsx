@@ -1,44 +1,47 @@
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { useLanguage } from '../../i18n/LanguageContext';
 
 import {
   Truck, Clock, Shield, Star, Sparkles, ArrowRight,
   Shirt, MapPin, Phone, CheckCircle2, Award, Users,
-  Zap, Heart, Leaf, Package, Building2
+  Zap, Heart, Leaf, Package, Building2, MessageSquare, Receipt
 } from 'lucide-react';
 
 const HomePage = () => {
+  const { t } = useLanguage();
+
   const features = [
-    { icon: Truck, title: 'Free Pickup & Delivery', desc: 'We come to you - anywhere in the GTA' },
-    { icon: Clock, title: 'Same Day Service', desc: 'Rush orders available for an extra fee' },
-    { icon: Shield, title: 'Quality Guaranteed', desc: '100% satisfaction or your money back' },
-    { icon: Leaf, title: 'Eco-Friendly', desc: 'Sustainable cleaning practices' },
+    { icon: Truck, title: t('features.freePickupDelivery.title'), desc: t('features.freePickupDelivery.desc') },
+    { icon: Clock, title: t('features.sameDayService.title'), desc: t('features.sameDayService.desc') },
+    { icon: Shield, title: t('features.qualityGuaranteed.title'), desc: t('features.qualityGuaranteed.desc') },
+    { icon: Leaf, title: t('features.ecoFriendly.title'), desc: t('features.ecoFriendly.desc') },
   ];
 
   const stats = [
-    { value: '11+', label: 'Years of Service' },
-    { value: '50K+', label: 'Happy Customers' },
-    { value: '4.9', label: 'Google Rating' },
-    { value: '40+', label: 'Areas Served' },
+    { value: '11+', label: t('stats.yearsOfService') || 'Years of Service' },
+    { value: '50K+', label: t('stats.happyCustomers') || 'Happy Customers' },
+    { value: '4.9', label: t('stats.googleRating') || 'Google Rating' },
+    { value: '40+', label: t('stats.areasServed') || 'Areas Served' },
   ];
 
   const services = [
-    { name: 'Wash & Fold', price: '$2.39/lb', icon: Package, color: 'bg-blue-500',
+    { name: t('services.washAndFold'), price: '$2.39/lb', icon: Package, color: 'bg-blue-500',
       image: 'https://api.a0.dev/assets/image?text=neatly folded fresh clean laundry, white towels and clothes stacked, professional laundry service bright background&aspect=16:9&seed=201' },
-    { name: 'Dry Cleaning', price: 'From $6.50', icon: Shirt, color: 'bg-purple-500',
+    { name: t('services.dryCleaning'), price: 'From $6.50', icon: Shirt, color: 'bg-purple-500',
       image: 'https://api.a0.dev/assets/image?text=professional dry cleaning service, elegant suits and dress shirts hanging on rack, pressed formal wear boutique&aspect=16:9&seed=202' },
-    { name: 'Wedding Gowns', price: 'From $210', icon: Heart, color: 'bg-pink-500',
+    { name: t('services.weddingGowns'), price: 'From $210', icon: Heart, color: 'bg-pink-500',
       image: 'https://api.a0.dev/assets/image?text=beautiful white wedding dress bridal gown cleaning preservation service, delicate fabric care, white background&aspect=16:9&seed=203' },
-    { name: 'Commercial', price: '$2.25/lb', icon: Users, color: 'bg-emerald-500',
+    { name: t('services.commercial'), price: '$2.25/lb', icon: Users, color: 'bg-emerald-500',
       image: 'https://api.a0.dev/assets/image?text=commercial laundry service bulk cleaning, industrial washing facility large scale, clean linen stacks&aspect=16:9&seed=204' },
   ];
 
   const testimonials = [
-    { name: 'Sarah M.', location: 'Toronto', text: 'Best laundry service in the city! Always on time and my clothes come back perfect.', rating: 5,
+    { name: 'Sarah M.', location: t('locations.toronto') || 'Toronto', text: t('testimonials.review1') || 'Best laundry service in the city! Always on time and my clothes come back perfect.', rating: 5,
       avatar: 'https://api.a0.dev/assets/image?text=happy smiling Canadian woman portrait, 30s, friendly natural look, warm smile, professional headshot&aspect=1:1&seed=301' },
-    { name: 'Michael T.', location: 'North York', text: 'The subscription plan saved me so much time. Highly recommend!', rating: 5,
+    { name: 'Michael T.', location: t('locations.northYork') || 'North York', text: t('testimonials.review2') || 'The subscription plan saved me so much time. Highly recommend!', rating: 5,
       avatar: 'https://api.a0.dev/assets/image?text=happy smiling Canadian man portrait, 30s, professional friendly look, warm confident smile, headshot&aspect=1:1&seed=302' },
-    { name: 'Jennifer L.', location: 'Vaughan', text: 'Professional service, great prices. Been using them for 3 years.', rating: 5,
+    { name: 'Jennifer L.', location: t('locations.vaughan') || 'Vaughan', text: t('testimonials.review3') || 'Professional service, great prices. Been using them for 3 years.', rating: 5,
       avatar: 'https://api.a0.dev/assets/image?text=happy smiling Canadian woman portrait, 40s, friendly warm look, natural smile, professional headshot&aspect=1:1&seed=303' },
   ];
 
@@ -97,15 +100,15 @@ const HomePage = () => {
                   transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
                   className="text-2xl"
                 >🍁</motion.span>
-                <span className="text-white font-medium text-sm">Proudly Canadian Since 2013</span>
+                <span className="text-white font-medium text-sm">{t('hero.proudlyCanadian')}</span>
                 <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
               </motion.div>
 
               <h1 className="text-5xl md:text-6xl lg:text-7xl font-display font-bold text-white leading-tight mb-6">
-                Premium{' '}
+                {t('hero.titlePremium')}{' '}
                 <span className="relative inline-block">
                   <span className="bg-gradient-to-r from-amani-300 via-amani-400 to-maple-400 bg-clip-text text-transparent">
-                    Laundry
+                    {t('hero.titleLaundry')}
                   </span>
                   <motion.span
                     initial={{ scaleX: 0 }}
@@ -114,21 +117,21 @@ const HomePage = () => {
                     className="absolute -bottom-1 left-0 right-0 h-1 bg-gradient-to-r from-amani-400 to-maple-400 rounded-full origin-left"
                   />
                 </span>
-                {' '}& Dry Cleaning
+                {' '}{t('hero.titleDryCleaning')}
               </h1>
 
               <p className="text-xl text-gray-300 mb-8 max-w-xl leading-relaxed">
-                Toronto's most trusted cleaning service since 2013.
-                Free pickup & delivery across <span className="text-amani-300 font-semibold">40+ cities</span> in Southern Ontario.
+                {t('hero.descriptionLine1')}{' '}
+                {t('hero.descriptionLine2')} <span className="text-amani-300 font-semibold">{t('hero.cities40Plus')}</span> {t('hero.descriptionLine3')}
               </p>
 
               {/* Feature pills */}
               <div className="flex flex-wrap gap-2 mb-8">
                 {[
-                  { icon: Zap, text: 'Same-Day Available' },
-                  { icon: Shield, text: '100% Satisfaction' },
-                  { icon: Leaf, text: 'Eco-Friendly' },
-                  { icon: Award, text: '4.9★ Rated' },
+                  { icon: Zap, text: t('hero.sameDayAvailable') },
+                  { icon: Shield, text: t('hero.satisfactionGuaranteed') },
+                  { icon: Leaf, text: t('hero.ecoFriendly') },
+                  { icon: Award, text: t('hero.rated') },
                 ].map(({ icon: Icon, text }, i) => (
                   <motion.span
                     key={text}
@@ -146,11 +149,11 @@ const HomePage = () => {
               <div className="flex flex-col sm:flex-row gap-4 mb-8">
                 <Link to="/order" className="btn-primary text-lg px-8 py-4 inline-flex items-center justify-center gap-2 shadow-lg shadow-amani-500/30 hover:shadow-amani-500/50 transition-shadow">
                   <Sparkles className="w-5 h-5" />
-                  Order Now — 15% Off
+                  {t('hero.orderNow')}
                 </Link>
                 <a href="tel:4372156321" className="bg-white/10 backdrop-blur-sm border border-white/20 text-white px-8 py-4 rounded-xl font-semibold hover:bg-white/20 transition-all inline-flex items-center justify-center gap-2">
                   <Phone className="w-5 h-5" />
-                  437-215-6321
+                  {t('hero.callUs')}
                 </a>
               </div>
 
@@ -163,7 +166,7 @@ const HomePage = () => {
                       </div>
                     ))}
                   </div>
-                  <span className="text-sm">50K+ Happy Customers</span>
+                  <span className="text-sm">{t('stats.happyCustomers') || '50K+ Happy Customers'}</span>
                 </div>
                 <div className="flex items-center gap-1">
                   {[1, 2, 3, 4, 5].map((i) => (
@@ -192,8 +195,8 @@ const HomePage = () => {
                     {/* Card header */}
                     <div className="flex items-center justify-between mb-6">
                       <div>
-                        <h3 className="text-2xl font-display font-bold text-navy-900">Schedule a Pickup</h3>
-                        <p className="text-gray-500 text-sm mt-0.5">We come to you — fast & free</p>
+                        <h3 className="text-2xl font-display font-bold text-navy-900">{t('hero.schedulePickup')}</h3>
+                        <p className="text-gray-500 text-sm mt-0.5">{t('hero.pickupDesc') || 'We come to you — fast & free'}</p>
                       </div>
                       <div className="w-14 h-14 bg-gradient-to-br from-amani-500 to-maple-500 rounded-2xl flex items-center justify-center shadow-lg">
                         <Shirt className="w-7 h-7 text-white" />
@@ -203,10 +206,10 @@ const HomePage = () => {
                     {/* Order steps */}
                     <div className="space-y-3 mb-6">
                       {[
-                        { step: 1, label: 'Place your order online', color: 'bg-amani-50 border-amani-200', text: 'text-amani-700', dot: 'bg-amani-500', done: true },
-                        { step: 2, label: 'We pick up from your door', color: 'bg-blue-50 border-blue-200', text: 'text-blue-700', dot: 'bg-blue-500', done: true },
-                        { step: 3, label: 'Expert cleaning & care', color: 'bg-purple-50 border-purple-200', text: 'text-purple-700', dot: 'bg-purple-500', done: false },
-                        { step: 4, label: 'Delivered fresh to you', color: 'bg-green-50 border-green-200', text: 'text-green-700', dot: 'bg-green-500', done: false },
+                        { step: 1, label: t('hero.step1') || 'Place your order online', color: 'bg-amani-50 border-amani-200', text: 'text-amani-700', dot: 'bg-amani-500', done: true },
+                        { step: 2, label: t('hero.step2') || 'We pick up from your door', color: 'bg-blue-50 border-blue-200', text: 'text-blue-700', dot: 'bg-blue-500', done: true },
+                        { step: 3, label: t('hero.step3') || 'Expert cleaning & care', color: 'bg-purple-50 border-purple-200', text: 'text-purple-700', dot: 'bg-purple-500', done: false },
+                        { step: 4, label: t('hero.step4') || 'Delivered fresh to you', color: 'bg-green-50 border-green-200', text: 'text-green-700', dot: 'bg-green-500', done: false },
                       ].map(({ step, label, color, text, dot, done }, i) => (
                         <motion.div
                           key={step}
@@ -228,10 +231,10 @@ const HomePage = () => {
 
                     <Link to="/order" className="btn-primary w-full text-center flex items-center justify-center gap-2 py-4 text-base">
                       <Sparkles className="w-4 h-4" />
-                      Get Started — Free Pickup
+                      {t('hero.getStarted')}
                     </Link>
 
-                    <p className="text-center text-xs text-gray-400 mt-3">No subscription required · Cancel anytime</p>
+                    <p className="text-center text-xs text-gray-400 mt-3">{t('hero.noSubscriptionRequired')}</p>
                   </div>
                 </div>
 
@@ -246,8 +249,8 @@ const HomePage = () => {
                     <Truck className="w-6 h-6 text-green-600" />
                   </div>
                   <div>
-                    <p className="font-semibold text-navy-900 text-sm">Free Delivery</p>
-                    <p className="text-xs text-gray-500">Min. 23 lb or $64.01</p>
+                    <p className="font-semibold text-navy-900 text-sm">{t('hero.freeDelivery')}</p>
+                    <p className="text-xs text-gray-500">{t('hero.minOrder')}</p>
                   </div>
                 </motion.div>
 
@@ -262,8 +265,8 @@ const HomePage = () => {
                     <Zap className="w-5 h-5 text-yellow-600" />
                   </div>
                   <div>
-                    <p className="font-semibold text-navy-900 text-sm">Same-Day</p>
-                    <p className="text-xs text-gray-500">Rush available</p>
+                    <p className="font-semibold text-navy-900 text-sm">{t('hero.sameDay')}</p>
+                    <p className="text-xs text-gray-500">{t('hero.rushAvailable')}</p>
                   </div>
                 </motion.div>
               </div>
@@ -302,12 +305,12 @@ const HomePage = () => {
             viewport={{ once: true }}
             className="text-center mb-16"
           >
-            <span className="inline-block text-amani-600 font-semibold mb-4">WHY CHOOSE US</span>
+            <span className="inline-block text-amani-600 font-semibold mb-4">{t('features.whyChooseUs')}</span>
             <h2 className="text-4xl md:text-5xl font-display font-bold text-navy-900 mb-4">
-              The Amani Difference
+              {t('features.title')}
             </h2>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              We're not just another laundry service. We're your partners in looking your best.
+              {t('features.subtitle')}
             </p>
           </motion.div>
 
@@ -341,12 +344,12 @@ const HomePage = () => {
             viewport={{ once: true }}
             className="text-center mb-16"
           >
-            <span className="inline-block text-amani-600 font-semibold mb-4">OUR SERVICES</span>
+            <span className="inline-block text-amani-600 font-semibold mb-4">{t('services.ourServices')}</span>
             <h2 className="text-4xl md:text-5xl font-display font-bold text-navy-900 mb-4">
-              What We Offer
+              {t('services.title')}
             </h2>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              From everyday laundry to specialty items, we handle it all with care.
+              {t('services.subtitle')}
             </p>
           </motion.div>
 
@@ -386,7 +389,7 @@ const HomePage = () => {
 
           <div className="text-center mt-12">
             <Link to="/services" className="btn-primary inline-flex items-center gap-2">
-              View All Services
+              {t('services.viewAll')}
               <ArrowRight className="w-5 h-5" />
             </Link>
           </div>
@@ -402,25 +405,25 @@ const HomePage = () => {
             viewport={{ once: true }}
             className="text-center mb-16"
           >
-            <span className="inline-block text-amani-400 font-semibold mb-4">HOW IT WORKS</span>
+            <span className="inline-block text-amani-400 font-semibold mb-4">{t('howItWorks.title')}</span>
             <h2 className="text-4xl md:text-5xl font-display font-bold text-white mb-4">
-              Easy as 1, 2, 3
+              {t('howItWorks.subtitle')}
             </h2>
             <p className="text-xl text-gray-400 max-w-2xl mx-auto">
-              Getting your laundry done has never been easier.
+              {t('howItWorks.description')}
             </p>
           </motion.div>
 
           <div className="grid md:grid-cols-3 gap-8 relative">
             {/* Connection Line */}
             <div className="hidden md:block absolute top-16 left-1/4 right-1/4 h-0.5 bg-gradient-to-r from-amani-500 to-maple-500" />
-            
+
             {[
-              { step: '01', title: 'Schedule Pickup', desc: 'Book online or via app. Choose your preferred time slot.', icon: Clock,
+              { step: '01', title: t('howItWorks.step1.title'), desc: t('howItWorks.step1.desc'), icon: Clock,
                 image: 'https://api.a0.dev/assets/image?text=person using smartphone app to schedule laundry pickup service, mobile ordering clean UI, bright modern&aspect=1:1&seed=501' },
-              { step: '02', title: 'We Collect & Clean', desc: 'Our driver picks up. We clean with care and expertise.', icon: Sparkles,
+              { step: '02', title: t('howItWorks.step2.title'), desc: t('howItWorks.step2.desc'), icon: Sparkles,
                 image: 'https://api.a0.dev/assets/image?text=friendly laundry delivery driver picking up laundry bag from customer front door, residential Toronto neighborhood&aspect=1:1&seed=502' },
-              { step: '03', title: 'Fresh Delivery', desc: 'Your clean clothes delivered back to your door.', icon: Truck,
+              { step: '03', title: t('howItWorks.step3.title'), desc: t('howItWorks.step3.desc'), icon: Truck,
                 image: 'https://api.a0.dev/assets/image?text=clean neatly folded laundry delivered in bag to customer doorstep, fresh pressed clothes delivery service&aspect=1:1&seed=503' },
             ].map((item, i) => (
               <motion.div
@@ -449,7 +452,7 @@ const HomePage = () => {
           <div className="text-center mt-12">
             <Link to="/order" className="btn-primary inline-flex items-center gap-2">
               <Zap className="w-5 h-5" />
-              Get Started Now
+              {t('howItWorks.getStarted')}
             </Link>
           </div>
         </div>
@@ -464,9 +467,9 @@ const HomePage = () => {
             viewport={{ once: true }}
             className="text-center mb-16"
           >
-            <span className="inline-block text-amani-600 font-semibold mb-4">TESTIMONIALS</span>
+            <span className="inline-block text-amani-600 font-semibold mb-4">{t('testimonials.title')}</span>
             <h2 className="text-4xl md:text-5xl font-display font-bold text-navy-900 mb-4">
-              What Our Customers Say
+              {t('testimonials.subtitle')}
             </h2>
           </motion.div>
 
@@ -519,13 +522,13 @@ const HomePage = () => {
             >
               <img
                 src="https://api.a0.dev/assets/image?text=commercial laundry facility owner, professional laundry business partnership, modern equipment, clean bright facility, successful business owner&aspect=4:3&seed=902"
-                alt="Become a Laundry Partner"
+                alt={t('partner.heading')}
                 className="w-full h-80 object-cover"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-navy-900/60 to-transparent" />
               <div className="absolute bottom-6 left-6 right-6">
                 <div className="flex gap-3">
-                  {['Fast Onboarding', 'Steady Revenue', 'Full Support'].map((tag) => (
+                  {[t('partner.fastOnboarding'), t('partner.steadyRevenue'), t('partner.fullSupport')].map((tag) => (
                     <span key={tag} className="bg-white/20 backdrop-blur-sm text-white text-xs font-medium px-3 py-1.5 rounded-full border border-white/30">
                       {tag}
                     </span>
@@ -540,19 +543,19 @@ const HomePage = () => {
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
             >
-              <span className="inline-block text-amani-600 font-semibold mb-4">FOR BUSINESSES</span>
+              <span className="inline-block text-amani-600 font-semibold mb-4">{t('partner.title')}</span>
               <h2 className="text-4xl md:text-5xl font-display font-bold text-navy-900 mb-6">
-                Become a <span className="text-amani-500">Laundry Partner</span>
+                {t('partner.heading')}
               </h2>
               <p className="text-xl text-gray-600 mb-8">
-                Own a laundry or dry-cleaning facility? Partner with Amani's Cleaners to get a steady stream of orders, grow your business, and serve more customers across Southern Ontario.
+                {t('partner.description')}
               </p>
 
               <div className="space-y-4 mb-8">
                 {[
-                  { icon: Users, title: 'Access our customer base', desc: '50,000+ active customers across 40+ cities' },
-                  { icon: Truck, title: 'We handle pickup & delivery', desc: 'Our drivers collect and return — you just clean' },
-                  { icon: Zap, title: 'Fast onboarding', desc: 'Go live in as little as 3–5 business days' },
+                  { icon: Users, title: t('partner.benefit1'), desc: t('partner.benefit1Desc') },
+                  { icon: Truck, title: t('partner.benefit2'), desc: t('partner.benefit2Desc') },
+                  { icon: Zap, title: t('partner.benefit3'), desc: t('partner.benefit3Desc') },
                 ].map(({ icon: Icon, title, desc }) => (
                   <div key={title} className="flex items-start gap-4">
                     <div className="w-10 h-10 bg-amani-100 rounded-xl flex items-center justify-center flex-shrink-0 mt-0.5">
@@ -571,7 +574,7 @@ const HomePage = () => {
                 className="btn-primary inline-flex items-center gap-2 text-lg px-8 py-4"
               >
                 <Building2 className="w-5 h-5" />
-                Apply to Partner
+                {t('partner.applyNow')}
                 <ArrowRight className="w-5 h-5" />
               </Link>
             </motion.div>
@@ -589,22 +592,162 @@ const HomePage = () => {
           >
             <Award className="w-16 h-16 text-white/80 mx-auto mb-6" />
             <h2 className="text-4xl md:text-5xl font-display font-bold text-white mb-4">
-              Ready to Experience Premium Care?
+              {t('cta.title')}
             </h2>
             <p className="text-xl text-white/80 mb-8 max-w-2xl mx-auto">
-              Join 50,000+ satisfied customers. Get 15% off your first order when you sign up today.
+              {t('cta.subtitle')}
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link to="/order" className="bg-white text-amani-600 px-8 py-4 rounded-xl font-semibold hover:bg-gray-100 transition-all inline-flex items-center justify-center gap-2 shadow-lg">
                 <Sparkles className="w-5 h-5" />
-                Order Now - 15% Off
+                {t('cta.orderNow')}
               </Link>
               <a href="tel:437-215-6321" className="bg-white/10 backdrop-blur-sm text-white px-8 py-4 rounded-xl font-semibold hover:bg-white/20 transition-all inline-flex items-center justify-center gap-2">
                 <Phone className="w-5 h-5" />
-                Call Us: 437-215-6321
+                {t('cta.callUs')}
               </a>
             </div>
           </motion.div>
+        </div>
+      </section>
+
+      {/* FAQ Section */}
+      <section className="py-20 bg-gray-50">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center mb-16"
+          >
+            <span className="inline-block text-amani-600 font-semibold mb-4">FAQ</span>
+            <h2 className="text-4xl md:text-5xl font-display font-bold text-navy-900 mb-4">
+              {t('faq.heading')}
+            </h2>
+          </motion.div>
+
+          <div className="space-y-6">
+            {/* FAQ Item 1: Pricing */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="card p-8"
+            >
+              <div className="flex items-start gap-4">
+                <div className="w-12 h-12 bg-amani-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                  <Receipt className="w-6 h-6 text-amani-600" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-xl font-semibold text-navy-900 mb-3">{t('faq.pricing.question')}</h3>
+                  <div className="space-y-3 text-gray-600">
+                    <p>
+                      <strong className="text-navy-900">{t('faq.pricing.everyday')}</strong>
+                    </p>
+                    <p>
+                      {t('faq.pricing.special')}
+                    </p>
+                    <div className="bg-amani-50 rounded-lg p-4 mt-3">
+                      <p className="font-medium text-navy-900 mb-2">{t('faq.pricing.examples')}</p>
+                      <ul className="grid grid-cols-2 gap-2 text-sm">
+                        <li className="flex items-center gap-2">
+                          <CheckCircle2 className="w-4 h-4 text-amani-500" />
+                          {t('faq.pricing.comforters')}
+                        </li>
+                        <li className="flex items-center gap-2">
+                          <CheckCircle2 className="w-4 h-4 text-amani-500" />
+                          {t('faq.pricing.pillows')}
+                        </li>
+                        <li className="flex items-center gap-2">
+                          <CheckCircle2 className="w-4 h-4 text-amani-500" />
+                          {t('faq.pricing.blankets')}
+                        </li>
+                        <li className="flex items-center gap-2">
+                          <CheckCircle2 className="w-4 h-4 text-amani-500" />
+                          {t('faq.pricing.mattressCovers')}
+                        </li>
+                      </ul>
+                    </div>
+                    <p className="text-sm text-gray-500 italic">
+                      {t('faq.pricing.finalNote')}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+
+            {/* FAQ Item 2: Preparation */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="card p-8"
+            >
+              <div className="flex items-start gap-4">
+                <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                  <Package className="w-6 h-6 text-blue-600" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-xl font-semibold text-navy-900 mb-3">{t('faq.preparation.question')}</h3>
+                  <p className="text-gray-600">
+                    {t('faq.preparation.answer')}
+                  </p>
+                </div>
+              </div>
+            </motion.div>
+
+            {/* FAQ Item 3: Sorting */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="card p-8"
+            >
+              <div className="flex items-start gap-4">
+                <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                  <Shirt className="w-6 h-6 text-purple-600" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-xl font-semibold text-navy-900 mb-3">{t('faq.sorting.question')}</h3>
+                  <p className="text-gray-600">
+                    {t('faq.sorting.answer')}
+                  </p>
+                </div>
+              </div>
+            </motion.div>
+
+            {/* FAQ Item 4: Languages */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="card p-8"
+            >
+              <div className="flex items-start gap-4">
+                <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                  <MessageSquare className="w-6 h-6 text-green-600" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-xl font-semibold text-navy-900 mb-3">{t('faq.languages.question')}</h3>
+                  <p className="text-gray-600 mb-3">{t('faq.languages.description')}</p>
+                  <div className="flex flex-wrap gap-2">
+                    {[
+                      t('faq.languages.english'),
+                      t('faq.languages.french'),
+                      t('faq.languages.farsi'),
+                      t('faq.languages.spanish'),
+                      t('faq.languages.chinese'),
+                      t('faq.languages.italian')
+                    ].map((lang) => (
+                      <span key={lang} className="px-4 py-2 bg-amani-100 text-amani-700 rounded-full text-sm font-medium">
+                        {lang}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          </div>
         </div>
       </section>
 
@@ -617,29 +760,163 @@ const HomePage = () => {
             viewport={{ once: true }}
             className="text-center mb-12"
           >
-            <span className="inline-block text-amani-600 font-semibold mb-4">SERVICE AREAS</span>
+            <span className="inline-block text-amani-600 font-semibold mb-4">{t('serviceAreas.title')}</span>
             <h2 className="text-4xl font-display font-bold text-navy-900 mb-4">
-              Serving Southern Ontario & Beyond
+              {t('serviceAreas.heading')}
             </h2>
             <p className="text-gray-600 max-w-2xl mx-auto">
-              We proudly serve 40+ cities and communities across the GTA and surrounding areas with free pickup and delivery.
+              {t('serviceAreas.subtitle')}
             </p>
           </motion.div>
 
-          <div className="flex flex-wrap justify-center gap-3">
-            {['Toronto', 'North York', 'Brampton', 'Mississauga', 'Etobicoke', 'Caledon', 'Vaughan', 'King', 'Richmond Hill', 'Markham', 'Aurora', 'Stouffville', 'Scarborough', 'Oshawa', 'Whitby', 'Ajax', 'Pickering', 'Newmarket', 'East Gwillimbury', 'Georgina', 'Bradford', 'Innisfil', 'Barrie', 'Orangeville', 'Milton', 'Oakville', 'Burlington', 'Hamilton', 'Halton Hills', 'Georgetown', 'Kleinburg', 'Woodbridge', 'Thornhill', 'Maple', 'Concord', 'Nobleton', 'Claremont', 'Port Perry', 'Uxbridge', 'Bowmanville', 'Courtice', 'Newcastle'].map((area, i) => (
-              <motion.span
-                key={area}
-                initial={{ opacity: 0, scale: 0.8 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.05 }}
-                className="px-4 py-2 bg-white rounded-full shadow-sm text-navy-700 font-medium flex items-center gap-2"
-              >
-                <MapPin className="w-4 h-4 text-amani-500" />
-                {area}
-              </motion.span>
-            ))}
+          {/* Ontario */}
+          <div className="mb-10">
+            <h3 className="text-xl font-semibold text-navy-900 mb-4 flex items-center gap-2">
+              <MapPin className="w-5 h-5 text-amani-500" />
+              {t('serviceAreas.ontario')}
+            </h3>
+            <div className="mb-6">
+              <p className="text-sm font-medium text-gray-500 mb-3">{t('serviceAreas.gta')}</p>
+              <div className="flex flex-wrap gap-2">
+                {['Toronto', 'Mississauga', 'North York', 'Etobicoke', 'Scarborough', 'Brampton', 'Vaughan', 'Richmond Hill', 'Markham', 'Pickering', 'Ajax', 'Whitby', 'Oshawa'].map((area) => (
+                  <span key={area} className="px-3 py-1.5 bg-white rounded-full shadow-sm text-navy-700 text-sm font-medium flex items-center gap-1">
+                    <MapPin className="w-3.5 h-3.5 text-amani-500" />
+                    {area}
+                  </span>
+                ))}
+              </div>
+            </div>
+            <div className="mb-6">
+              <p className="text-sm font-medium text-gray-500 mb-3">{t('serviceAreas.ottawa')}</p>
+              <div className="flex flex-wrap gap-2">
+                {['Ottawa', 'Barrhaven', 'Kanata', 'Nepean', 'Gatineau', 'Hull', 'Aylmer'].map((area) => (
+                  <span key={area} className="px-3 py-1.5 bg-white rounded-full shadow-sm text-navy-700 text-sm font-medium flex items-center gap-1">
+                    <MapPin className="w-3.5 h-3.5 text-amani-500" />
+                    {area}
+                  </span>
+                ))}
+              </div>
+            </div>
+            <div className="mb-6">
+              <p className="text-sm font-medium text-gray-500 mb-3">{t('serviceAreas.montreal')}</p>
+              <div className="flex flex-wrap gap-2">
+                {['Laval', 'Longueuil', 'Brossard', 'Saint-Lambert', 'Boucherville', 'Mount Royal', 'Lachine', 'LaSalle', 'Montréal-Nord', 'Ville-Marie', 'Plateau-Mont-Royal', 'Dorval', 'Villeray', 'Saint-Michel', 'Parc-Extension'].map((area) => (
+                  <span key={area} className="px-3 py-1.5 bg-white rounded-full shadow-sm text-navy-700 text-sm font-medium flex items-center gap-1">
+                    <MapPin className="w-3.5 h-3.5 text-amani-500" />
+                    {area}
+                  </span>
+                ))}
+              </div>
+            </div>
+            <div className="mb-6">
+              <p className="text-sm font-medium text-gray-500 mb-3">{t('serviceAreas.otherOntario')}</p>
+              <div className="flex flex-wrap gap-2">
+                {['Hamilton', 'Kitchener', 'Waterloo', 'London', 'Masson-Angers', 'Buckingham', 'Quebec City'].map((area) => (
+                  <span key={area} className="px-3 py-1.5 bg-white rounded-full shadow-sm text-navy-700 text-sm font-medium flex items-center gap-1">
+                    <MapPin className="w-3.5 h-3.5 text-amani-500" />
+                    {area}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* British Columbia */}
+          <div className="mb-10">
+            <h3 className="text-xl font-semibold text-navy-900 mb-4 flex items-center gap-2">
+              <MapPin className="w-5 h-5 text-amani-500" />
+              {t('serviceAreas.britishColumbia')}
+            </h3>
+            <div className="mb-6">
+              <p className="text-sm font-medium text-gray-500 mb-3">{t('serviceAreas.vancouver')}</p>
+              <div className="flex flex-wrap gap-2">
+                {['Vancouver', 'West End', 'Fairview', 'Mount Pleasant'].map((area) => (
+                  <span key={area} className="px-3 py-1.5 bg-white rounded-full shadow-sm text-navy-700 text-sm font-medium flex items-center gap-1">
+                    <MapPin className="w-3.5 h-3.5 text-amani-500" />
+                    {area}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Calgary */}
+          <div className="mb-10">
+            <h3 className="text-xl font-semibold text-navy-900 mb-4 flex items-center gap-2">
+              <MapPin className="w-5 h-5 text-amani-500" />
+              {t('serviceAreas.calgary')}
+            </h3>
+            <div className="mb-6">
+              <p className="text-sm font-medium text-gray-500 mb-3">{t('serviceAreas.calgaryCommunities')}</p>
+              <div className="flex flex-wrap gap-2">
+                {['Lake Bonavista', 'Altadore', 'Inglewood', 'Hillhurst', 'Beltline'].map((area) => (
+                  <span key={area} className="px-3 py-1.5 bg-white rounded-full shadow-sm text-navy-700 text-sm font-medium flex items-center gap-1">
+                    <MapPin className="w-3.5 h-3.5 text-amani-500" />
+                    {area}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Coming Soon */}
+          <div className="mt-10 p-6 bg-amani-50 rounded-2xl text-center">
+            <p className="text-navy-900 font-medium mb-2">{t('serviceAreas.usaComingSoon')}</p>
+            <p className="text-gray-600 text-sm">{t('serviceAreas.usaComingSoonDesc')}</p>
+          </div>
+        </div>
+      </section>
+
+      {/* App Section */}
+      <section className="app-section">
+        <div className="app-container">
+          <div className="app-glow"></div>
+          
+          <div className="app-content">
+            <h3>{t('app.heading')}</h3>
+            <p>{t('app.description')}</p>
+
+            <div className="app-features">
+              <div className="app-feature">
+                <div className="app-feature-icon">📅</div>
+                <p>{t('app.feature1')}</p>
+              </div>
+              <div className="app-feature">
+                <div className="app-feature-icon">📍</div>
+                <p>{t('app.feature2')}</p>
+              </div>
+              <div className="app-feature">
+                <div className="app-feature-icon">💬</div>
+                <p>{t('app.feature3')}</p>
+              </div>
+            </div>
+
+            <div className="app-buttons">
+              <a href="#" className="app-btn">
+                <span className="app-btn-icon"></span>
+                <div className="app-btn-text">
+                  <span>{t('app.appStore')}</span>
+                  <strong>{t('app.appStoreBold')}</strong>
+                </div>
+              </a>
+              <a href="#" className="app-btn">
+                <span className="app-btn-icon">▶</span>
+                <div className="app-btn-text">
+                  <span>{t('app.googlePlay')}</span>
+                  <strong>{t('app.googlePlayBold')}</strong>
+                </div>
+              </a>
+            </div>
+          </div>
+
+          <div className="app-visual">
+            <div className="app-phone">
+              <div className="app-screen">
+                <img src="/logo.png" alt="App" className="app-screen-logo" />
+                <h4>{t('app.appName')}</h4>
+                <p>{t('app.appTagline')}</p>
+              </div>
+            </div>
           </div>
         </div>
       </section>

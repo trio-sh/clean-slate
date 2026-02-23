@@ -5,10 +5,12 @@ import {
   Package, Clock, CheckCircle, Truck,
   TrendingUp, Building2, ArrowRight, RefreshCcw
 } from 'lucide-react';
+import { useLanguage } from '../../i18n/LanguageContext';
 import db from '../../lib/db';
 import { useAuthStore } from '../../stores';
 
 const PartnerDashboard = () => {
+  const { t } = useLanguage();
   const { user } = useAuthStore();
   const [depot, setDepot] = useState(null);
   const [orders, setOrders] = useState([]);
