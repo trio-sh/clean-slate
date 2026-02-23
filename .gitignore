@@ -13,6 +13,14 @@ dist-ssr
 amani-cleaners.zip
 *.local
 
+# Lock files
+pnpm-lock.yaml
+package-lock.json
+yarn.lock
+
+# Claude Code settings
+.claude/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
