@@ -334,12 +334,12 @@ const ServicesPage = () => {
                     <div className="grid sm:grid-cols-2 gap-4">
                       <div className="bg-white rounded-xl p-4">
                         <h4 className="font-semibold text-navy-900">{t('services.regular')}</h4>
-                        <p className="text-2xl font-bold text-amani-600">$2.39<span className="text-sm font-normal text-gray-500">/lb</span></p>
+                        <p className="text-2xl font-bold text-amani-600">$2.45<span className="text-sm font-normal text-gray-500">/lb</span></p>
                         <p className="text-sm text-gray-500">{t('services.forHousehold')}</p>
                       </div>
                       <div className="bg-white rounded-xl p-4">
                         <h4 className="font-semibold text-navy-900">{t('services.commercial')}</h4>
-                        <p className="text-2xl font-bold text-amani-600">$2.25<span className="text-sm font-normal text-gray-500">/lb</span></p>
+                        <p className="text-2xl font-bold text-amani-600">$2.29<span className="text-sm font-normal text-gray-500">/lb</span></p>
                         <p className="text-sm text-gray-500">{t('services.forBusiness')}</p>
                       </div>
                     </div>

@@ -5,7 +5,21 @@
       "Bash(git commit:*)",
       "Bash(git push:*)",
       "Bash(git pull:*)",
-      "Bash(git stash:*)"
+      "Bash(git stash:*)",
+      "Bash(dir \"C:\\Users\\DELL\\Downloads\\amani-cleaners\" /B)",
+      "Bash(cat:*)",
+      "Bash(python:*)",
+      "Bash(node -e:*)",
+      "Bash(for file in en.json fr.json fa.json es.json zh.json it.json)",
+      "Bash(do echo \"Checking $file...\")",
+      "Bash(done)",
+      "Bash(for file in es.json fa.json zh.json it.json)",
+      "Bash(do echo \"=== $file ===\")",
+      "Bash(node add_subscriptions.js:*)",
+      "Bash(move:*)",
+      "Bash(node add_subscriptions.cjs:*)",
+      "Bash(npm run build:*)",
+      "Bash(for file in en.json fr.json es.json zh.json it.json fa.json)"
     ],
     "deny": [],
     "ask": []

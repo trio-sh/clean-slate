@@ -432,8 +432,6 @@ const CustomerLayout = () => {
                   <Phone className="w-5 h-5 text-amani-500" />
                   <div>
                     <a href="tel:437-215-6321" className="text-gray-400 hover:text-amani-400 text-sm">437-215-6321</a>
-                    <span className="text-gray-600 mx-2">/</span>
-                    <a href="tel:647-764-5658" className="text-gray-400 hover:text-amani-400 text-sm">647-764-5658</a>
                   </div>
                 </li>
                 <li className="flex items-center gap-3">
