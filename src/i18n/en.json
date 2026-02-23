@@ -1430,7 +1430,7 @@
       },
       "competitivePay": {
         "title": "Competitive Pay",
-        "description": "Get paid for every pickup and delivery. $25-35 per completed route."
+        "description": "Get paid for every pickup and delivery. Up  to $35 per completed route."
       },
       "quickStart": {
         "title": "Quick Start",
@@ -1465,7 +1465,7 @@
     "quickFacts": {
       "heading": "Quick Facts",
       "earnings": {
-        "value": "$25-35 per route",
+        "value": "Up  to $35 per route",
         "label": "Average earnings"
       },
       "startTime": {
@@ -1487,7 +1487,7 @@
       "subtitle": "Everything you need to know about driving with Amani's",
       "earnings": {
         "question": "How much can I expect to earn?",
-        "answer": "Drivers typically earn $25-35 per completed route. With 10-15 routes per week, most drivers make $300-500 weekly. Pay depends on your effort and availability."
+        "answer": "Drivers typically earn Up  to $35 per completed route. With 10-15 routes per week, most drivers make $300-500 weekly. Pay depends on your effort and availability."
       },
       "experience": {
         "question": "Do I need delivery experience?",

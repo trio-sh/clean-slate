@@ -142,7 +142,7 @@ const DriveWithUsPage = () => {
               <div className="absolute bottom-0 left-0 right-0 p-6">
                 <div className="grid grid-cols-2 gap-3">
                   {[
-                    { value: '$25–35', label: t('driveWithUs.hero.stats.perRoute') },
+                    { value: 'Up to $35', label: t('driveWithUs.hero.stats.perRoute') },
                     { value: t('driveWithUs.hero.stats.weeklyValue'), label: t('driveWithUs.hero.stats.weeklyLabel') },
                     { value: t('driveWithUs.hero.stats.daysValue'), label: t('driveWithUs.hero.stats.daysLabel') },
                     { value: t('driveWithUs.hero.stats.flexibleValue'), label: t('driveWithUs.hero.stats.flexibleLabel') },

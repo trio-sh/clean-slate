@@ -101,7 +101,7 @@ const OrderPage = () => {
     { value: 'evening', label: t('order.eveningSlot') },
   ];
 
-  const laundryRate = 2.39;
+  const laundryRate = 2.45;
   const minimumLaundry = 23;
   const flatRate = 64.01;
   const sameDayFee = 25;
