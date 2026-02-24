@@ -98,7 +98,6 @@ RETURNS TABLE (
 DECLARE
     v_user_id UUID;
     v_normalized_phone VARCHAR;
-    v_full_name VARCHAR;
 BEGIN
     -- Generate new UUID for user
     v_user_id := gen_random_uuid();
@@ -114,10 +113,7 @@ BEGIN
         v_normalized_phone := NULL;
     END IF;
 
-    -- Create full name for profile
-    v_full_name := TRIM(CONCAT(p_first_name, ' ', p_last_name));
-
-    -- Insert new user
+    -- Insert new user (NO PROFILE - profiles table not used by app)
     INSERT INTO users (
         id,
         email,
@@ -146,25 +142,10 @@ BEGIN
         NOW()
     );
 
-    -- Create corresponding profile record
-    -- Note: profiles table schema is: id, user_id, username, avatar_url, bio, created_at, updated_at
-    INSERT INTO profiles (
-        id,
-        user_id,
-        username,
-        avatar_url,
-        bio,
-        created_at,
-        updated_at
-    ) VALUES (
-        gen_random_uuid(),
-        v_user_id,
-        v_full_name,  -- Use full_name as username
-        NULL,          -- avatar_url
-        NULL,          -- bio
-        NOW(),
-        NOW()
-    );
+    -- NOTE: We do NOT create a profiles table record
+    -- The profiles table exists in the schema but is NOT used by the application
+    -- All user data is stored in the users table
+    -- updateProfile() in stores/index.js updates users table, not profiles table
 
     -- Return the created user
     RETURN QUERY

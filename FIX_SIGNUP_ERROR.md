@@ -1,4 +1,4 @@
-# Fix Signup Error - Missing Profile Record Creation
+# Fix Signup Error - Remove Unused Profiles Table from Signup
 
 ## Problem
 Users trying to sign up receive the exact error:
@@ -9,38 +9,33 @@ value in column "id" of relation "profiles" violates not-null constraint
 **Status**: Login works perfectly fine, only signup is broken.
 
 ## Root Cause
-Your database has TWO related tables:
-- `users` table - stores user authentication data
-- `profiles` table - stores user profile data
+The `register_user()` function was trying to create records in the `profiles` table, which caused errors.
 
-**Actual profiles table schema:**
-```
-id | user_id | username | avatar_url | bio | created_at | updated_at
-```
+**BUT HERE'S THE THING**: After checking the entire codebase, **the profiles table is NOT used anywhere!**
 
-The `register_user()` function had **TWO problems**:
-1. ❌ **NOT creating** the corresponding profile record in `profiles` table
-2. ❌ **Trying to insert into wrong columns** (email, phone, full_name) that don't exist in profiles
+Evidence:
+- ✅ `updateProfile()` in stores/index.js updates the **users** table (line 84), NOT profiles
+- ✅ AccountPage uses `updateProfile()` which updates **users** table
+- ✅ All user data is stored in the **users** table
+- ❌ NO code actually reads from or writes to the profiles table
 
-The profiles table only has `username` and `bio`, not `email`, `phone`, or `full_name`.
+The profiles table exists in the database schema but the application doesn't use it.
 
-## The Fix
+## The Solution (SIMPLE!)
+**Just don't create profile records during signup!**
+
 The updated `register_user()` function now:
-1. Creates user in `users` table
-2. **Creates matching profile in `profiles` table** with CORRECT columns:
-   - `id` = gen_random_uuid() (generates unique ID - **this fixes the NOT NULL error**)
-   - `user_id` = references the new user
-   - `username` = full_name (first_name + last_name)
-   - `avatar_url` = NULL
-   - `bio` = NULL
-   - `created_at`, `updated_at` timestamps
+1. ✅ Creates user in `users` table (all we need!)
+2. ❌ Does NOT create profiles table record (not needed)
+
+That's it! No more profiles headache.
 
 ## Solution
-You need to run the migration file to **replace the buggy `register_user` function** with the fixed version that creates profile records.
+You need to run the migration file to **replace the buggy `register_user` function** with the simple fixed version.
 
 **Important**: The migration will:
 1. Drop the existing buggy `register_user()` function
-2. Create the new fixed version that creates both user AND profile records
+2. Create the new fixed version that ONLY creates users (no profiles!)
 
 ### Steps to Fix:
 
