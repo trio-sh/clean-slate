@@ -11,9 +11,9 @@ const config = {
   // Pricing varies by country, competitive rates
   sms: {
     provider: 'infobip',
-    baseUrl: import.meta.env.VITE_INFOBIP_BASE_URL || 'https://k93mj3.api.infobip.com',
+    baseUrl: import.meta.env.VITE_INFOBIP_BASE_URL || 'https://api.infobip.com',
     apiKey: import.meta.env.VITE_INFOBIP_API_KEY || '',
-    sender: import.meta.env.VITE_INFOBIP_SENDER || 'AmaniClean',
+    sender: import.meta.env.VITE_INFOBIP_SENDER || 'ServiceSMS',
   },
   
   // Email Configuration (SMTP)

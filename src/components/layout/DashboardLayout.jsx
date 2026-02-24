@@ -96,6 +96,7 @@ const DashboardLayout = ({ type }) => {
           { name: 'Depots', href: '/admin/depots', icon: Building2 },
           { name: 'Check-ins', href: '/admin/checkins', icon: Clock },
           { name: 'Subscriptions', href: '/admin/subscriptions', icon: CreditCard },
+          { name: 'Plans', href: '/admin/plans', icon: Package },
           { name: 'Services', href: '/admin/services', icon: Wrench },
           { name: 'Messaging', href: '/admin/messaging', icon: MessageSquare },
           { name: 'Notifications', href: '/admin/notifications', icon: Megaphone },

@@ -54,6 +54,7 @@ import AdminServices from './pages/admin/AdminServices';
 import AdminReports from './pages/admin/AdminReports';
 import AdminSettings from './pages/admin/AdminSettings';
 import AdminSubscriptions from './pages/admin/AdminSubscriptions';
+import AdminPlans from './pages/admin/AdminPlans';
 import AdminCheckins from './pages/admin/AdminCheckins';
 import AdminNotifications from './pages/admin/AdminNotifications';
 import AdminMessaging from './pages/admin/AdminMessaging';
@@ -190,6 +191,7 @@ function App() {
             <Route path="staff" element={<AdminStaff />} />
             <Route path="checkins" element={<AdminCheckins />} />
             <Route path="subscriptions" element={<AdminSubscriptions />} />
+            <Route path="plans" element={<AdminPlans />} />
             <Route path="applications" element={<AdminApplications />} />
             <Route path="depots" element={<AdminDepots />} />
             <Route path="services" element={<AdminServices />} />
