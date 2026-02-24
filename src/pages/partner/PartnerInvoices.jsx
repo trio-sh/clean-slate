@@ -35,30 +35,30 @@ const PartnerInvoices = () => {
         return;
       }
 
-      // Get all orders for this depot
-      const ordersData = await db.getOrdersByDepot(user.depot_id);
+      // Get all invoices from partner_invoices table
+      const invoicesData = await db.getInvoicesByDepot(user.depot_id);
 
-      // Convert orders to invoices format
-      const invoicesData = ordersData.map(order => ({
-        id: order.id,
-        invoice_number: order.reference_code,
-        customer_name: order.customer_name || 'Guest Customer',
-        customer_email: order.customer_email || '',
-        customer_phone: order.customer_phone || '',
-        invoice_date: order.created_at,
-        due_date: order.delivery_date || order.pickup_date,
-        items: order.items || [],
-        subtotal: order.subtotal || 0,
-        tax: order.tax || 0,
-        discount_amount: order.discount_amount || 0,
-        total: order.total || 0,
-        status: determineInvoiceStatus(order),
-        sms_sent: order.invoice_sms_sent || false,
-        payment_status: order.payment_status || 'pending',
-        order,
-      }));
+      // Update invoice status based on dates (overdue check)
+      const updatedInvoices = invoicesData.map(invoice => {
+        let status = invoice.status;
 
-      setInvoices(invoicesData);
+        // Auto-update to overdue if past due date and not paid
+        if (status !== 'paid' && invoice.due_date) {
+          const dueDate = new Date(invoice.due_date);
+          const today = new Date();
+          if (today > dueDate) {
+            status = 'overdue';
+          }
+        }
+
+        return {
+          ...invoice,
+          status,
+          invoice_date: invoice.issued_date || invoice.created_at,
+        };
+      });
+
+      setInvoices(updatedInvoices);
     } catch (err) {
       console.error('Error loading invoices:', err);
       toast.error('Failed to load invoices');
@@ -67,16 +67,6 @@ const PartnerInvoices = () => {
     }
   };
 
-  const determineInvoiceStatus = (order) => {
-    if (order.payment_status === 'paid') return 'paid';
-
-    const dueDate = new Date(order.delivery_date || order.pickup_date);
-    const today = new Date();
-
-    if (today > dueDate && order.payment_status !== 'paid') return 'overdue';
-    if (order.invoice_sms_sent) return 'sent';
-    return 'draft';
-  };
 
   const filterInvoices = () => {
     let filtered = [...invoices];
@@ -144,10 +134,11 @@ Thank you for your business!`;
       const result = await sendSMS(invoice.customer_phone, message);
 
       if (result.success) {
-        // Update invoice status in database
-        await db.update('orders', invoice.order.id, {
-          invoice_sms_sent: true,
-          invoice_sent_at: new Date().toISOString(),
+        // Update invoice in partner_invoices table
+        await db.update('partner_invoices', invoice.id, {
+          status: invoice.status === 'draft' ? 'sent' : invoice.status,
+          sms_sent: true,
+          sms_sent_at: new Date().toISOString(),
         });
 
         toast.success('Invoice sent via SMS successfully!');
@@ -172,9 +163,10 @@ Thank you for your business!`;
       const invoice = invoices.find(inv => inv.id === invoiceId);
       if (!invoice) return;
 
-      await db.update('orders', invoice.order.id, {
-        payment_status: 'paid',
-        paid_at: new Date().toISOString(),
+      // Update invoice status to paid
+      await db.update('partner_invoices', invoiceId, {
+        status: 'paid',
+        paid_date: new Date().toISOString(),
       });
 
       toast.success('Invoice marked as paid!');
