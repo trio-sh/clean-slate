@@ -185,7 +185,7 @@
     "premiumQuality": "Premium Quality",
     "turnaround": "48-72 Hour Turnaround",
     "qualityGuaranteed": "Quality Guaranteed",
-    "firstOrderDiscount": "15% Off First Order\\!",
+    "firstOrderDiscount": "15% Off First Order!",
     "searchServices": "Search Services",
     "searchPlaceholder": "Search...",
     "categories": "Categories",
@@ -339,7 +339,7 @@
     "appTagline": "Premium Laundry Care"
   },
   "footer": {
-    "description": "Proudly Canadian owned since 2013. Premium laundry and dry cleaning services for the Greater Toronto Area.",
+    "description": "Proudly Canadian owned since 2013. Premium laundry and dry cleaning services across Canada.",
     "language": "Language",
     "quickLinks": "Quick Links",
     "serviceAreas": "Service Areas",
