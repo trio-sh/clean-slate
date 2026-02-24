@@ -1,4 +1,4 @@
-# Fix Signup Error - Remove Unused Profiles Table from Signup
+# Fix Signup Error - Remove Database Triggers Creating Profiles
 
 ## Problem
 Users trying to sign up receive the exact error:
@@ -6,114 +6,103 @@ Users trying to sign up receive the exact error:
 value in column "id" of relation "profiles" violates not-null constraint
 ```
 
-**Status**: Login works perfectly fine, only signup is broken.
+**Status**: Login works fine, only signup is broken.
 
-## Root Cause
-The `register_user()` function was trying to create records in the `profiles` table, which caused errors.
+**Even after updating register_user(), error persists!**
 
-**BUT HERE'S THE THING**: After checking the entire codebase, **the profiles table is NOT used anywhere!**
+## Root Cause: DATABASE TRIGGERS!
 
-Evidence:
-- ✅ `updateProfile()` in stores/index.js updates the **users** table (line 84), NOT profiles
-- ✅ AccountPage uses `updateProfile()` which updates **users** table
-- ✅ All user data is stored in the **users** table
-- ❌ NO code actually reads from or writes to the profiles table
+There are **database triggers** automatically creating profile records when users are inserted!
 
-The profiles table exists in the database schema but the application doesn't use it.
+Common Supabase trigger names:
+- `on_auth_user_created`
+- `handle_new_user`
+- `create_profile_for_new_user`
 
-## The Solution (SIMPLE!)
-**Just don't create profile records during signup!**
+These triggers fire AFTER user INSERT and try to create a profile record automatically.
 
-The updated `register_user()` function now:
-1. ✅ Creates user in `users` table (all we need!)
-2. ❌ Does NOT create profiles table record (not needed)
+**The Problem**: The profiles table is NOT even used by your application!
+- ✅ `updateProfile()` updates the **users** table, NOT profiles
+- ✅ All user data stored in **users** table
+- ❌ NO code reads from or writes to profiles table
 
-That's it! No more profiles headache.
+## The Solution: Remove the Triggers!
 
-## Solution
-You need to run the migration file to **replace the buggy `register_user` function** with the simple fixed version.
+### Quick Fix (Copy & Run This)
 
-**Important**: The migration will:
-1. Drop the existing buggy `register_user()` function
-2. Create the new fixed version that ONLY creates users (no profiles!)
+**Open Supabase SQL Editor and run:**
 
-### Steps to Fix:
+```sql
+-- Drop all profile-creating triggers
+DROP TRIGGER IF EXISTS on_auth_user_created ON users CASCADE;
+DROP TRIGGER IF EXISTS handle_new_user ON users CASCADE;
+DROP TRIGGER IF EXISTS create_profile_for_new_user ON users CASCADE;
+DROP TRIGGER IF EXISTS auto_create_profile ON users CASCADE;
+DROP TRIGGER IF EXISTS insert_profile_for_user ON users CASCADE;
 
-**IMPORTANT**: If you got the error "function name 'register_user' is not unique", follow these steps:
+-- Drop trigger functions
+DROP FUNCTION IF EXISTS handle_new_user() CASCADE;
+DROP FUNCTION IF EXISTS create_profile_for_new_user() CASCADE;
+DROP FUNCTION IF EXISTS auto_create_profile() CASCADE;
+DROP FUNCTION IF EXISTS insert_profile_for_user() CASCADE;
+DROP FUNCTION IF EXISTS public.handle_new_user() CASCADE;
+```
 
-**Step 1: (Optional) Check Existing Functions**
-This helps you see what's currently in your database:
-   - Open Supabase SQL Editor
-   - Copy contents of: `migrations/003_CHECK_EXISTING_FUNCTIONS.sql`
-   - Paste and Run
-   - You'll see all existing function signatures
+### Verify It Worked
 
-**Step 2: Run the Migration**
-The migration now uses an advanced DROP approach that removes ALL versions of the functions:
-   1. Open Supabase SQL Editor (if not already open)
-   2. Click "New Query" button
-   3. Copy the **entire contents** of: `migrations/003_add_auth_functions.sql`
-   4. Paste it into the SQL editor
-   5. Click "Run" button
+Run this to check no triggers remain:
+```sql
+SELECT trigger_name, event_object_table
+FROM information_schema.triggers
+WHERE event_object_table = 'users';
+```
 
-The migration uses DO blocks to:
-- Find ALL versions of register_user/login_with_email/login_with_phone/update_user_password
-- Drop each one automatically regardless of signature
-- Then create the new fixed versions
+Should return **0 rows** if successful.
 
-3. **Verify the Functions Were Created**
-   Run this query to confirm:
-   ```sql
-   SELECT routine_name, routine_type, routine_definition
-   FROM information_schema.routines
-   WHERE routine_name = 'register_user'
-   AND routine_schema = 'public';
-   ```
+### Test Signup
 
-   You should see the `register_user` function listed. Check the definition to confirm it includes the profile INSERT statement.
+1. Go to your app's signup page
+2. Try creating a new account
+3. Should work now! ✅
 
-4. **Test User Registration**
-   - Go to your app's signup page
-   - Try creating a new account
-   - It should work without errors now
+## If Still Getting Errors
 
-## What These Functions Do
+### Step 1: Find What's Creating Profiles
 
-### `register_user()`
-- Creates a new user account in the `users` table
-- Generates a unique UUID for the user
-- Normalizes phone numbers (adds country code if needed)
-- Stores password hash (hashed by client before sending)
-- Sets default role as 'customer'
-- Returns the created user data
+```sql
+-- See all triggers on users table
+SELECT trigger_name, action_statement
+FROM information_schema.triggers
+WHERE event_object_table = 'users';
 
-### `login_with_email()`
-- Validates email and password
-- Returns user data if credentials match
-- Throws error if invalid
+-- Find functions that insert into profiles
+SELECT routine_name, routine_definition
+FROM information_schema.routines
+WHERE routine_type = 'FUNCTION'
+AND routine_definition ILIKE '%INSERT%profiles%';
+```
 
-### `login_with_phone()`
-- Validates phone number and password
-- Normalizes phone number before checking
-- Returns user data if credentials match
-- Throws error if invalid
+### Step 2: Manually Drop Them
 
-### `update_user_password()`
-- Updates a user's password hash
-- Updates the `updated_at` timestamp
-- Returns true if successful
+If you find other triggers/functions, drop them:
+```sql
+DROP TRIGGER IF EXISTS <trigger_name> ON users CASCADE;
+DROP FUNCTION IF EXISTS <function_name>() CASCADE;
+```
 
-## Important Notes
+## Complete Investigation (Optional)
 
-- These functions use `SECURITY DEFINER` which means they run with the permissions of the user who created them (bypassing RLS)
-- Passwords are expected to be pre-hashed by the client (SHA-256)
-- Phone numbers are automatically normalized (digits only, with country code)
-- Anonymous users can register and login (functions have `anon` grant)
+If you want to see everything before removing:
 
-## Alternative: Demo Mode
+1. Open Supabase SQL Editor
+2. Copy ALL of `migrations/004_FIND_AND_REMOVE_PROFILE_TRIGGERS.sql`
+3. Run it step by step
+4. It will show you what exists, then remove it
 
-If you can't access Supabase right now, you can test in demo mode:
-1. Open browser console
-2. Run: `localStorage.setItem('amani_mode', 'demo')`
-3. Refresh the page
-4. All data will be stored locally in IndexedDB (no Supabase needed)
+## Summary
+
+✅ **The fix**: Remove database triggers auto-creating profiles
+✅ **Why**: Profiles table not used by application
+✅ **Result**: Signup works without profile headaches
+
+No more "null value in profiles" errors! 🎉
