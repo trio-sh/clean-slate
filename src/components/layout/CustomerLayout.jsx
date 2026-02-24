@@ -180,7 +180,7 @@ const CustomerLayout = () => {
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: 10 }}
-                        className="absolute right-0 top-full mt-2 w-[calc(100vw-2rem)] sm:w-96 bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden z-50"
+                        className="fixed sm:absolute right-4 sm:right-0 left-4 sm:left-auto top-20 sm:top-full sm:mt-2 w-auto sm:w-96 bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden z-50"
                       >
                         <div className="p-4 border-b border-gray-100 flex items-center justify-between">
                           <h3 className="font-semibold text-navy-900">{t('notifications.title')}</h3>
@@ -277,7 +277,7 @@ const CustomerLayout = () => {
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: 10 }}
-                        className="absolute right-0 top-full mt-2 w-[calc(100vw-2rem)] sm:w-48 bg-white rounded-xl shadow-xl border border-gray-100 z-50"
+                        className="fixed sm:absolute right-4 sm:right-0 left-4 sm:left-auto top-20 sm:top-full sm:mt-2 w-auto sm:w-48 bg-white rounded-xl shadow-xl border border-gray-100 z-50"
                       >
                         <div className="p-3 border-b border-gray-100">
                           <p className="font-medium text-navy-900">{user?.first_name} {user?.last_name}</p>
