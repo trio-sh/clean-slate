@@ -634,7 +634,8 @@ export const db = {
       p_phone:      normalizedPhone || null,
     });
     if (error) throw new Error(error.message || 'Registration failed');
-    return { user: data };
+    // register_user returns QUERY (array), get first row
+    return { user: data && data[0] ? data[0] : data };
   },
 
   // Login with email — direct DB compare, no Supabase Auth
@@ -649,7 +650,8 @@ export const db = {
       p_email: email, p_password: password,
     });
     if (error) throw new Error('Invalid email or password');
-    return { user: data };
+    // login_with_email returns QUERY (array), get first row
+    return { user: data && data[0] ? data[0] : data };
   },
 
   // Login with phone — direct DB compare, no Supabase Auth
@@ -664,7 +666,8 @@ export const db = {
       p_phone: normalizePhone(phone), p_password: password,
     });
     if (error) throw new Error('Invalid phone number or password');
-    return { user: data };
+    // login_with_phone returns QUERY (array), get first row
+    return { user: data && data[0] ? data[0] : data };
   },
 
   // Update password — plain text, direct update
