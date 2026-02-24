@@ -13,6 +13,9 @@ import { LanguageProvider } from './i18n/LanguageContext';
 import CustomerLayout from './components/layout/CustomerLayout';
 import DashboardLayout from './components/layout/DashboardLayout';
 
+// Components
+import WhatsAppButton from './components/WhatsAppButton';
+
 // Customer Pages
 import HomePage from './pages/customer/HomePage';
 import ServicesPage from './pages/customer/ServicesPage';
@@ -226,6 +229,9 @@ function App() {
           {/* Catch all */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
+
+        {/* WhatsApp Floating Button */}
+        <WhatsAppButton />
       </BrowserRouter>
     </LanguageProvider>
   );
