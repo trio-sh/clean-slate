@@ -180,21 +180,21 @@ const CustomerLayout = () => {
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: 10 }}
-                        className="fixed sm:absolute right-4 sm:right-0 left-4 sm:left-auto top-20 sm:top-full sm:mt-2 w-auto sm:w-96 bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden z-50"
+                        className="fixed sm:absolute right-4 sm:right-0 top-20 sm:top-full sm:mt-2 w-80 sm:w-96 bg-white rounded-2xl shadow-2xl border border-gray-100 z-50"
                       >
-                        <div className="p-4 border-b border-gray-100 flex items-center justify-between">
-                          <h3 className="font-semibold text-navy-900">{t('notifications.title')}</h3>
+                        <div className="p-4 border-b border-gray-100 flex items-center justify-between flex-shrink-0">
+                          <h3 className="font-semibold text-navy-900 truncate">{t('notifications.title')}</h3>
                           {unreadCount > 0 && (
                             <button
                               onClick={() => markAllAsRead(user?.id)}
-                              className="text-xs text-amani-600 hover:text-amani-700"
+                              className="text-xs text-amani-600 hover:text-amani-700 whitespace-nowrap flex-shrink-0"
                             >
                               {t('notifications.markAllRead')}
                             </button>
                           )}
                         </div>
 
-                        <div className="max-h-96 overflow-y-auto">
+                        <div className="max-h-[calc(100vh-12rem)] overflow-y-auto overflow-x-hidden">
                           {notifications.length === 0 ? (
                             <div className="p-8 text-center text-gray-500">
                               <Bell className="w-12 h-12 mx-auto mb-3 opacity-30" />
@@ -204,7 +204,7 @@ const CustomerLayout = () => {
                             notifications.slice(0, 10).map(notif => (
                               <div
                                 key={notif.id}
-                                className={`p-4 border-b border-gray-50 hover:bg-gray-50 cursor-pointer transition-colors ${
+                                className={`p-4 border-b border-gray-50 hover:bg-gray-50 cursor-pointer transition-colors group ${
                                   !notif.is_read && !notif.read ? 'bg-blue-50/50' : ''
                                 }`}
                                 onClick={() => handleNotificationClick(notif)}
@@ -214,10 +214,10 @@ const CustomerLayout = () => {
                                     <Bell className="w-4 h-4" />
                                   </div>
                                   <div className="flex-1 min-w-0">
-                                    <p className="font-medium text-navy-900 text-sm">{notif.title}</p>
-                                    <p className="text-gray-600 text-xs mt-0.5 line-clamp-2">{notif.message}</p>
-                                    <p className="text-gray-400 text-xs mt-1">
-                                      {notif.created_at ? format(new Date(notif.created_at), 'MMM d, h:mm a') : 
+                                    <p className="font-medium text-navy-900 text-sm truncate">{notif.title}</p>
+                                    <p className="text-gray-600 text-xs mt-0.5 line-clamp-2 break-words">{notif.message}</p>
+                                    <p className="text-gray-400 text-xs mt-1 truncate">
+                                      {notif.created_at ? format(new Date(notif.created_at), 'MMM d, h:mm a') :
                                        notif.timestamp ? format(new Date(notif.timestamp), 'MMM d, h:mm a') : ''}
                                     </p>
                                   </div>
@@ -226,7 +226,7 @@ const CustomerLayout = () => {
                                       e.stopPropagation();
                                       removeNotification(notif.id);
                                     }}
-                                    className="p-1 hover:bg-gray-200 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity"
+                                    className="p-1 hover:bg-gray-200 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0"
                                   >
                                     <Trash2 className="w-4 h-4 text-gray-400" />
                                   </button>
@@ -237,11 +237,11 @@ const CustomerLayout = () => {
                         </div>
 
                         {notifications.length > 10 && (
-                          <div className="p-3 border-t border-gray-100 text-center">
+                          <div className="p-3 border-t border-gray-100 text-center flex-shrink-0">
                             <Link
                               to="/account"
                               onClick={() => setShowNotifications(false)}
-                              className="text-sm text-amani-600 hover:text-amani-700"
+                              className="text-sm text-amani-600 hover:text-amani-700 whitespace-nowrap"
                             >
                               {t('notifications.viewAll')}
                             </Link>
