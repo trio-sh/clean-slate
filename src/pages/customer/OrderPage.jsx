@@ -795,54 +795,56 @@ const OrderPage = () => {
                     {items.length > 0 && (
                       <div className="divide-y divide-gray-100">
                         {items.map((item) => (
-                          <div key={item.id} className={`py-4 flex items-center justify-between ${item.isAddon ? 'bg-amber-50 -mx-6 px-6 border-l-4 border-amber-400' : ''}`}>
-                            <div className="flex-1">
-                              <div className="flex items-center gap-2">
-                                <h3 className="font-medium text-navy-900">{item.name}</h3>
-                                {item.isAddon && (
-                                  <span className="text-xs bg-amber-500 text-white px-2 py-0.5 rounded-full flex items-center gap-1">
-                                    <Zap className="w-3 h-3" />
-                                    Add-on
-                                  </span>
+                          <div key={item.id} className={`py-4 ${item.isAddon ? 'bg-amber-50 -mx-6 px-6 border-l-4 border-amber-400' : ''}`}>
+                            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-2 flex-wrap">
+                                  <h3 className="font-medium text-navy-900">{item.name}</h3>
+                                  {item.isAddon && (
+                                    <span className="text-xs bg-amber-500 text-white px-2 py-0.5 rounded-full flex items-center gap-1">
+                                      <Zap className="w-3 h-3" />
+                                      Add-on
+                                    </span>
+                                  )}
+                                </div>
+                                <p className="text-sm text-gray-500">
+                                  ${(item.price || 0).toFixed(2)} {item.isAddon ? t('order.fee') : t('order.each')}
+                                </p>
+                                {item.turnaround && (
+                                  <p className="text-xs text-amber-600 flex items-center gap-1 mt-1">
+                                    <Clock className="w-3 h-3" />
+                                    {item.turnaround} {t('order.turnaroundTime')}
+                                  </p>
                                 )}
                               </div>
-                              <p className="text-sm text-gray-500">
-                                ${(item.price || 0).toFixed(2)} {item.isAddon ? t('order.fee') : t('order.each')}
-                              </p>
-                              {item.turnaround && (
-                                <p className="text-xs text-amber-600 flex items-center gap-1 mt-1">
-                                  <Clock className="w-3 h-3" />
-                                  {item.turnaround} {t('order.turnaroundTime')}
-                                </p>
-                              )}
-                            </div>
-                            <div className="flex items-center gap-4">
-                              {!item.isAddon && (
-                                <div className="flex items-center gap-2 bg-gray-100 rounded-lg p-1">
-                                  <button
-                                    onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                                    className="w-8 h-8 rounded flex items-center justify-center hover:bg-gray-200"
-                                  >
-                                    <Minus className="w-4 h-4" />
-                                  </button>
-                                  <span className="w-8 text-center font-medium">{item.quantity}</span>
-                                  <button
-                                    onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                                    className="w-8 h-8 rounded flex items-center justify-center hover:bg-gray-200"
-                                  >
-                                    <Plus className="w-4 h-4" />
-                                  </button>
-                                </div>
-                              )}
-                              <span className="w-20 text-right font-medium">
-                                ${((item.price || 0) * item.quantity).toFixed(2)}
-                              </span>
-                              <button
-                                onClick={() => removeItem(item.id)}
-                                className="p-2 text-red-500 hover:bg-red-50 rounded-lg"
-                              >
-                                <Trash2 className="w-5 h-5" />
-                              </button>
+                              <div className="flex items-center justify-between sm:justify-end gap-3 sm:gap-4">
+                                {!item.isAddon && (
+                                  <div className="flex items-center gap-2 bg-gray-100 rounded-lg p-1">
+                                    <button
+                                      onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                                      className="w-8 h-8 rounded flex items-center justify-center hover:bg-gray-200 active:bg-gray-300 transition-colors"
+                                    >
+                                      <Minus className="w-4 h-4" />
+                                    </button>
+                                    <span className="w-8 text-center font-medium">{item.quantity}</span>
+                                    <button
+                                      onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                                      className="w-8 h-8 rounded flex items-center justify-center hover:bg-gray-200 active:bg-gray-300 transition-colors"
+                                    >
+                                      <Plus className="w-4 h-4" />
+                                    </button>
+                                  </div>
+                                )}
+                                <span className="font-medium text-navy-900 min-w-[4rem] text-right">
+                                  ${((item.price || 0) * item.quantity).toFixed(2)}
+                                </span>
+                                <button
+                                  onClick={() => removeItem(item.id)}
+                                  className="p-2 text-red-500 hover:bg-red-50 active:bg-red-100 rounded-lg transition-colors"
+                                >
+                                  <Trash2 className="w-5 h-5" />
+                                </button>
+                              </div>
                             </div>
                           </div>
                         ))}
@@ -851,14 +853,14 @@ const OrderPage = () => {
 
                     {/* Laundry Weight - Regular */}
                     <div className="mt-6 pt-6 border-t border-gray-100">
-                      <div className="flex items-center justify-between mb-4">
-                        <div>
+                      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-4">
+                        <div className="flex-1">
                           <h3 className="font-medium text-navy-900">{t('order.laundryRegular')}</h3>
-                          <p className="text-sm text-gray-500">
+                          <p className="text-sm text-gray-500 mt-1">
                             {t('order.laundryRegularDesc')} — ${laundryRate}/{t('order.perLb')} ({t('order.minOrder')} {minimumLaundry} {t('order.lbs')} or ${flatRate.toFixed(2)} {t('order.flatRate')})
                           </p>
                         </div>
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 sm:flex-shrink-0">
                           <input
                             type="number"
                             value={laundryWeight || ''}
@@ -867,7 +869,7 @@ const OrderPage = () => {
                             placeholder="0"
                             min="0"
                           />
-                          <span className="text-gray-600">{t('order.lbs')}</span>
+                          <span className="text-gray-600 whitespace-nowrap">{t('order.lbs')}</span>
                         </div>
                       </div>
                       {laundryWeight > 0 && (
@@ -882,14 +884,14 @@ const OrderPage = () => {
 
                     {/* Laundry Weight - Commercial */}
                     <div className="mt-4 pt-4 border-t border-gray-100">
-                      <div className="flex items-center justify-between mb-4">
-                        <div>
+                      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-4">
+                        <div className="flex-1">
                           <h3 className="font-medium text-navy-900">{t('order.laundryCommercial')}</h3>
-                          <p className="text-sm text-gray-500">
+                          <p className="text-sm text-gray-500 mt-1">
                             {t('order.laundryCommercialDesc')} — ${laundryRate}/{t('order.perLb')} ({t('order.minOrder')} {minimumLaundry} {t('order.lbs')} or ${flatRate.toFixed(2)} {t('order.flatRate')})
                           </p>
                         </div>
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 sm:flex-shrink-0">
                           <input
                             type="number"
                             value={commercialLaundryWeight || ''}
@@ -898,7 +900,7 @@ const OrderPage = () => {
                             placeholder="0"
                             min="0"
                           />
-                          <span className="text-gray-600">{t('order.lbs')}</span>
+                          <span className="text-gray-600 whitespace-nowrap">{t('order.lbs')}</span>
                         </div>
                       </div>
                       {commercialLaundryWeight > 0 && (
@@ -1479,7 +1481,7 @@ const OrderPage = () => {
                       </div>
                     ) : (
                       <div>
-                        <div className="flex gap-3">
+                        <div className="flex flex-col sm:flex-row gap-3">
                           <input
                             type="text"
                             value={promoCode}
@@ -1492,7 +1494,7 @@ const OrderPage = () => {
                           />
                           <button
                             onClick={handleApplyPromo}
-                            className="btn-primary px-6"
+                            className="btn-primary px-6 whitespace-nowrap"
                           >
                             {t('order.apply')}
                           </button>
@@ -1594,24 +1596,24 @@ const OrderPage = () => {
 
               <div className="space-y-3 mb-6">
                 {items.map((item) => (
-                  <div key={item.id} className={`flex justify-between text-sm ${item.isAddon ? 'bg-amber-50 -mx-2 px-2 py-1 rounded border-l-2 border-amber-400' : ''}`}>
-                    <span className={item.isAddon ? 'text-amber-800 flex items-center gap-1' : 'text-gray-600'}>
-                      {item.isAddon && <Zap className="w-3 h-3" />}
-                      {item.name} {!item.isAddon && `× ${item.quantity}`}
+                  <div key={item.id} className={`flex justify-between gap-2 text-sm ${item.isAddon ? 'bg-amber-50 -mx-2 px-2 py-1 rounded border-l-2 border-amber-400' : ''}`}>
+                    <span className={`flex-1 min-w-0 ${item.isAddon ? 'text-amber-800 flex items-center gap-1' : 'text-gray-600'}`}>
+                      {item.isAddon && <Zap className="w-3 h-3 flex-shrink-0" />}
+                      <span className="truncate">{item.name} {!item.isAddon && `× ${item.quantity}`}</span>
                     </span>
-                    <span className={`font-medium ${item.isAddon ? 'text-amber-700' : ''}`}>${((item.price || 0) * item.quantity).toFixed(2)}</span>
+                    <span className={`font-medium flex-shrink-0 ${item.isAddon ? 'text-amber-700' : ''}`}>${((item.price || 0) * item.quantity).toFixed(2)}</span>
                   </div>
                 ))}
                 {laundryWeight > 0 && (
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">{t('order.laundryRegular')} ({laundryWeight} {t('order.lbs')})</span>
-                    <span className="font-medium">${laundryTotal.toFixed(2)}</span>
+                  <div className="flex justify-between gap-2 text-sm">
+                    <span className="text-gray-600 flex-1 min-w-0 truncate">{t('order.laundryRegular')} ({laundryWeight} {t('order.lbs')})</span>
+                    <span className="font-medium flex-shrink-0">${laundryTotal.toFixed(2)}</span>
                   </div>
                 )}
                 {commercialLaundryWeight > 0 && (
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">{t('order.laundryCommercial')} ({commercialLaundryWeight} {t('order.lbs')})</span>
-                    <span className="font-medium">${commercialLaundryTotal.toFixed(2)}</span>
+                  <div className="flex justify-between gap-2 text-sm">
+                    <span className="text-gray-600 flex-1 min-w-0 truncate">{t('order.laundryCommercial')} ({commercialLaundryWeight} {t('order.lbs')})</span>
+                    <span className="font-medium flex-shrink-0">${commercialLaundryTotal.toFixed(2)}</span>
                   </div>
                 )}
                 {/* Add-ons */}
@@ -1619,48 +1621,48 @@ const OrderPage = () => {
                   <div className="space-y-2 pt-2 border-t border-gray-100">
                     <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">{t('order.addons')}</p>
                     {selectedAddons.lowHeatDry && (
-                      <div className="flex justify-between text-sm">
-                        <span className="text-gray-600">{t('order.lowHeatDry')}</span>
-                        <span className="font-medium">$5.00</span>
+                      <div className="flex justify-between gap-2 text-sm">
+                        <span className="text-gray-600 flex-1 min-w-0 truncate">{t('order.lowHeatDry')}</span>
+                        <span className="font-medium flex-shrink-0">$5.00</span>
                       </div>
                     )}
                     {selectedAddons.hypoallergenic && (
-                      <div className="flex justify-between text-sm">
-                        <span className="text-gray-600">{t('order.hypoallergenic')}</span>
-                        <span className="font-medium">$5.00</span>
+                      <div className="flex justify-between gap-2 text-sm">
+                        <span className="text-gray-600 flex-1 min-w-0 truncate">{t('order.hypoallergenic')}</span>
+                        <span className="font-medium flex-shrink-0">$5.00</span>
                       </div>
                     )}
                     {selectedAddons.laundrySorting && (
-                      <div className="flex justify-between text-sm">
-                        <span className="text-gray-600">{t('order.laundrySorting')}</span>
-                        <span className="font-medium">$15.00</span>
+                      <div className="flex justify-between gap-2 text-sm">
+                        <span className="text-gray-600 flex-1 min-w-0 truncate">{t('order.laundrySorting')}</span>
+                        <span className="font-medium flex-shrink-0">$15.00</span>
                       </div>
                     )}
                     {selectedAddons.sameDayRush && (
-                      <div className="flex justify-between text-sm">
-                        <span className="text-gray-600 flex items-center gap-1">
-                          <Zap className="w-3 h-3 text-yellow-500" />
-                          {t('order.sameDayRush')}
+                      <div className="flex justify-between gap-2 text-sm">
+                        <span className="text-gray-600 flex items-center gap-1 flex-1 min-w-0">
+                          <Zap className="w-3 h-3 text-yellow-500 flex-shrink-0" />
+                          <span className="truncate">{t('order.sameDayRush')}</span>
                         </span>
-                        <span className="font-medium">$25.00</span>
+                        <span className="font-medium flex-shrink-0">$25.00</span>
                       </div>
                     )}
                     {selectedAddons.fabricSoftener && (
-                      <div className="flex justify-between text-sm">
-                        <span className="text-gray-600">{t('order.fabricSoftener')}</span>
-                        <span className="font-medium">$1.00</span>
+                      <div className="flex justify-between gap-2 text-sm">
+                        <span className="text-gray-600 flex-1 min-w-0 truncate">{t('order.fabricSoftener')}</span>
+                        <span className="font-medium flex-shrink-0">$1.00</span>
                       </div>
                     )}
                     {selectedAddons.stainRemoval && (
-                      <div className="flex justify-between text-sm">
-                        <span className="text-gray-600">{t('order.stainRemoval')}</span>
-                        <span className="font-medium">$3.00</span>
+                      <div className="flex justify-between gap-2 text-sm">
+                        <span className="text-gray-600 flex-1 min-w-0 truncate">{t('order.stainRemoval')}</span>
+                        <span className="font-medium flex-shrink-0">$3.00</span>
                       </div>
                     )}
                     {selectedAddons.scentBooster && (
-                      <div className="flex justify-between text-sm">
-                        <span className="text-gray-600">{t('order.scentBooster')}</span>
-                        <span className="font-medium">$1.00</span>
+                      <div className="flex justify-between gap-2 text-sm">
+                        <span className="text-gray-600 flex-1 min-w-0 truncate">{t('order.scentBooster')}</span>
+                        <span className="font-medium flex-shrink-0">$1.00</span>
                       </div>
                     )}
                   </div>
