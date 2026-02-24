@@ -167,6 +167,13 @@
   },
   "services": {
     "title": "Services",
+    "ourServices": "OUR SERVICES",
+    "subtitle": "From everyday laundry to specialty items, we handle it all with care.",
+    "viewAll": "View All Services",
+    "washAndFold": "Wash & Fold",
+    "dryCleaning": "Dry Cleaning",
+    "weddingGowns": "Wedding Gowns",
+    "commercial": "Commercial",
     "newService": "New Service",
     "editService": "Edit Service",
     "serviceName": "Service Name",
