@@ -15,8 +15,10 @@ const CustomerLayout = () => {
   const { t } = useLanguage();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
+  const [showUserMenu, setShowUserMenu] = useState(false);
   const notifRef = useRef(null);
-  
+  const userMenuRef = useRef(null);
+
   const { user, isAuthenticated, logout } = useAuthStore();
   const { getItemCount } = useCartStore();
   const { mode, demoEnabled } = useAppStore();
@@ -38,11 +40,14 @@ const CustomerLayout = () => {
     }
   }, [isAuthenticated, user?.id, loadNotifications]);
 
-  // Close notification dropdown when clicking outside
+  // Close dropdowns when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (notifRef.current && !notifRef.current.contains(event.target)) {
         setShowNotifications(false);
+      }
+      if (userMenuRef.current && !userMenuRef.current.contains(event.target)) {
+        setShowUserMenu(false);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
@@ -175,7 +180,7 @@ const CustomerLayout = () => {
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: 10 }}
-                        className="absolute right-0 top-full mt-2 w-80 sm:w-96 bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden z-50"
+                        className="absolute right-0 top-full mt-2 w-[calc(100vw-2rem)] sm:w-96 bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden z-50"
                       >
                         <div className="p-4 border-b border-gray-100 flex items-center justify-between">
                           <h3 className="font-semibold text-navy-900">{t('notifications.title')}</h3>
@@ -253,32 +258,58 @@ const CustomerLayout = () => {
 
               {/* Auth */}
               {isAuthenticated ? (
-                <div className="relative group">
-                  <button className="flex items-center gap-2 px-4 py-2 rounded-xl hover:bg-gray-100 transition-colors">
+                <div className="relative" ref={userMenuRef}>
+                  <button
+                    onClick={() => setShowUserMenu(!showUserMenu)}
+                    className="flex items-center gap-2 px-4 py-2 rounded-xl hover:bg-gray-100 transition-colors"
+                  >
                     <div className="w-8 h-8 bg-amani-100 rounded-full flex items-center justify-center">
                       <span className="text-amani-600 font-semibold text-sm">
                         {user?.first_name?.[0]}{user?.last_name?.[0]}
                       </span>
                     </div>
-                    <ChevronDown className="w-4 h-4 text-gray-500" />
+                    <ChevronDown className={`w-4 h-4 text-gray-500 transition-transform ${showUserMenu ? 'rotate-180' : ''}`} />
                   </button>
-                  <div className="absolute right-0 top-full mt-2 w-48 bg-white rounded-xl shadow-xl border border-gray-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-                    <div className="p-3 border-b border-gray-100">
-                      <p className="font-medium text-navy-900">{user?.first_name} {user?.last_name}</p>
-                      <p className="text-sm text-gray-500">{user?.email}</p>
-                    </div>
-                    <div className="p-2">
-                      <Link to="/account" className="block px-3 py-2 rounded-lg text-navy-700 hover:bg-gray-50">{t('userMenu.myAccount')}</Link>
-                      {user?.role !== 'customer' && (
-                        <Link to={`/${user?.role}`} className="block px-3 py-2 rounded-lg text-navy-700 hover:bg-gray-50">
-                          {user?.role === 'admin' ? t('userMenu.adminPanel') : user?.role === 'driver' ? t('userMenu.driverDashboard') : t('userMenu.staffDashboard')}
-                        </Link>
-                      )}
-                      <button onClick={logout} className="w-full text-left px-3 py-2 rounded-lg text-red-600 hover:bg-red-50">
-                        {t('userMenu.signOut')}
-                      </button>
-                    </div>
-                  </div>
+
+                  <AnimatePresence>
+                    {showUserMenu && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 10 }}
+                        className="absolute right-0 top-full mt-2 w-[calc(100vw-2rem)] sm:w-48 bg-white rounded-xl shadow-xl border border-gray-100 z-50"
+                      >
+                        <div className="p-3 border-b border-gray-100">
+                          <p className="font-medium text-navy-900">{user?.first_name} {user?.last_name}</p>
+                          <p className="text-sm text-gray-500">{user?.email}</p>
+                        </div>
+                        <div className="p-2">
+                          <Link
+                            to="/account"
+                            onClick={() => setShowUserMenu(false)}
+                            className="block px-3 py-2 rounded-lg text-navy-700 hover:bg-gray-50"
+                          >
+                            {t('userMenu.myAccount')}
+                          </Link>
+                          {user?.role !== 'customer' && (
+                            <Link
+                              to={`/${user?.role}`}
+                              onClick={() => setShowUserMenu(false)}
+                              className="block px-3 py-2 rounded-lg text-navy-700 hover:bg-gray-50"
+                            >
+                              {user?.role === 'admin' ? t('userMenu.adminPanel') : user?.role === 'driver' ? t('userMenu.driverDashboard') : t('userMenu.staffDashboard')}
+                            </Link>
+                          )}
+                          <button
+                            onClick={() => { logout(); setShowUserMenu(false); }}
+                            className="w-full text-left px-3 py-2 rounded-lg text-red-600 hover:bg-red-50"
+                          >
+                            {t('userMenu.signOut')}
+                          </button>
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </div>
               ) : (
                 <div className="flex items-center gap-2">
