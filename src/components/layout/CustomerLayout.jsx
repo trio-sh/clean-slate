@@ -277,16 +277,16 @@ const CustomerLayout = () => {
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: 10 }}
-                        className="fixed sm:absolute right-4 sm:right-0 left-4 sm:left-auto top-20 sm:top-full sm:mt-2 w-auto sm:w-48 bg-white rounded-xl shadow-xl border border-gray-100 overflow-hidden z-50"
+                        className="fixed sm:absolute right-4 sm:right-0 left-4 sm:left-auto top-20 sm:top-full sm:mt-2 w-48 bg-white rounded-xl shadow-xl border border-gray-100 z-50"
                       >
-                        <div className="py-2">
+                        <div className="py-2 max-h-[calc(100vh-6rem)] overflow-y-auto overflow-x-hidden">
                           <Link
                             to="/account"
                             onClick={() => setShowUserMenu(false)}
-                            className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                            className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors whitespace-nowrap"
                           >
-                            <User className="w-4 h-4" />
-                            {t('userMenu.myAccount')}
+                            <User className="w-4 h-4 flex-shrink-0" />
+                            <span className="truncate">{t('userMenu.myAccount')}</span>
                           </Link>
                           {user?.role !== 'customer' && (
                             <Link
@@ -294,16 +294,16 @@ const CustomerLayout = () => {
                               onClick={() => setShowUserMenu(false)}
                               className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
                             >
-                              <User className="w-4 h-4" />
-                              {user?.role === 'admin' ? t('userMenu.adminPanel') : user?.role === 'driver' ? t('userMenu.driverDashboard') : t('userMenu.staffDashboard')}
+                              <User className="w-4 h-4 flex-shrink-0" />
+                              <span className="truncate">{user?.role === 'admin' ? t('userMenu.adminPanel') : user?.role === 'driver' ? t('userMenu.driverDashboard') : t('userMenu.staffDashboard')}</span>
                             </Link>
                           )}
                           <button
                             onClick={() => { logout(); setShowUserMenu(false); }}
                             className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors"
                           >
-                            <LogOut className="w-4 h-4" />
-                            {t('userMenu.signOut')}
+                            <LogOut className="w-4 h-4 flex-shrink-0" />
+                            <span className="truncate">{t('userMenu.signOut')}</span>
                           </button>
                         </div>
                       </motion.div>
