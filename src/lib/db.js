@@ -52,7 +52,7 @@ function normalizePhone(phone) {
 
 // IndexedDB configuration (for demo mode)
 const DB_NAME = 'amani_cleaners_demo';
-const DB_VERSION = 3; // Bumped to add application stores + depot indexes
+const DB_VERSION = 4; // Bumped to add partner_services + partner_invoices stores
 
 const initDemoDB = async () => {
   return openDB(DB_NAME, DB_VERSION, {
@@ -81,6 +81,13 @@ const initDemoDB = async () => {
       if (!db.objectStoreNames.contains('services')) {
         const servicesStore = db.createObjectStore('services', { keyPath: 'id' });
         servicesStore.createIndex('category_id', 'category_id');
+        servicesStore.createIndex('depot_id', 'depot_id');
+      } else if (oldVersion < 3) {
+        // Add depot_id index to existing services store
+        try {
+          const ss = transaction.objectStore('services');
+          if (!ss.indexNames.contains('depot_id')) ss.createIndex('depot_id', 'depot_id');
+        } catch (e) { /* ignore if already exists */ }
       }
 
       // Orders store
@@ -210,6 +217,23 @@ const initDemoDB = async () => {
       if (!db.objectStoreNames.contains('order_status_history')) {
         const historyStore = db.createObjectStore('order_status_history', { keyPath: 'id' });
         historyStore.createIndex('order_id', 'order_id');
+      }
+
+      // Partner services store
+      if (!db.objectStoreNames.contains('partner_services')) {
+        const partnerServicesStore = db.createObjectStore('partner_services', { keyPath: 'id' });
+        partnerServicesStore.createIndex('depot_id', 'depot_id');
+        partnerServicesStore.createIndex('category', 'category');
+      }
+
+      // Partner invoices store
+      if (!db.objectStoreNames.contains('partner_invoices')) {
+        const partnerInvoicesStore = db.createObjectStore('partner_invoices', { keyPath: 'id' });
+        partnerInvoicesStore.createIndex('depot_id', 'depot_id');
+        partnerInvoicesStore.createIndex('order_id', 'order_id');
+        partnerInvoicesStore.createIndex('customer_id', 'customer_id');
+        partnerInvoicesStore.createIndex('status', 'status');
+        partnerInvoicesStore.createIndex('invoice_number', 'invoice_number', { unique: true });
       }
     },
   });
@@ -1112,15 +1136,238 @@ export const db = {
   async verifyPassword(email, password) {
     const user = await this.getUserByEmail(email);
     if (!user) return { valid: false };
-    
+
     // If no password hash, allow login (backwards compatibility)
     if (!user.password_hash) return { valid: true, user };
-    
+
     const isValid = await verifyPassword(password, user.password_hash);
     return {
       valid: isValid,
       user: isValid ? user : null
     };
+  },
+
+  // ============================================
+  // PARTNER SERVICES OPERATIONS
+  // ============================================
+
+  // Create a new service for a partner/depot
+  async createPartnerService(service) {
+    if (getMode() === 'demo') {
+      const record = {
+        ...service,
+        id: service.id || generateId(),
+        is_active: service.is_active ?? true,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      };
+      const idb = await initDemoDB();
+      await idb.put('partner_services', record);
+      return record;
+    }
+
+    const record = {
+      ...service,
+      is_active: service.is_active ?? true,
+    };
+    delete record.id;
+    delete record.created_at;
+    delete record.updated_at;
+
+    const { data, error } = await supabase
+      .from('partner_services')
+      .insert(record)
+      .select()
+      .single();
+    if (error) throw error;
+    return data;
+  },
+
+  // Update a partner service
+  async updatePartnerService(id, updates) {
+    const record = {
+      ...updates,
+      updated_at: new Date().toISOString(),
+    };
+
+    if (getMode() === 'demo') {
+      const idb = await initDemoDB();
+      const existing = await idb.get('partner_services', id);
+      if (!existing) throw new Error('Service not found');
+      const updated = { ...existing, ...record };
+      await idb.put('partner_services', updated);
+      return updated;
+    }
+
+    const { data, error } = await supabase
+      .from('partner_services')
+      .update(record)
+      .eq('id', id)
+      .select()
+      .single();
+    if (error) throw error;
+    return data;
+  },
+
+  // Delete a partner service
+  async deletePartnerService(id) {
+    if (getMode() === 'demo') {
+      const idb = await initDemoDB();
+      await idb.delete('partner_services', id);
+      return true;
+    }
+
+    const { error } = await supabase
+      .from('partner_services')
+      .delete()
+      .eq('id', id);
+    if (error) throw error;
+    return true;
+  },
+
+  // Get all services for a specific depot
+  async getPartnerServices(depotId) {
+    if (getMode() === 'demo') {
+      const idb = await initDemoDB();
+      const services = await idb.getAll('partner_services');
+      return services
+        .filter(s => s.depot_id === depotId)
+        .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+    }
+
+    const { data, error } = await supabase
+      .from('partner_services')
+      .select('*')
+      .eq('depot_id', depotId)
+      .order('created_at', { ascending: false });
+    if (error) throw error;
+    return data || [];
+  },
+
+  // ============================================
+  // PARTNER INVOICES OPERATIONS
+  // ============================================
+
+  // Create a new invoice
+  async createInvoice(invoice) {
+    if (getMode() === 'demo') {
+      const record = {
+        ...invoice,
+        id: invoice.id || generateId(),
+        sms_sent: invoice.sms_sent ?? false,
+        sms_sent_at: invoice.sms_sent_at || null,
+        paid_date: invoice.paid_date || null,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      };
+      const idb = await initDemoDB();
+      await idb.put('partner_invoices', record);
+      return record;
+    }
+
+    const record = {
+      ...invoice,
+      sms_sent: invoice.sms_sent ?? false,
+      sms_sent_at: invoice.sms_sent_at || null,
+      paid_date: invoice.paid_date || null,
+    };
+    delete record.id;
+    delete record.created_at;
+    delete record.updated_at;
+
+    const { data, error } = await supabase
+      .from('partner_invoices')
+      .insert(record)
+      .select()
+      .single();
+    if (error) throw error;
+    return data;
+  },
+
+  // Get all invoices for a specific depot
+  async getInvoicesByDepot(depotId, filters = {}) {
+    if (getMode() === 'demo') {
+      const idb = await initDemoDB();
+      let invoices = await idb.getAll('partner_invoices');
+      invoices = invoices.filter(inv => inv.depot_id === depotId);
+
+      // Apply filters
+      if (filters.status) {
+        invoices = invoices.filter(inv => inv.status === filters.status);
+      }
+      if (filters.customer_id) {
+        invoices = invoices.filter(inv => inv.customer_id === filters.customer_id);
+      }
+      if (filters.date_from) {
+        invoices = invoices.filter(inv => inv.issued_date >= filters.date_from);
+      }
+      if (filters.date_to) {
+        invoices = invoices.filter(inv => inv.issued_date <= filters.date_to);
+      }
+
+      return invoices.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+    }
+
+    let query = supabase
+      .from('partner_invoices')
+      .select('*')
+      .eq('depot_id', depotId)
+      .order('created_at', { ascending: false });
+
+    if (filters.status) query = query.eq('status', filters.status);
+    if (filters.customer_id) query = query.eq('customer_id', filters.customer_id);
+    if (filters.date_from) query = query.gte('issued_date', filters.date_from);
+    if (filters.date_to) query = query.lte('issued_date', filters.date_to);
+
+    const { data, error } = await query;
+    if (error) throw error;
+    return data || [];
+  },
+
+  // Get a single invoice by ID
+  async getInvoiceById(id) {
+    if (getMode() === 'demo') {
+      const idb = await initDemoDB();
+      return idb.get('partner_invoices', id);
+    }
+
+    const { data, error } = await supabase
+      .from('partner_invoices')
+      .select('*')
+      .eq('id', id)
+      .single();
+    if (error && error.code !== 'PGRST116') throw error;
+    return data;
+  },
+
+  // Update invoice status (and optionally paid_date)
+  async updateInvoiceStatus(id, status, paid_date = null) {
+    const updates = {
+      status,
+      updated_at: new Date().toISOString(),
+    };
+
+    if (status === 'paid' && paid_date) {
+      updates.paid_date = paid_date;
+    }
+
+    if (getMode() === 'demo') {
+      const idb = await initDemoDB();
+      const existing = await idb.get('partner_invoices', id);
+      if (!existing) throw new Error('Invoice not found');
+      const updated = { ...existing, ...updates };
+      await idb.put('partner_invoices', updated);
+      return updated;
+    }
+
+    const { data, error } = await supabase
+      .from('partner_invoices')
+      .update(updates)
+      .eq('id', id)
+      .select()
+      .single();
+    if (error) throw error;
+    return data;
   },
 };
 

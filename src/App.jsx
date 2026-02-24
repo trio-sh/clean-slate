@@ -64,6 +64,8 @@ import AdminDepots from './pages/admin/AdminDepots';
 import PartnerDashboard from './pages/partner/PartnerDashboard';
 import PartnerOrders from './pages/partner/PartnerOrders';
 import PartnerDepotInfo from './pages/partner/PartnerDepotInfo';
+import PartnerServices from './pages/partner/PartnerServices';
+import PartnerInvoices from './pages/partner/PartnerInvoices';
 
 // Protected Route Component
 const ProtectedRoute = ({ children, allowedRoles }) => {
@@ -215,6 +217,8 @@ function App() {
             <Route index element={<PartnerDashboard />} />
             <Route path="orders" element={<PartnerOrders />} />
             <Route path="depot" element={<PartnerDepotInfo />} />
+            <Route path="services" element={<PartnerServices />} />
+            <Route path="invoices" element={<PartnerInvoices />} />
           </Route>
 
           {/* Catch all */}

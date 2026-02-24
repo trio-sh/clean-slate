@@ -6,7 +6,7 @@ import {
   Menu, X, Bell, Search, ChevronDown, User,
   MapPin, ClipboardList, BarChart3, UserCog, Wrench,
   Calendar, Clock, CheckCircle, AlertCircle, ChevronRight,
-  Trash2, Eye, Megaphone, MessageSquare, CreditCard, Building2
+  Trash2, Eye, Megaphone, MessageSquare, CreditCard, Building2, FileText
 } from 'lucide-react';
 import { useAuthStore, useAppStore, useNotificationStore, useSearchStore } from '../../stores';
 import { format } from 'date-fns';
@@ -106,6 +106,8 @@ const DashboardLayout = ({ type }) => {
         return [
           { name: 'Dashboard', href: '/partner-portal', icon: LayoutDashboard },
           { name: 'My Orders', href: '/partner-portal/orders', icon: Package },
+          { name: 'My Services', href: '/partner-portal/services', icon: Wrench },
+          { name: 'Invoices', href: '/partner-portal/invoices', icon: FileText },
           { name: 'Depot Info', href: '/partner-portal/depot', icon: Building2 },
         ];
       default:
