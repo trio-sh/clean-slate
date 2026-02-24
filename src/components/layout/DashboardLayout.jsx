@@ -390,21 +390,21 @@ const DashboardLayout = ({ type }) => {
                         initial={{ opacity: 0, y: -10 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -10 }}
-                        className="absolute right-0 top-full mt-2 w-[calc(100vw-2rem)] sm:w-80 bg-white rounded-xl shadow-xl border border-gray-200 overflow-hidden"
+                        className="fixed sm:absolute right-4 sm:right-0 top-20 sm:top-full sm:mt-2 w-80 sm:w-80 bg-white rounded-xl shadow-xl border border-gray-200 z-50"
                       >
-                        <div className="p-4 border-b border-gray-100 flex items-center justify-between">
-                          <h3 className="font-semibold text-navy-900">Notifications</h3>
+                        <div className="p-4 border-b border-gray-100 flex items-center justify-between flex-shrink-0">
+                          <h3 className="font-semibold text-navy-900 truncate">Notifications</h3>
                           {unreadCount > 0 && (
-                            <button 
+                            <button
                               onClick={() => markAllAsRead(user?.id)}
-                              className="text-xs text-amani-600 hover:text-amani-700"
+                              className="text-xs text-amani-600 hover:text-amani-700 whitespace-nowrap flex-shrink-0"
                             >
                               Mark all as read
                             </button>
                           )}
                         </div>
-                        
-                        <div className="max-h-80 overflow-y-auto">
+
+                        <div className="max-h-[300px] overflow-y-auto overflow-x-hidden">
                           {notifications.length === 0 ? (
                             <div className="p-8 text-center text-gray-500">
                               <Bell className="w-8 h-8 mx-auto mb-2 opacity-50" />
@@ -416,16 +416,16 @@ const DashboardLayout = ({ type }) => {
                               const isRead = notif.is_read || notif.read;
                               const timestamp = notif.created_at || notif.timestamp;
                               return (
-                                <div 
+                                <div
                                   key={notif.id}
-                                  className={`p-4 border-b border-gray-50 hover:bg-gray-50 cursor-pointer ${!isRead ? 'bg-amani-50/50' : ''}`}
+                                  className={`p-4 border-b border-gray-50 hover:bg-gray-50 cursor-pointer group ${!isRead ? 'bg-amani-50/50' : ''}`}
                                   onClick={() => {
                                     markAsRead(notif.id);
                                     if (notif.link) navigate(notif.link);
                                   }}
                                 >
                                   <div className="flex items-start gap-3">
-                                    <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                                    <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
                                       notif.type === 'alert' ? 'bg-red-100 text-red-600' :
                                       notif.type === 'order' ? 'bg-blue-100 text-blue-600' :
                                       notif.type === 'promo' ? 'bg-purple-100 text-purple-600' :
@@ -435,15 +435,15 @@ const DashboardLayout = ({ type }) => {
                                       <Icon className="w-4 h-4" />
                                     </div>
                                     <div className="flex-1 min-w-0">
-                                      <p className={`text-sm ${!isRead ? 'font-semibold' : ''} text-navy-900`}>{notif.title}</p>
-                                      <p className="text-xs text-gray-500 truncate">{notif.message}</p>
-                                      <p className="text-xs text-gray-400 mt-1">
+                                      <p className={`text-sm ${!isRead ? 'font-semibold' : ''} text-navy-900 truncate`}>{notif.title}</p>
+                                      <p className="text-xs text-gray-500 line-clamp-2 break-words">{notif.message}</p>
+                                      <p className="text-xs text-gray-400 mt-1 truncate">
                                         {timestamp ? format(new Date(timestamp), 'MMM d, h:mm a') : ''}
                                       </p>
                                     </div>
-                                    <button 
+                                    <button
                                       onClick={(e) => { e.stopPropagation(); removeNotification(notif.id); }}
-                                      className="p-1 hover:bg-gray-200 rounded"
+                                      className="p-1 hover:bg-gray-200 rounded opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0"
                                     >
                                       <X className="w-3 h-3 text-gray-400" />
                                     </button>
@@ -477,43 +477,31 @@ const DashboardLayout = ({ type }) => {
                         initial={{ opacity: 0, y: -10 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -10 }}
-                        className="absolute right-0 top-full mt-2 w-[calc(100vw-2rem)] sm:w-56 bg-white rounded-xl shadow-xl border border-gray-200 overflow-hidden"
+                        className="fixed sm:absolute right-4 sm:right-0 top-20 sm:top-full sm:mt-2 w-48 bg-white rounded-xl shadow-xl border border-gray-200 z-50"
                       >
-                        <div className="p-4 border-b border-gray-100">
-                          <p className="font-semibold text-navy-900">{user?.first_name} {user?.last_name}</p>
-                          <p className="text-sm text-gray-500">{user?.email}</p>
-                          <span className={`inline-block mt-2 text-xs px-2 py-1 rounded-full capitalize ${
-                            user?.role === 'admin' ? 'bg-amani-100 text-amani-700' :
-                            user?.role === 'driver' ? 'bg-purple-100 text-purple-700' :
-                            'bg-emerald-100 text-emerald-700'
-                          }`}>
-                            {user?.role}
-                          </span>
-                        </div>
-                        
-                        <div className="p-2">
-                          <Link 
+                        <div className="py-2 max-h-[calc(100vh-6rem)] overflow-y-auto overflow-x-hidden">
+                          <Link
                             to="/account"
                             onClick={() => setShowUserMenu(false)}
-                            className="flex items-center gap-3 p-2 hover:bg-gray-50 rounded-lg text-gray-700"
+                            className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
                           >
-                            <User className="w-4 h-4" />
-                            My Account
+                            <User className="w-4 h-4 flex-shrink-0" />
+                            <span className="truncate">My Account</span>
                           </Link>
-                          <Link 
+                          <Link
                             to="/"
                             onClick={() => setShowUserMenu(false)}
-                            className="flex items-center gap-3 p-2 hover:bg-gray-50 rounded-lg text-gray-700"
+                            className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
                           >
-                            <img src="/logo.png" alt="" className="w-4 h-4 rounded object-contain" />
-                            View Store
+                            <img src="/logo.png" alt="" className="w-4 h-4 rounded object-contain flex-shrink-0" />
+                            <span className="truncate">View Store</span>
                           </Link>
-                          <button 
+                          <button
                             onClick={() => { logout(); navigate('/login'); }}
-                            className="w-full flex items-center gap-3 p-2 hover:bg-red-50 rounded-lg text-red-600"
+                            className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors"
                           >
-                            <LogOut className="w-4 h-4" />
-                            Sign Out
+                            <LogOut className="w-4 h-4 flex-shrink-0" />
+                            <span className="truncate">Sign Out</span>
                           </button>
                         </div>
                       </motion.div>
