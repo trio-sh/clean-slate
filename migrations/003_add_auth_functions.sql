@@ -7,13 +7,68 @@
 -- ============================================
 -- DROP EXISTING FUNCTIONS (if they exist)
 -- ============================================
--- Drop all variations of the functions to avoid conflicts
+-- First, we need to drop ALL versions of these functions
+-- PostgreSQL allows function overloading, so we drop by name with CASCADE
 
-DROP FUNCTION IF EXISTS register_user(VARCHAR, VARCHAR, VARCHAR, VARCHAR, VARCHAR);
-DROP FUNCTION IF EXISTS register_user(VARCHAR, VARCHAR, VARCHAR, VARCHAR);
-DROP FUNCTION IF EXISTS login_with_email(VARCHAR, VARCHAR);
-DROP FUNCTION IF EXISTS login_with_phone(VARCHAR, VARCHAR);
-DROP FUNCTION IF EXISTS update_user_password(UUID, VARCHAR);
+-- Drop all register_user functions regardless of signature
+DO $$
+DECLARE
+    func_record RECORD;
+BEGIN
+    FOR func_record IN
+        SELECT oid::regprocedure
+        FROM pg_proc
+        WHERE proname = 'register_user'
+        AND pg_function_is_visible(oid)
+    LOOP
+        EXECUTE 'DROP FUNCTION IF EXISTS ' || func_record.oid::regprocedure || ' CASCADE';
+    END LOOP;
+END $$;
+
+-- Drop all login_with_email functions
+DO $$
+DECLARE
+    func_record RECORD;
+BEGIN
+    FOR func_record IN
+        SELECT oid::regprocedure
+        FROM pg_proc
+        WHERE proname = 'login_with_email'
+        AND pg_function_is_visible(oid)
+    LOOP
+        EXECUTE 'DROP FUNCTION IF EXISTS ' || func_record.oid::regprocedure || ' CASCADE';
+    END LOOP;
+END $$;
+
+-- Drop all login_with_phone functions
+DO $$
+DECLARE
+    func_record RECORD;
+BEGIN
+    FOR func_record IN
+        SELECT oid::regprocedure
+        FROM pg_proc
+        WHERE proname = 'login_with_phone'
+        AND pg_function_is_visible(oid)
+    LOOP
+        EXECUTE 'DROP FUNCTION IF EXISTS ' || func_record.oid::regprocedure || ' CASCADE';
+    END LOOP;
+END $$;
+
+-- Drop all update_user_password functions
+DO $$
+DECLARE
+    func_record RECORD;
+BEGIN
+    FOR func_record IN
+        SELECT oid::regprocedure
+        FROM pg_proc
+        WHERE proname = 'update_user_password'
+        AND pg_function_is_visible(oid)
+    LOOP
+        EXECUTE 'DROP FUNCTION IF EXISTS ' || func_record.oid::regprocedure || ' CASCADE';
+    END LOOP;
+END $$;
 
 -- ============================================
 -- 1. FUNCTION: REGISTER USER

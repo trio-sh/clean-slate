@@ -37,15 +37,27 @@ You need to run the migration file to **replace the buggy `register_user` functi
 
 ### Steps to Fix:
 
-1. **Open Supabase SQL Editor**
-   - Go to your Supabase project dashboard
-   - Navigate to: **SQL Editor** (in the left sidebar)
+**IMPORTANT**: If you got the error "function name 'register_user' is not unique", follow these steps:
 
-2. **Run the Migration**
-   - Click "New Query" button
-   - Copy the entire contents of: `migrations/003_add_auth_functions.sql`
-   - Paste it into the SQL editor
-   - Click "Run" button
+**Step 1: (Optional) Check Existing Functions**
+This helps you see what's currently in your database:
+   - Open Supabase SQL Editor
+   - Copy contents of: `migrations/003_CHECK_EXISTING_FUNCTIONS.sql`
+   - Paste and Run
+   - You'll see all existing function signatures
+
+**Step 2: Run the Migration**
+The migration now uses an advanced DROP approach that removes ALL versions of the functions:
+   1. Open Supabase SQL Editor (if not already open)
+   2. Click "New Query" button
+   3. Copy the **entire contents** of: `migrations/003_add_auth_functions.sql`
+   4. Paste it into the SQL editor
+   5. Click "Run" button
+
+The migration uses DO blocks to:
+- Find ALL versions of register_user/login_with_email/login_with_phone/update_user_password
+- Drop each one automatically regardless of signature
+- Then create the new fixed versions
 
 3. **Verify the Functions Were Created**
    Run this query to confirm:
