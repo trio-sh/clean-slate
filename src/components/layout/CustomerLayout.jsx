@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   Menu, X, ShoppingCart, User, MapPin, Phone, Mail,
   Facebook, Instagram, Twitter, ChevronDown, Sparkles,
-  Shirt, Clock, Truck, Star, Leaf, Bell, CheckCircle, Trash2
+  Shirt, Clock, Truck, Star, Leaf, Bell, CheckCircle, Trash2, LogOut
 } from 'lucide-react';
 import { useAuthStore, useCartStore, useAppStore, useNotificationStore } from '../../stores';
 import { format } from 'date-fns';
@@ -277,33 +277,32 @@ const CustomerLayout = () => {
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: 10 }}
-                        className="fixed sm:absolute right-4 sm:right-0 left-4 sm:left-auto top-20 sm:top-full sm:mt-2 w-auto sm:w-48 bg-white rounded-xl shadow-xl border border-gray-100 z-50"
+                        className="fixed sm:absolute right-4 sm:right-0 left-4 sm:left-auto top-20 sm:top-full sm:mt-2 w-auto sm:w-48 bg-white rounded-xl shadow-xl border border-gray-100 overflow-hidden z-50"
                       >
-                        <div className="p-3 border-b border-gray-100">
-                          <p className="font-medium text-navy-900">{user?.first_name} {user?.last_name}</p>
-                          <p className="text-sm text-gray-500">{user?.email}</p>
-                        </div>
-                        <div className="p-2">
+                        <div className="py-2">
                           <Link
                             to="/account"
                             onClick={() => setShowUserMenu(false)}
-                            className="block px-3 py-2 rounded-lg text-navy-700 hover:bg-gray-50"
+                            className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
                           >
+                            <User className="w-4 h-4" />
                             {t('userMenu.myAccount')}
                           </Link>
                           {user?.role !== 'customer' && (
                             <Link
                               to={`/${user?.role}`}
                               onClick={() => setShowUserMenu(false)}
-                              className="block px-3 py-2 rounded-lg text-navy-700 hover:bg-gray-50"
+                              className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
                             >
+                              <User className="w-4 h-4" />
                               {user?.role === 'admin' ? t('userMenu.adminPanel') : user?.role === 'driver' ? t('userMenu.driverDashboard') : t('userMenu.staffDashboard')}
                             </Link>
                           )}
                           <button
                             onClick={() => { logout(); setShowUserMenu(false); }}
-                            className="w-full text-left px-3 py-2 rounded-lg text-red-600 hover:bg-red-50"
+                            className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors"
                           >
+                            <LogOut className="w-4 h-4" />
                             {t('userMenu.signOut')}
                           </button>
                         </div>
