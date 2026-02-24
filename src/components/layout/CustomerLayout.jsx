@@ -194,7 +194,7 @@ const CustomerLayout = () => {
                           )}
                         </div>
 
-                        <div className="max-h-[calc(100vh-12rem)] overflow-y-auto overflow-x-hidden">
+                        <div className="max-h-[300px] overflow-y-auto overflow-x-hidden">
                           {notifications.length === 0 ? (
                             <div className="p-8 text-center text-gray-500">
                               <Bell className="w-12 h-12 mx-auto mb-3 opacity-30" />
