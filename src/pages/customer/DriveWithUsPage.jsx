@@ -305,12 +305,12 @@ const DriveWithUsPage = () => {
             viewport={{ once: true }}
             className="text-center mb-16"
           >
-            <span className="inline-block text-amani-600 font-semibold mb-4">{t('driveWithUs.faq.sectionTitle')}</span>
+            <span className="inline-block text-amani-600 font-semibold mb-4">{t('driveWithUs.faqs.sectionTitle')}</span>
             <h2 className="text-4xl font-display font-bold text-navy-900 mb-4">
-              {t('driveWithUs.faq.heading')}
+              {t('driveWithUs.faqs.heading')}
             </h2>
             <p className="text-xl text-gray-600">
-              {t('driveWithUs.faq.subtitle')}
+              {t('driveWithUs.faqs.subtitle')}
             </p>
           </motion.div>
 
