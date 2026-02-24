@@ -1,13 +1,25 @@
 -- ============================================
 -- MIGRATION 003: Authentication RPC Functions
 -- ============================================
--- This migration adds the missing RPC functions for user registration and login
--- that the application code expects to exist in Supabase
+-- This migration fixes the signup error by updating the register_user function
+-- to create both user and profile records
+
+-- ============================================
+-- DROP EXISTING FUNCTIONS (if they exist)
+-- ============================================
+-- Drop all variations of the functions to avoid conflicts
+
+DROP FUNCTION IF EXISTS register_user(VARCHAR, VARCHAR, VARCHAR, VARCHAR, VARCHAR);
+DROP FUNCTION IF EXISTS register_user(VARCHAR, VARCHAR, VARCHAR, VARCHAR);
+DROP FUNCTION IF EXISTS login_with_email(VARCHAR, VARCHAR);
+DROP FUNCTION IF EXISTS login_with_phone(VARCHAR, VARCHAR);
+DROP FUNCTION IF EXISTS update_user_password(UUID, VARCHAR);
 
 -- ============================================
 -- 1. FUNCTION: REGISTER USER
 -- ============================================
 -- Creates a new user account with email/phone and password
+-- Also creates the corresponding profile record to avoid constraint violations
 -- Returns the created user record
 
 CREATE OR REPLACE FUNCTION register_user(

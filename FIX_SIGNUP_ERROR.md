@@ -29,7 +29,11 @@ The updated `register_user()` function now:
    - `email`, `phone`, timestamps
 
 ## Solution
-You need to run the migration file to create these missing functions in your Supabase database.
+You need to run the migration file to **replace the buggy `register_user` function** with the fixed version that creates profile records.
+
+**Important**: The migration will:
+1. Drop the existing buggy `register_user()` function
+2. Create the new fixed version that creates both user AND profile records
 
 ### Steps to Fix:
 
@@ -46,13 +50,13 @@ You need to run the migration file to create these missing functions in your Sup
 3. **Verify the Functions Were Created**
    Run this query to confirm:
    ```sql
-   SELECT routine_name, routine_type
+   SELECT routine_name, routine_type, routine_definition
    FROM information_schema.routines
-   WHERE routine_name IN ('register_user', 'login_with_email', 'login_with_phone', 'update_user_password')
+   WHERE routine_name = 'register_user'
    AND routine_schema = 'public';
    ```
 
-   You should see 4 functions listed.
+   You should see the `register_user` function listed. Check the definition to confirm it includes the profile INSERT statement.
 
 4. **Test User Registration**
    - Go to your app's signup page
