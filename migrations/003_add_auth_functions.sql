@@ -147,22 +147,21 @@ BEGIN
     );
 
     -- Create corresponding profile record
+    -- Note: profiles table schema is: id, user_id, username, avatar_url, bio, created_at, updated_at
     INSERT INTO profiles (
         id,
         user_id,
-        email,
-        phone,
-        full_name,
+        username,
         avatar_url,
+        bio,
         created_at,
         updated_at
     ) VALUES (
         gen_random_uuid(),
         v_user_id,
-        p_email,
-        v_normalized_phone,
-        v_full_name,
-        NULL,
+        v_full_name,  -- Use full_name as username
+        NULL,          -- avatar_url
+        NULL,          -- bio
         NOW(),
         NOW()
     );

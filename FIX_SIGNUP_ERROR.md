@@ -11,22 +11,29 @@ value in column "id" of relation "profiles" violates not-null constraint
 ## Root Cause
 Your database has TWO related tables:
 - `users` table - stores user authentication data
-- `profiles` table - stores user profile data (id, user_id, username, avatar_url, bio, etc.)
+- `profiles` table - stores user profile data
 
-The `register_user()` function was:
-1. ✅ Creating user record in `users` table successfully
-2. ❌ **NOT creating** the corresponding profile record in `profiles` table
+**Actual profiles table schema:**
+```
+id | user_id | username | avatar_url | bio | created_at | updated_at
+```
 
-When the profile record is missing, the database tries to create it with a NULL `id` value, which violates the NOT NULL constraint on the `id` column.
+The `register_user()` function had **TWO problems**:
+1. ❌ **NOT creating** the corresponding profile record in `profiles` table
+2. ❌ **Trying to insert into wrong columns** (email, phone, full_name) that don't exist in profiles
+
+The profiles table only has `username` and `bio`, not `email`, `phone`, or `full_name`.
 
 ## The Fix
 The updated `register_user()` function now:
 1. Creates user in `users` table
-2. **Creates matching profile in `profiles` table** with:
-   - `id` = gen_random_uuid() (generates unique ID)
+2. **Creates matching profile in `profiles` table** with CORRECT columns:
+   - `id` = gen_random_uuid() (generates unique ID - **this fixes the NOT NULL error**)
    - `user_id` = references the new user
-   - `full_name` = first_name + last_name
-   - `email`, `phone`, timestamps
+   - `username` = full_name (first_name + last_name)
+   - `avatar_url` = NULL
+   - `bio` = NULL
+   - `created_at`, `updated_at` timestamps
 
 ## Solution
 You need to run the migration file to **replace the buggy `register_user` function** with the fixed version that creates profile records.
