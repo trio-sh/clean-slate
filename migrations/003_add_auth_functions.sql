@@ -31,6 +31,7 @@ RETURNS TABLE (
 DECLARE
     v_user_id UUID;
     v_normalized_phone VARCHAR;
+    v_full_name VARCHAR;
 BEGIN
     -- Generate new UUID for user
     v_user_id := gen_random_uuid();
@@ -45,6 +46,9 @@ BEGIN
     ELSE
         v_normalized_phone := NULL;
     END IF;
+
+    -- Create full name for profile
+    v_full_name := TRIM(CONCAT(p_first_name, ' ', p_last_name));
 
     -- Insert new user
     INSERT INTO users (
@@ -71,6 +75,27 @@ BEGIN
         true,
         false,
         false,
+        NOW(),
+        NOW()
+    );
+
+    -- Create corresponding profile record
+    INSERT INTO profiles (
+        id,
+        user_id,
+        email,
+        phone,
+        full_name,
+        avatar_url,
+        created_at,
+        updated_at
+    ) VALUES (
+        gen_random_uuid(),
+        v_user_id,
+        p_email,
+        v_normalized_phone,
+        v_full_name,
+        NULL,
         NOW(),
         NOW()
     );

@@ -1,18 +1,32 @@
-# Fix Signup Error - Missing Authentication Functions
+# Fix Signup Error - Missing Profile Record Creation
 
 ## Problem
-Users trying to sign up receive the error:
+Users trying to sign up receive the exact error:
 ```
-null value in column "id" of relation "profiles" violates not-null constraint
-Failed to load resource: the server responded with a status of 400
+value in column "id" of relation "profiles" violates not-null constraint
 ```
 
+**Status**: Login works perfectly fine, only signup is broken.
+
 ## Root Cause
-The application code is calling Supabase RPC functions that don't exist in your database:
-- `register_user()` - for user registration
-- `login_with_email()` - for email login
-- `login_with_phone()` - for phone login
-- `update_user_password()` - for password updates
+Your database has TWO related tables:
+- `users` table - stores user authentication data
+- `profiles` table - stores user profile data (id, user_id, username, avatar_url, bio, etc.)
+
+The `register_user()` function was:
+1. ✅ Creating user record in `users` table successfully
+2. ❌ **NOT creating** the corresponding profile record in `profiles` table
+
+When the profile record is missing, the database tries to create it with a NULL `id` value, which violates the NOT NULL constraint on the `id` column.
+
+## The Fix
+The updated `register_user()` function now:
+1. Creates user in `users` table
+2. **Creates matching profile in `profiles` table** with:
+   - `id` = gen_random_uuid() (generates unique ID)
+   - `user_id` = references the new user
+   - `full_name` = first_name + last_name
+   - `email`, `phone`, timestamps
 
 ## Solution
 You need to run the migration file to create these missing functions in your Supabase database.
