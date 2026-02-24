@@ -390,7 +390,7 @@ const DashboardLayout = ({ type }) => {
                         initial={{ opacity: 0, y: -10 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -10 }}
-                        className="absolute right-0 top-full mt-2 w-80 bg-white rounded-xl shadow-xl border border-gray-200 overflow-hidden"
+                        className="absolute right-0 top-full mt-2 w-[calc(100vw-2rem)] sm:w-80 bg-white rounded-xl shadow-xl border border-gray-200 overflow-hidden"
                       >
                         <div className="p-4 border-b border-gray-100 flex items-center justify-between">
                           <h3 className="font-semibold text-navy-900">Notifications</h3>
@@ -477,7 +477,7 @@ const DashboardLayout = ({ type }) => {
                         initial={{ opacity: 0, y: -10 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -10 }}
-                        className="absolute right-0 top-full mt-2 w-56 bg-white rounded-xl shadow-xl border border-gray-200 overflow-hidden"
+                        className="absolute right-0 top-full mt-2 w-[calc(100vw-2rem)] sm:w-56 bg-white rounded-xl shadow-xl border border-gray-200 overflow-hidden"
                       >
                         <div className="p-4 border-b border-gray-100">
                           <p className="font-semibold text-navy-900">{user?.first_name} {user?.last_name}</p>
