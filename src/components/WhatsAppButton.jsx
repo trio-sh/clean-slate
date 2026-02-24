@@ -3,7 +3,8 @@ import { motion } from 'framer-motion';
 
 const WhatsAppButton = () => {
   const phoneNumber = '14372156321'; // +1 437-215-6321 without spaces and +
-  const whatsappUrl = `https://wa.me/${phoneNumber}`;
+  const message = "Hi! I have a question about your laundry services.";
+  const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
 
   return (
     <div className="fixed bottom-6 right-6 z-50 flex items-center gap-3">
