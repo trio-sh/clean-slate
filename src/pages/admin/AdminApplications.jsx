@@ -543,40 +543,61 @@ const AdminApplications = () => {
                   </div>
 
                   {/* Partner Login */}
-                  <div>
+                  <div className="border-2 border-blue-200 rounded-xl p-4 bg-blue-50/30">
                     <h3 className="font-semibold text-navy-900 mb-3 flex items-center gap-2">
-                      <Key className="w-4 h-4 text-amani-500" />
-                      Partner Portal Login
+                      <Key className="w-5 h-5 text-blue-600" />
+                      Partner Portal Login Credentials
                     </h3>
                     <div className="grid md:grid-cols-2 gap-4">
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">First Name *</label>
                         <input type="text" required value={depotForm.partner_first_name}
                           onChange={e => setDepotForm(p => ({ ...p, partner_first_name: e.target.value }))}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amani-500 focus:border-transparent" />
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amani-500 focus:border-transparent bg-white" />
                       </div>
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">Last Name *</label>
                         <input type="text" required value={depotForm.partner_last_name}
                           onChange={e => setDepotForm(p => ({ ...p, partner_last_name: e.target.value }))}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amani-500 focus:border-transparent" />
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amani-500 focus:border-transparent bg-white" />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Login Email *</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Login Email *
+                          <span className="text-xs text-gray-500 ml-1">(Auto-filled from application)</span>
+                        </label>
                         <input type="email" required value={depotForm.partner_email}
                           onChange={e => setDepotForm(p => ({ ...p, partner_email: e.target.value }))}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amani-500 focus:border-transparent" />
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amani-500 focus:border-transparent bg-white" />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Temp Password *</label>
-                        <input type="text" required value={depotForm.temp_password}
-                          onChange={e => setDepotForm(p => ({ ...p, temp_password: e.target.value }))}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amani-500 focus:border-transparent" />
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+                        <input type="tel" value={depotForm.partner_phone}
+                          onChange={e => setDepotForm(p => ({ ...p, partner_phone: e.target.value }))}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amani-500 focus:border-transparent bg-white"
+                          placeholder="For SMS notification" />
                       </div>
                     </div>
-                    <p className="text-xs text-amber-600 mt-2 bg-amber-50 p-2 rounded-lg">
-                      Share these credentials with the partner. They should change their password on first login.
-                    </p>
+
+                    {/* Password Configuration - Highlighted */}
+                    <div className="mt-4 p-3 bg-white border-2 border-amber-300 rounded-lg">
+                      <label className="block text-sm font-bold text-gray-900 mb-2 flex items-center gap-2">
+                        <Key className="w-4 h-4 text-amber-600" />
+                        Set Initial Password *
+                      </label>
+                      <input type="text" required value={depotForm.temp_password}
+                        onChange={e => setDepotForm(p => ({ ...p, temp_password: e.target.value }))}
+                        className="w-full px-3 py-2 border-2 border-amber-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent font-mono text-base"
+                        placeholder="Enter a temporary password" />
+                      <div className="mt-2 space-y-1">
+                        <p className="text-xs text-amber-700 font-medium">
+                          ⚠️ This password will be sent to the partner via SMS if phone number is provided
+                        </p>
+                        <p className="text-xs text-gray-600">
+                          💡 Partner should change this password on first login
+                        </p>
+                      </div>
+                    </div>
                   </div>
 
                   <div className="flex gap-3 pt-2">
