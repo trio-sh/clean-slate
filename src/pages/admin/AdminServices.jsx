@@ -30,6 +30,8 @@ export default function AdminServices() {
     display_order: 0
   });
 
+  const [customCategoryName, setCustomCategoryName] = useState('');
+
   const [categoryFormData, setCategoryFormData] = useState({
     name: '',
     description: '',
@@ -67,10 +69,28 @@ export default function AdminServices() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      let categoryId = formData.category_id;
+
+      // If "other" is selected and custom category name is provided, create new category
+      if (formData.category_id === 'other' && customCategoryName.trim()) {
+        const newCategory = {
+          id: crypto.randomUUID(),
+          name: customCategoryName.trim(),
+          description: '',
+          icon: 'shirt',
+          display_order: categories.length,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        };
+        await db.create('service_categories', newCategory);
+        categoryId = newCategory.id;
+        toast.success('New category created!');
+      }
+
       const serviceData = {
         name: formData.name,
         description: formData.description,
-        category_id: formData.category_id || null,
+        category_id: categoryId === 'other' ? null : categoryId || null,
         base_price: parseFloat(formData.base_price) || 0,
         price_type: formData.price_type,
         service_type: formData.service_type,
@@ -175,6 +195,7 @@ export default function AdminServices() {
   const closeModal = () => {
     setShowAddModal(false);
     setEditingService(null);
+    setCustomCategoryName('');
     setFormData({
       name: '',
       description: '',
@@ -556,15 +577,39 @@ export default function AdminServices() {
                   <select
                     required
                     value={formData.category_id}
-                    onChange={(e) => setFormData({ ...formData, category_id: e.target.value })}
+                    onChange={(e) => {
+                      setFormData({ ...formData, category_id: e.target.value });
+                      if (e.target.value !== 'other') {
+                        setCustomCategoryName('');
+                      }
+                    }}
                     className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-amani-green focus:border-transparent"
                   >
                     <option value="">Select category</option>
                     {categories.map(cat => (
                       <option key={cat.id} value={cat.id}>{cat.name}</option>
                     ))}
+                    <option value="other">Other (Create New Category)</option>
                   </select>
                 </div>
+                {formData.category_id === 'other' && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      New Category Name *
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={customCategoryName}
+                      onChange={(e) => setCustomCategoryName(e.target.value)}
+                      placeholder="e.g., Alterations, Repairs, etc."
+                      className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-amani-green focus:border-transparent"
+                    />
+                    <p className="text-xs text-gray-500 mt-1">
+                      This will create a new category that you can use for other services
+                    </p>
+                  </div>
+                )}
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
