@@ -11,6 +11,7 @@ import { formatAddress } from '../../lib/utils';
 import OrderEditModal from '../../components/OrderEditModal';
 import db from '../../lib/db';
 import toast from 'react-hot-toast';
+import { createPaymentLink } from '../../lib/stripe';
 
 const AdminOrders = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -22,6 +23,8 @@ const AdminOrders = () => {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(null);
   const [depots, setDepots] = useState([]);
   const [assigningDepot, setAssigningDepot] = useState(false);
+  const [generatingPaymentLink, setGeneratingPaymentLink] = useState(false);
+  const [paymentLink, setPaymentLink] = useState(null);
   const ordersPerPage = 15;
 
   const { orders, fetchOrders, updateOrderStatus, loading } = useOrderStore();
@@ -43,6 +46,42 @@ const AdminOrders = () => {
       toast.error('Failed to assign depot');
     } finally {
       setAssigningDepot(false);
+    }
+  };
+
+  const handleGeneratePaymentLink = async (order) => {
+    setGeneratingPaymentLink(true);
+    setPaymentLink(null);
+    try {
+      const result = await createPaymentLink({
+        orderId: order.id,
+        amount: parseFloat(order.total) || 0,
+        currency: 'cad',
+        customerEmail: order.customer_email || order.user?.email,
+        customerName: order.customer_name || `${order.user?.first_name || ''} ${order.user?.last_name || ''}`.trim(),
+        description: `Order #${order.reference_code}`,
+      });
+
+      setPaymentLink(result.paymentLink);
+
+      // Update order with payment link
+      await db.update('orders', order.id, {
+        payment_link: result.paymentLink,
+        payment_link_id: result.paymentLinkId,
+        updated_at: new Date().toISOString(),
+      });
+
+      toast.success('Payment link generated successfully!');
+
+      // Copy to clipboard
+      navigator.clipboard.writeText(result.paymentLink);
+      toast.success('Payment link copied to clipboard!');
+
+    } catch (error) {
+      console.error('Error generating payment link:', error);
+      toast.error(error.message || 'Failed to generate payment link');
+    } finally {
+      setGeneratingPaymentLink(false);
     }
   };
 
@@ -543,18 +582,60 @@ const AdminOrders = () => {
                 </div>
               </div>
 
-              <div className="sticky bottom-0 bg-white border-t border-gray-200 p-4 flex justify-end gap-3">
-                <button 
-                  onClick={() => {
-                    setEditingOrder(selectedOrder);
-                    setSelectedOrder(null);
-                  }}
-                  className="btn-secondary"
-                >
-                  <Edit className="w-4 h-4" />
-                  Edit Order
-                </button>
-                <button onClick={() => setSelectedOrder(null)} className="btn-secondary">Close</button>
+              <div className="sticky bottom-0 bg-white border-t border-gray-200 p-4">
+                {/* Payment Link Section */}
+                {paymentLink && (
+                  <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-green-900 mb-1">Payment Link Generated</p>
+                        <p className="text-xs text-green-700 break-all">{paymentLink}</p>
+                      </div>
+                      <button
+                        onClick={() => {
+                          navigator.clipboard.writeText(paymentLink);
+                          toast.success('Copied to clipboard!');
+                        }}
+                        className="flex-shrink-0 px-3 py-1.5 text-xs bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+                      >
+                        Copy Link
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                <div className="flex justify-between items-center gap-3">
+                  <button
+                    onClick={() => handleGeneratePaymentLink(selectedOrder)}
+                    disabled={generatingPaymentLink}
+                    className="btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {generatingPaymentLink ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        Generating...
+                      </>
+                    ) : (
+                      <>
+                        <DollarSign className="w-4 h-4" />
+                        Generate Payment Link
+                      </>
+                    )}
+                  </button>
+                  <div className="flex gap-3">
+                    <button
+                      onClick={() => {
+                        setEditingOrder(selectedOrder);
+                        setSelectedOrder(null);
+                      }}
+                      className="btn-secondary"
+                    >
+                      <Edit className="w-4 h-4" />
+                      Edit Order
+                    </button>
+                    <button onClick={() => setSelectedOrder(null)} className="btn-secondary">Close</button>
+                  </div>
+                </div>
               </div>
             </motion.div>
           </motion.div>
