@@ -22,6 +22,7 @@ const UNITS = [
 const PartnerServices = () => {
   const { user } = useAuthStore();
   const [services, setServices] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [editingService, setEditingService] = useState(null);
@@ -29,6 +30,7 @@ const PartnerServices = () => {
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(null);
+  const [customCategoryName, setCustomCategoryName] = useState('');
 
   const [formData, setFormData] = useState({
     name: '',
@@ -41,6 +43,7 @@ const PartnerServices = () => {
 
   useEffect(() => {
     loadServices();
+    loadCategories();
   }, [user]);
 
   const loadServices = async () => {
@@ -56,6 +59,17 @@ const PartnerServices = () => {
       toast.error('Failed to load services');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadCategories = async () => {
+    try {
+      const data = await db.getAll('service_categories');
+      setCategories(data || []);
+    } catch (err) {
+      console.error(err);
+      // Use default categories if loading fails
+      setCategories([]);
     }
   };
 
@@ -88,6 +102,7 @@ const PartnerServices = () => {
   const closeModal = () => {
     setShowModal(false);
     setEditingService(null);
+    setCustomCategoryName('');
     setFormData({
       name: '',
       description: '',
@@ -110,14 +125,38 @@ const PartnerServices = () => {
       toast.error('Price must be greater than 0');
       return;
     }
+    if (formData.category === 'other' && !customCategoryName.trim()) {
+      toast.error('Please enter a category name');
+      return;
+    }
 
     setSaving(true);
     try {
+      let categoryValue = formData.category;
+
+      // If "other" is selected and custom category name is provided, create new category
+      if (formData.category === 'other' && customCategoryName.trim()) {
+        const newCategory = {
+          id: crypto.randomUUID(),
+          name: customCategoryName.trim(),
+          slug: customCategoryName.trim().toLowerCase().replace(/\s+/g, '-'),
+          description: '',
+          icon: 'shirt',
+          display_order: categories.length,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        };
+        await db.create('service_categories', newCategory);
+        categoryValue = newCategory.slug;
+        toast.success('New category created!');
+        await loadCategories();
+      }
+
       const serviceData = {
         depot_id: user.depot_id,
         name: formData.name.trim(),
         description: formData.description.trim(),
-        category: formData.category,
+        category: categoryValue,
         base_price: parseFloat(formData.price),
         price: parseFloat(formData.price),
         price_type: formData.unit === 'lb' ? 'per_lb' : 'fixed',
@@ -394,7 +433,10 @@ const PartnerServices = () => {
                           <button
                             key={cat.value}
                             type="button"
-                            onClick={() => setFormData({ ...formData, category: cat.value })}
+                            onClick={() => {
+                              setFormData({ ...formData, category: cat.value });
+                              setCustomCategoryName('');
+                            }}
                             className={`flex flex-col items-center gap-2 p-3 rounded-lg border-2 transition-all ${
                               isSelected
                                 ? `${cat.color} border-current font-medium`
@@ -406,8 +448,41 @@ const PartnerServices = () => {
                           </button>
                         );
                       })}
+                      {/* Other Category Button */}
+                      <button
+                        type="button"
+                        onClick={() => setFormData({ ...formData, category: 'other' })}
+                        className={`flex flex-col items-center gap-2 p-3 rounded-lg border-2 transition-all ${
+                          formData.category === 'other'
+                            ? 'bg-gray-100 border-gray-400 font-medium'
+                            : 'border-gray-200 text-gray-600 hover:border-gray-300'
+                        }`}
+                      >
+                        <Plus className="w-5 h-5" />
+                        <span className="text-xs">Other</span>
+                      </button>
                     </div>
                   </div>
+
+                  {/* Custom Category Name */}
+                  {formData.category === 'other' && (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                        New Category Name <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        value={customCategoryName}
+                        onChange={(e) => setCustomCategoryName(e.target.value)}
+                        placeholder="e.g., Alterations, Repairs, etc."
+                        className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amani-500 focus:border-transparent text-sm"
+                        required
+                      />
+                      <p className="text-xs text-gray-500 mt-1">
+                        This will create a new category that you can use for other services
+                      </p>
+                    </div>
+                  )}
 
                   {/* Price & Unit */}
                   <div className="grid grid-cols-2 gap-3">
