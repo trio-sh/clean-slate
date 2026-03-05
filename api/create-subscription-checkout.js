@@ -132,7 +132,7 @@ export default async function handler(req, res) {
         `${process.env.VITE_APP_URL || 'https://amanicleaners.com'}/subscriptions`,
       allow_promotion_codes: true,
       billing_address_collection: 'required',
-      customer_creation: 'always',
+      // Note: customer_creation is not needed in subscription mode - Stripe creates customers automatically
       metadata: {
         plan_id: planId,
         customer_id: customerId || '',
