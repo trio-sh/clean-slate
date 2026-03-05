@@ -34,7 +34,11 @@ const OrderPage = () => {
     fabricSoftener: false,
     stainRemoval: false,
     scentBooster: false,
+    starch: false,
   });
+
+  // Starch quantity (per item pricing)
+  const [starchQuantity, setStarchQuantity] = useState(0);
 
   // Add-on prices
   const addonPrices = {
@@ -45,11 +49,17 @@ const OrderPage = () => {
     fabricSoftener: 1.00,
     stainRemoval: 3.00,
     scentBooster: 1.00,
+    starch: 0.50, // Per item
   };
 
   // Calculate add-ons total
   const addonsTotal = Object.entries(selectedAddons).reduce((sum, [key, isSelected]) => {
-    return isSelected ? sum + addonPrices[key] : sum;
+    if (!isSelected) return sum;
+    // Starch is per-item, multiply by quantity
+    if (key === 'starch') {
+      return sum + (addonPrices[key] * starchQuantity);
+    }
+    return sum + addonPrices[key];
   }, 0);
   
   // Saved addresses
@@ -324,7 +334,10 @@ const OrderPage = () => {
       if (selectedAddons.scentBooster) {
         addonNotes.push('🌸 SCENT BOOSTER added');
       }
-      
+      if (selectedAddons.starch && starchQuantity > 0) {
+        addonNotes.push(`👔 STARCH - ${starchQuantity} items @ $0.50 each`);
+      }
+
       if (addonNotes.length > 0) {
         const addonsSection = '\n\n=== ADD-ONS REQUESTED ===\n' + addonNotes.join('\n');
         customerNotes = customerNotes ? customerNotes + addonsSection : addonsSection.trim();
@@ -467,13 +480,52 @@ const OrderPage = () => {
             quantity: 1,
             unit_price: addonPrices.scentBooster,
             total_price: addonPrices.scentBooster
+          }] : []),
+          ...(selectedAddons.starch && starchQuantity > 0 ? [{
+            service_id: 'addon-starch',
+            service_name: 'Starch',
+            name: 'Starch',
+            quantity: starchQuantity,
+            unit_price: addonPrices.starch,
+            total_price: addonPrices.starch * starchQuantity
           }] : [])
         ],
       };
 
       const result = await createOrder(orderData);
-      
+
       if (result.success) {
+        // Generate payment link if selected
+        if (formData.paymentMethod === 'payment_link') {
+          try {
+            const paymentLinkResponse = await fetch('/api/create-payment-link', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                orderId: result.order.id,
+                amount: total,
+                currency: 'cad',
+                customerEmail: formData.email,
+                customerName: customerName,
+                description: `Order ${result.order.reference_code} - Amani Cleaners`,
+              }),
+            });
+
+            const paymentLinkData = await paymentLinkResponse.json();
+
+            if (paymentLinkData.success) {
+              // Store payment link in order metadata or send via email
+              console.log('Payment link created:', paymentLinkData.paymentLink);
+              toast.success('Payment link will be sent to your email!');
+            } else {
+              toast.error('Failed to create payment link');
+            }
+          } catch (e) {
+            console.error('Failed to create payment link:', e);
+            toast.error('Payment link generation failed, please contact support');
+          }
+        }
+
         // Mark first order discount as used
         if (appliedPromo?.firstOrderOnly && user) {
           try {
@@ -482,7 +534,7 @@ const OrderPage = () => {
             console.error('Failed to update first order flag:', e);
           }
         }
-        
+
         // Send notification to customer (if logged in)
         if (user?.id) {
           try {
@@ -1002,6 +1054,63 @@ const OrderPage = () => {
                         </div>
                       </label>
 
+                      {/* Starch - Per Item Add-on */}
+                      <div className="pt-4 border-t border-gray-100">
+                        <label className={`flex items-start gap-4 p-4 rounded-xl border-2 cursor-pointer transition-all ${
+                          selectedAddons.starch && starchQuantity > 0 ? 'border-amani-500 bg-amani-50' : 'border-gray-200 hover:border-amani-200'
+                        }`}>
+                          <input
+                            type="checkbox"
+                            checked={selectedAddons.starch && starchQuantity > 0}
+                            onChange={(e) => {
+                              setSelectedAddons(prev => ({ ...prev, starch: e.target.checked }));
+                              if (!e.target.checked) setStarchQuantity(0);
+                              else if (starchQuantity === 0) setStarchQuantity(1);
+                            }}
+                            className="w-5 h-5 text-amani-500 rounded mt-0.5"
+                          />
+                          <div className="flex-1">
+                            <div className="flex items-center justify-between mb-2">
+                              <h3 className="font-medium text-navy-900">👔 Starch</h3>
+                              <span className="font-semibold text-amani-600">$0.50/item</span>
+                            </div>
+                            <p className="text-sm text-gray-600 mb-3">Professional starch for crisp, fresh clothes</p>
+                            {selectedAddons.starch && (
+                              <div className="flex items-center gap-3">
+                                <span className="text-sm text-gray-600">Number of items:</span>
+                                <div className="flex items-center gap-2 bg-white rounded-lg border-2 border-amani-200 p-1">
+                                  <button
+                                    type="button"
+                                    onClick={(e) => {
+                                      e.preventDefault();
+                                      setStarchQuantity(Math.max(0, starchQuantity - 1));
+                                      if (starchQuantity <= 1) setSelectedAddons(prev => ({ ...prev, starch: false }));
+                                    }}
+                                    className="w-8 h-8 rounded flex items-center justify-center hover:bg-gray-100 active:bg-gray-200 transition-colors"
+                                  >
+                                    <Minus className="w-4 h-4" />
+                                  </button>
+                                  <span className="w-12 text-center font-medium">{starchQuantity}</span>
+                                  <button
+                                    type="button"
+                                    onClick={(e) => {
+                                      e.preventDefault();
+                                      setStarchQuantity(starchQuantity + 1);
+                                    }}
+                                    className="w-8 h-8 rounded flex items-center justify-center hover:bg-gray-100 active:bg-gray-200 transition-colors"
+                                  >
+                                    <Plus className="w-4 h-4" />
+                                  </button>
+                                </div>
+                                <span className="text-sm font-semibold text-amani-600">
+                                  = ${(starchQuantity * 0.50).toFixed(2)}
+                                </span>
+                              </div>
+                            )}
+                          </div>
+                        </label>
+                      </div>
+
                       {/* Additional Small Add-ons Row */}
                       <div className="grid sm:grid-cols-3 gap-3 pt-4 border-t border-gray-100">
                         {/* Fabric Softener */}
@@ -1435,8 +1544,10 @@ const OrderPage = () => {
 
                     <div className="grid sm:grid-cols-2 gap-4">
                       {[
-                        { value: 'cash', label: t('order.cashOnDelivery'), icon: '💵' },
-                        { value: 'card', label: t('order.cardOnDelivery'), icon: '💳' },
+                        { value: 'cash', label: t('order.cashOnDelivery'), icon: '💵', description: 'Pay when we deliver' },
+                        { value: 'card', label: t('order.cardOnDelivery'), icon: '💳', description: 'Card payment on delivery' },
+                        { value: 'interac', label: 'Interac e-Transfer', icon: '📧', description: 'Send e-transfer to complete order' },
+                        { value: 'payment_link', label: 'Payment Link', icon: '🔗', description: 'Receive secure payment link' },
                       ].map((method) => (
                         <button
                           key={method.value}
@@ -1448,10 +1559,70 @@ const OrderPage = () => {
                           }`}
                         >
                           <span className="text-3xl mb-2 block">{method.icon}</span>
-                          <span className="font-medium text-navy-900">{method.label}</span>
+                          <div>
+                            <span className="font-medium text-navy-900 block">{method.label}</span>
+                            <span className="text-sm text-gray-600">{method.description}</span>
+                          </div>
                         </button>
                       ))}
                     </div>
+
+                    {/* Interac Instructions */}
+                    {formData.paymentMethod === 'interac' && (
+                      <div className="mt-6 bg-blue-50 border-2 border-blue-200 rounded-xl p-6">
+                        <div className="flex items-start gap-3">
+                          <Mail className="w-6 h-6 text-blue-600 mt-0.5" />
+                          <div className="flex-1">
+                            <h3 className="font-semibold text-blue-900 mb-2">Send Interac e-Transfer to:</h3>
+                            <div className="bg-white rounded-lg p-4 mb-3">
+                              <p className="text-lg font-mono font-semibold text-navy-900 break-all">
+                                amaniscleaners@gmail.com
+                              </p>
+                            </div>
+                            <div className="space-y-2 text-sm text-blue-800">
+                              <p className="flex items-start gap-2">
+                                <CheckCircle2 className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                                <span>Amount: <strong>${total.toFixed(2)} CAD</strong></span>
+                              </p>
+                              <p className="flex items-start gap-2">
+                                <CheckCircle2 className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                                <span>Include your name and phone number in the message</span>
+                              </p>
+                              <p className="flex items-start gap-2">
+                                <CheckCircle2 className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                                <span>No security question needed (auto-deposit enabled)</span>
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Payment Link Instructions */}
+                    {formData.paymentMethod === 'payment_link' && (
+                      <div className="mt-6 bg-green-50 border-2 border-green-200 rounded-xl p-6">
+                        <div className="flex items-start gap-3">
+                          <Receipt className="w-6 h-6 text-green-600 mt-0.5" />
+                          <div className="flex-1">
+                            <h3 className="font-semibold text-green-900 mb-2">Secure Payment Link</h3>
+                            <div className="space-y-2 text-sm text-green-800">
+                              <p className="flex items-start gap-2">
+                                <CheckCircle2 className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                                <span>We'll send you a secure Stripe payment link via email</span>
+                              </p>
+                              <p className="flex items-start gap-2">
+                                <CheckCircle2 className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                                <span>Pay with any credit or debit card</span>
+                              </p>
+                              <p className="flex items-start gap-2">
+                                <CheckCircle2 className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                                <span>Your order will be confirmed after payment</span>
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
                   </div>
 
                   {/* Promo Code */}
@@ -1663,6 +1834,12 @@ const OrderPage = () => {
                       <div className="flex justify-between gap-2 text-sm">
                         <span className="text-gray-600 flex-1 min-w-0 truncate">{t('order.scentBooster')}</span>
                         <span className="font-medium flex-shrink-0">$1.00</span>
+                      </div>
+                    )}
+                    {selectedAddons.starch && starchQuantity > 0 && (
+                      <div className="flex justify-between gap-2 text-sm">
+                        <span className="text-gray-600 flex-1 min-w-0 truncate">👔 Starch (×{starchQuantity})</span>
+                        <span className="font-medium flex-shrink-0">${(starchQuantity * 0.50).toFixed(2)}</span>
                       </div>
                     )}
                   </div>
