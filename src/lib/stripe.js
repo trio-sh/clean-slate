@@ -128,11 +128,22 @@ export async function redirectToCheckout(sessionId) {
  */
 export async function subscribeToPlan(plan, customerId, customerEmail) {
   try {
+    // Ensure billing_interval exists, default to 'month' if not set
+    const interval = plan.billing_interval || plan.interval || 'month';
+
+    console.log('Subscribing to plan:', {
+      planId: plan.id,
+      planName: plan.name,
+      price: plan.price,
+      interval,
+      billing_interval: plan.billing_interval
+    });
+
     const { sessionUrl } = await createSubscriptionCheckout({
       planId: plan.id,
       planName: plan.name,
       price: plan.price,
-      interval: plan.billing_interval,
+      interval: interval,
       customerId,
       customerEmail,
     });

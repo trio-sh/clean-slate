@@ -14,23 +14,33 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Fetch all active products from Stripe
-    const products = await stripe.products.list({
-      active: true,
-      expand: ['data.default_price'],
-      limit: 100,
-    });
+    // Fetch all active products from Stripe CONNECTED ACCOUNT (Amani's account only)
+    const products = await stripe.products.list(
+      {
+        active: true,
+        expand: ['data.default_price'],
+        limit: 100,
+      },
+      {
+        stripeAccount: process.env.STRIPE_CONNECTED_ACCOUNT_ID,
+      }
+    );
 
     const syncedPlans = [];
     const errors = [];
 
     for (const product of products.data) {
       try {
-        // Get all prices for this product
-        const prices = await stripe.prices.list({
-          product: product.id,
-          active: true,
-        });
+        // Get all prices for this product from connected account
+        const prices = await stripe.prices.list(
+          {
+            product: product.id,
+            active: true,
+          },
+          {
+            stripeAccount: process.env.STRIPE_CONNECTED_ACCOUNT_ID,
+          }
+        );
 
         // Use the default price or the first price
         const defaultPrice = prices.data.find(

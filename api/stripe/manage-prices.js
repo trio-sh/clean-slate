@@ -41,7 +41,9 @@ async function listPrices(req, res) {
       params.product = productId;
     }
 
-    const prices = await stripe.prices.list(params);
+    const prices = await stripe.prices.list(params, {
+      stripeAccount: process.env.STRIPE_CONNECTED_ACCOUNT_ID,
+    });
 
     return res.status(200).json({
       success: true,
@@ -68,15 +70,20 @@ async function createPrice(req, res) {
       });
     }
 
-    const price = await stripe.prices.create({
-      product: productId,
-      unit_amount: Math.round(parseFloat(amount) * 100), // Convert to cents
-      currency: currency.toLowerCase(),
-      recurring: {
-        interval: interval,
+    const price = await stripe.prices.create(
+      {
+        product: productId,
+        unit_amount: Math.round(parseFloat(amount) * 100), // Convert to cents
+        currency: currency.toLowerCase(),
+        recurring: {
+          interval: interval,
+        },
+        metadata,
       },
-      metadata,
-    });
+      {
+        stripeAccount: process.env.STRIPE_CONNECTED_ACCOUNT_ID,
+      }
+    );
 
     return res.status(201).json({
       success: true,
@@ -100,7 +107,9 @@ async function updatePrice(req, res) {
     if (metadata !== undefined) updateData.metadata = metadata;
     if (active !== undefined) updateData.active = active;
 
-    const price = await stripe.prices.update(priceId, updateData);
+    const price = await stripe.prices.update(priceId, updateData, {
+      stripeAccount: process.env.STRIPE_CONNECTED_ACCOUNT_ID,
+    });
 
     return res.status(200).json({
       success: true,
@@ -119,9 +128,15 @@ async function deactivatePrice(req, res) {
       return res.status(400).json({ error: 'Price ID is required' });
     }
 
-    const price = await stripe.prices.update(priceId, {
-      active: false,
-    });
+    const price = await stripe.prices.update(
+      priceId,
+      {
+        active: false,
+      },
+      {
+        stripeAccount: process.env.STRIPE_CONNECTED_ACCOUNT_ID,
+      }
+    );
 
     return res.status(200).json({
       success: true,

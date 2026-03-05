@@ -30,19 +30,30 @@ export default async function handler(req, res) {
 
 async function listProducts(req, res) {
   try {
-    const products = await stripe.products.list({
-      active: true,
-      expand: ['data.default_price'],
-      limit: 100,
-    });
+    // List products from CONNECTED ACCOUNT only (Amani's products)
+    const products = await stripe.products.list(
+      {
+        active: true,
+        expand: ['data.default_price'],
+        limit: 100,
+      },
+      {
+        stripeAccount: process.env.STRIPE_CONNECTED_ACCOUNT_ID,
+      }
+    );
 
-    // Get all prices for these products
+    // Get all prices for these products from connected account
     const productsWithPrices = await Promise.all(
       products.data.map(async (product) => {
-        const prices = await stripe.prices.list({
-          product: product.id,
-          active: true,
-        });
+        const prices = await stripe.prices.list(
+          {
+            product: product.id,
+            active: true,
+          },
+          {
+            stripeAccount: process.env.STRIPE_CONNECTED_ACCOUNT_ID,
+          }
+        );
 
         return {
           ...product,
@@ -136,7 +147,13 @@ async function updateProduct(req, res) {
     if (metadata !== undefined) updateData.metadata = metadata;
     if (active !== undefined) updateData.active = active;
 
-    const product = await stripe.products.update(productId, updateData);
+    const product = await stripe.products.update(
+      productId,
+      updateData,
+      {
+        stripeAccount: process.env.STRIPE_CONNECTED_ACCOUNT_ID,
+      }
+    );
 
     return res.status(200).json({
       success: true,
@@ -156,9 +173,15 @@ async function deleteProduct(req, res) {
     }
 
     // Archive the product (Stripe doesn't allow deletion, only archiving)
-    const product = await stripe.products.update(productId, {
-      active: false,
-    });
+    const product = await stripe.products.update(
+      productId,
+      {
+        active: false,
+      },
+      {
+        stripeAccount: process.env.STRIPE_CONNECTED_ACCOUNT_ID,
+      }
+    );
 
     return res.status(200).json({
       success: true,
