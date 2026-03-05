@@ -496,6 +496,41 @@ const CustomerLayout = () => {
               </span>
             </div>
           </div>
+
+          {/* Credits */}
+          <div className="mt-6 pt-6 border-t border-white/10 flex flex-col sm:flex-row justify-center items-center gap-3 text-xs text-gray-500">
+            <span className="flex items-center gap-2">
+              Shipped with
+              <a
+                href="https://www.pipilot.dev"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 hover:opacity-80 transition-opacity"
+              >
+                <img
+                  src="https://www.pipilot.dev/logo.png"
+                  alt="PiPilot"
+                  className="h-4 w-auto"
+                />
+              </a>
+            </span>
+            <span className="hidden sm:inline text-gray-600">•</span>
+            <span className="flex items-center gap-2">
+              powered by
+              <a
+                href="https://www.pixelways.co"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 hover:opacity-80 transition-opacity"
+              >
+                <img
+                  src="https://www.pixelways.co/logo.png"
+                  alt="Pixelways"
+                  className="h-4 w-auto"
+                />
+              </a>
+            </span>
+          </div>
         </div>
       </footer>
     </div>
