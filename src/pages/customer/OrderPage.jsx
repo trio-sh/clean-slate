@@ -1632,6 +1632,20 @@ const OrderPage = () => {
                         </div>
                       </div>
                     )}
+
+                    {/* Important Note about Cash/Card on Delivery */}
+                    <div className="mt-6 bg-amber-50 border-l-4 border-amber-400 rounded-lg p-4">
+                      <div className="flex items-start gap-3">
+                        <AlertCircle className="w-5 h-5 text-amber-600 mt-0.5 flex-shrink-0" />
+                        <div>
+                          <p className="font-semibold text-amber-900 text-sm mb-1">Important Note</p>
+                          <p className="text-sm text-amber-800">
+                            Cash and Card payment options are only accepted <strong>in-store</strong> at our locations, not on delivery.
+                            For delivery orders, please use Interac e-Transfer or Pay Now (Card) online.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
                   </div>
 
                   {/* Promo Code */}
