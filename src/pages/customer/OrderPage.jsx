@@ -1551,7 +1551,7 @@ const OrderPage = () => {
                   <div className="card p-6">
                     <h2 className="text-xl font-semibold text-navy-900 mb-6">{t('order.paymentMethod')}</h2>
 
-                    <div className="grid sm:grid-cols-2 gap-4">
+                    <div className="grid sm:grid-cols-2 gap-3">
                       {[
                         { value: 'cash', label: t('order.cashOnDelivery'), icon: '💵', description: 'Pay when we deliver' },
                         { value: 'card', label: t('order.cardOnDelivery'), icon: '💳', description: 'Card payment on delivery' },
@@ -1561,16 +1561,18 @@ const OrderPage = () => {
                         <button
                           key={method.value}
                           onClick={() => setFormData(prev => ({ ...prev, paymentMethod: method.value }))}
-                          className={`p-6 rounded-xl border-2 transition-all text-left ${
+                          className={`p-4 rounded-lg border-2 transition-all text-left ${
                             formData.paymentMethod === method.value
                               ? 'border-amani-500 bg-amani-50'
                               : 'border-gray-200 hover:border-amani-200'
                           }`}
                         >
-                          <span className="text-3xl mb-2 block">{method.icon}</span>
-                          <div>
-                            <span className="font-medium text-navy-900 block">{method.label}</span>
-                            <span className="text-sm text-gray-600">{method.description}</span>
+                          <div className="flex items-center gap-3">
+                            <span className="text-2xl">{method.icon}</span>
+                            <div className="flex-1 min-w-0">
+                              <span className="font-medium text-navy-900 block text-sm">{method.label}</span>
+                              <span className="text-xs text-gray-600">{method.description}</span>
+                            </div>
                           </div>
                         </button>
                       ))}
