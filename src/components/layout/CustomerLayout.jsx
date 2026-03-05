@@ -507,6 +507,7 @@ const CustomerLayout = () => {
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-1.5 hover:opacity-80 transition-opacity"
               >
+                <span className="font-medium text-gray-400">PiPilot</span>
                 <img
                   src="https://www.pipilot.dev/logo.png"
                   alt="PiPilot"
@@ -523,6 +524,7 @@ const CustomerLayout = () => {
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-1.5 hover:opacity-80 transition-opacity"
               >
+                <span className="font-medium text-gray-400">Pixelways</span>
                 <img
                   src="https://www.pixelways.co/logo.png"
                   alt="Pixelways"
