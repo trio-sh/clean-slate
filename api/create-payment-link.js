@@ -24,7 +24,9 @@ export default async function handler(req, res) {
     // Calculate platform fee (commission)
     const feePercent = parseFloat(process.env.STRIPE_PLATFORM_FEE_PERCENT) || 0;
     const feeFixed = parseFloat(process.env.STRIPE_PLATFORM_FEE_FIXED) || 0;
+    const totalAmountInCents = Math.round(amount * 100);
     const applicationFeeAmount = Math.round((amount * feePercent / 100 + feeFixed) * 100); // in cents
+    const transferAmount = totalAmountInCents - applicationFeeAmount; // Amount that goes to connected account
 
     // Create a Stripe payment link with Connect
     const paymentLink = await stripe.paymentLinks.create({
@@ -38,7 +40,7 @@ export default async function handler(req, res) {
                 order_id: orderId,
               },
             },
-            unit_amount: Math.round(amount * 100), // Convert to cents
+            unit_amount: totalAmountInCents, // Convert to cents
           },
           quantity: 1,
         },
@@ -59,9 +61,13 @@ export default async function handler(req, res) {
       billing_address_collection: 'auto',
       customer_creation: 'if_required',
       payment_method_types: ['card'],
-      // Stripe Connect: Charge on connected account with application fee
-      on_behalf_of: process.env.STRIPE_CONNECTED_ACCOUNT_ID,
-      application_fee_amount: applicationFeeAmount,
+      // Stripe Connect: Transfer funds to connected account (platform keeps the difference as fee)
+      payment_intent_data: {
+        transfer_data: {
+          destination: process.env.STRIPE_CONNECTED_ACCOUNT_ID,
+          amount: transferAmount, // Connected account receives this amount
+        },
+      },
     });
 
     return res.status(200).json({
