@@ -1,4 +1,4 @@
-// Vercel Serverless Function for Creating Stripe Payment Links with Connect
+// Vercel Serverless Function for Creating Stripe Checkout Sessions with Connect
 import Stripe from 'stripe';
 
 const stripe = new Stripe(process.env.STRIPE_PLATFORM_SECRET_KEY);
@@ -26,10 +26,11 @@ export default async function handler(req, res) {
     const feeFixed = parseFloat(process.env.STRIPE_PLATFORM_FEE_FIXED) || 0;
     const totalAmountInCents = Math.round(amount * 100);
     const applicationFeeAmount = Math.round((amount * feePercent / 100 + feeFixed) * 100); // in cents
-    const transferAmount = totalAmountInCents - applicationFeeAmount; // Amount that goes to connected account
 
-    // Create a Stripe payment link with Connect
-    const paymentLink = await stripe.paymentLinks.create({
+    // Create a Stripe Checkout Session with Connect (supports platform fees)
+    const session = await stripe.checkout.sessions.create({
+      mode: 'payment',
+      payment_method_types: ['card'],
       line_items: [
         {
           price_data: {
@@ -40,43 +41,35 @@ export default async function handler(req, res) {
                 order_id: orderId,
               },
             },
-            unit_amount: totalAmountInCents, // Convert to cents
+            unit_amount: totalAmountInCents,
           },
           quantity: 1,
         },
       ],
+      success_url: `${process.env.VITE_APP_URL || 'https://amanicleaners.com'}/order-confirmation?order_id=${orderId}&session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${process.env.VITE_APP_URL || 'https://amanicleaners.com'}/order?cancelled=true`,
+      customer_email: customerEmail,
       metadata: {
         order_id: orderId,
-        customer_email: customerEmail || '',
         customer_name: customerName || '',
         platform_fee: applicationFeeAmount.toString(),
       },
-      after_completion: {
-        type: 'redirect',
-        redirect: {
-          url: `${process.env.VITE_APP_URL || 'https://amanicleaners.com'}/order-confirmation?order_id=${orderId}`,
-        },
-      },
-      allow_promotion_codes: true,
-      billing_address_collection: 'auto',
-      customer_creation: 'if_required',
-      payment_method_types: ['card'],
-      // Stripe Connect: Transfer funds to connected account (platform keeps the difference as fee)
+      // Stripe Connect: Destination charge with application fee
       payment_intent_data: {
+        application_fee_amount: applicationFeeAmount,
         transfer_data: {
           destination: process.env.STRIPE_CONNECTED_ACCOUNT_ID,
-          amount: transferAmount, // Connected account receives this amount
         },
       },
     });
 
     return res.status(200).json({
       success: true,
-      paymentLink: paymentLink.url,
-      paymentLinkId: paymentLink.id,
+      paymentLink: session.url,
+      sessionId: session.id,
     });
   } catch (error) {
-    console.error('Stripe payment link creation error:', error);
+    console.error('Stripe checkout session creation error:', error);
     return res.status(500).json({
       error: 'Failed to create payment link',
       message: error.message,
