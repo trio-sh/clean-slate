@@ -495,9 +495,11 @@ const OrderPage = () => {
       const result = await createOrder(orderData);
 
       if (result.success) {
-        // Generate payment link if selected
+        // Generate and redirect to payment link if selected
         if (formData.paymentMethod === 'payment_link') {
           try {
+            toast.success('Generating secure payment link...');
+
             const paymentLinkResponse = await fetch('/api/create-payment-link', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
@@ -514,9 +516,16 @@ const OrderPage = () => {
             const paymentLinkData = await paymentLinkResponse.json();
 
             if (paymentLinkData.success) {
-              // Store payment link in order metadata or send via email
-              console.log('Payment link created:', paymentLinkData.paymentLink);
-              toast.success('Payment link will be sent to your email!');
+              // Redirect customer to Stripe payment page immediately
+              console.log('Redirecting to payment link:', paymentLinkData.paymentLink);
+              toast.success('Redirecting to secure payment...');
+
+              // Clear cart before redirect
+              clearCart();
+
+              // Redirect to Stripe payment page
+              window.location.href = paymentLinkData.paymentLink;
+              return; // Exit early, don't show order confirmation yet
             } else {
               toast.error('Failed to create payment link');
             }
@@ -1547,7 +1556,7 @@ const OrderPage = () => {
                         { value: 'cash', label: t('order.cashOnDelivery'), icon: '💵', description: 'Pay when we deliver' },
                         { value: 'card', label: t('order.cardOnDelivery'), icon: '💳', description: 'Card payment on delivery' },
                         { value: 'interac', label: 'Interac e-Transfer', icon: '📧', description: 'Send e-transfer to complete order' },
-                        { value: 'payment_link', label: 'Payment Link', icon: '🔗', description: 'Receive secure payment link' },
+                        { value: 'payment_link', label: 'Pay Now (Card)', icon: '🔗', description: 'Pay instantly with card via Stripe' },
                       ].map((method) => (
                         <button
                           key={method.value}
@@ -1608,7 +1617,7 @@ const OrderPage = () => {
                             <div className="space-y-2 text-sm text-green-800">
                               <p className="flex items-start gap-2">
                                 <CheckCircle2 className="w-4 h-4 mt-0.5 flex-shrink-0" />
-                                <span>We'll send you a secure Stripe payment link via email</span>
+                                <span>You'll be redirected to secure Stripe payment page</span>
                               </p>
                               <p className="flex items-start gap-2">
                                 <CheckCircle2 className="w-4 h-4 mt-0.5 flex-shrink-0" />
@@ -1616,7 +1625,7 @@ const OrderPage = () => {
                               </p>
                               <p className="flex items-start gap-2">
                                 <CheckCircle2 className="w-4 h-4 mt-0.5 flex-shrink-0" />
-                                <span>Your order will be confirmed after payment</span>
+                                <span>Complete payment to confirm your order</span>
                               </p>
                             </div>
                           </div>
