@@ -103,10 +103,10 @@ export default async function handler(req, res) {
       ],
       success_url:
         successUrl ||
-        `${process.env.VITE_APP_URL || 'https://amaniscleaners.com'}/subscription-success?session_id={CHECKOUT_SESSION_ID}`,
+        `${process.env.VITE_APP_URL || 'https://amanicleaners.com'}/subscription-success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url:
         cancelUrl ||
-        `${process.env.VITE_APP_URL || 'https://amaniscleaners.com'}/subscriptions`,
+        `${process.env.VITE_APP_URL || 'https://amanicleaners.com'}/subscriptions`,
       allow_promotion_codes: true,
       billing_address_collection: 'required',
       customer_creation: 'always',
