@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import {
   Plus, Edit, Trash2, Star, Crown, GraduationCap,
   Search, Check, X, DollarSign, Calendar, Package,
-  AlertCircle, Eye, EyeOff
+  AlertCircle, Eye, EyeOff, RefreshCw, Loader2
 } from 'lucide-react';
 import db from '../../lib/db';
 import toast from 'react-hot-toast';
@@ -11,6 +11,7 @@ import toast from 'react-hot-toast';
 const AdminPlans = () => {
   const [plans, setPlans] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [syncing, setSyncing] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterActive, setFilterActive] = useState('all'); // all | active | inactive
   const [showModal, setShowModal] = useState(false);
@@ -22,6 +23,7 @@ const AdminPlans = () => {
     price: '',
     pounds_included: '',
     validity_days: 30,
+    billing_interval: 'month',
     duration_months: 1,
     monthly_weight_limit: '',
     is_active: true
@@ -42,6 +44,41 @@ const AdminPlans = () => {
       toast.error('Failed to load subscription plans');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleSyncWithStripe = async () => {
+    setSyncing(true);
+    try {
+      const response = await fetch('/api/stripe/sync-plans', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Failed to sync with Stripe');
+      }
+
+      const result = await response.json();
+
+      toast.success(
+        `Successfully synced ${result.synced} plan(s) from Stripe!` +
+        (result.errors?.length ? ` (${result.errors.length} error(s))` : '')
+      );
+
+      if (result.errors?.length > 0) {
+        console.error('Sync errors:', result.errors);
+      }
+
+      await loadPlans();
+    } catch (error) {
+      console.error('Sync error:', error);
+      toast.error(error.message || 'Failed to sync with Stripe');
+    } finally {
+      setSyncing(false);
     }
   };
 
@@ -113,6 +150,7 @@ const AdminPlans = () => {
         price: plan.price || '',
         pounds_included: plan.pounds_included || '',
         validity_days: plan.validity_days || 30,
+        billing_interval: plan.billing_interval || 'month',
         duration_months: plan.duration_months || 1,
         monthly_weight_limit: plan.monthly_weight_limit || plan.pounds_included || '',
         is_active: plan.is_active !== undefined ? plan.is_active : true
@@ -127,6 +165,7 @@ const AdminPlans = () => {
         price: '',
         pounds_included: '',
         validity_days: 30,
+        billing_interval: 'month',
         duration_months: 1,
         monthly_weight_limit: '',
         is_active: true
@@ -146,6 +185,7 @@ const AdminPlans = () => {
       price: '',
       pounds_included: '',
       validity_days: 30,
+      billing_interval: 'month',
       duration_months: 1,
       monthly_weight_limit: '',
       is_active: true
@@ -192,18 +232,76 @@ const AdminPlans = () => {
         price: parseFloat(formData.price),
         pounds_included: parseInt(formData.pounds_included),
         validity_days: parseInt(formData.validity_days),
+        billing_interval: formData.billing_interval || 'month',
         duration_months: parseInt(formData.duration_months) || 1,
         monthly_weight_limit: parseInt(formData.monthly_weight_limit) || parseInt(formData.pounds_included),
         is_active: formData.is_active
       };
 
+      // Create or update in Stripe
+      let stripeProductId = editingPlan?.stripe_product_id;
+      let stripePriceId = editingPlan?.stripe_price_id;
+
+      if (editingPlan && stripeProductId) {
+        // Update existing Stripe product
+        const stripeResponse = await fetch('/api/stripe/manage-products', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            productId: stripeProductId,
+            name: planData.name,
+            description: planData.description,
+            metadata: {
+              pounds_included: planData.pounds_included.toString(),
+              validity_days: planData.validity_days.toString(),
+            },
+            active: planData.is_active,
+          }),
+        });
+
+        if (!stripeResponse.ok) {
+          console.error('Failed to update Stripe product');
+        }
+      } else if (!editingPlan) {
+        // Create new Stripe product
+        const stripeResponse = await fetch('/api/stripe/manage-products', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: planData.name,
+            description: planData.description,
+            poundsIncluded: planData.pounds_included,
+            validityDays: planData.validity_days,
+            price: planData.price,
+            interval: planData.billing_interval,
+            currency: 'cad',
+          }),
+        });
+
+        if (stripeResponse.ok) {
+          const stripeData = await stripeResponse.json();
+          stripeProductId = stripeData.product.id;
+          stripePriceId = stripeData.product.default_price?.id || stripeData.product.default_price;
+        } else {
+          console.error('Failed to create Stripe product');
+          toast.error('Warning: Plan will be saved locally but Stripe product creation failed');
+        }
+      }
+
+      // Save to database
+      const dbData = {
+        ...planData,
+        ...(stripeProductId && { stripe_product_id: stripeProductId }),
+        ...(stripePriceId && { stripe_price_id: stripePriceId }),
+      };
+
       if (editingPlan) {
         // Update existing plan
-        await db.update('subscription_plans', editingPlan.id, planData);
+        await db.update('subscription_plans', editingPlan.id, dbData);
         toast.success('Plan updated successfully!');
       } else {
         // Create new plan
-        await db.create('subscription_plans', planData);
+        await db.create('subscription_plans', dbData);
         toast.success('Plan created successfully!');
       }
 
@@ -250,6 +348,18 @@ const AdminPlans = () => {
       );
 
       if (!confirmed) return;
+
+      // Archive in Stripe if product exists
+      if (plan.stripe_product_id) {
+        try {
+          await fetch(`/api/stripe/manage-products?productId=${plan.stripe_product_id}`, {
+            method: 'DELETE',
+          });
+        } catch (error) {
+          console.error('Failed to archive Stripe product:', error);
+          // Continue with local deletion even if Stripe archiving fails
+        }
+      }
 
       await db.delete('subscription_plans', plan.id);
       toast.success('Plan deleted successfully');
@@ -299,13 +409,32 @@ const AdminPlans = () => {
           <h1 className="text-3xl font-display font-bold text-navy-900">Subscription Plans</h1>
           <p className="text-gray-600 mt-1">Create and manage subscription plans for customers</p>
         </div>
-        <button
-          onClick={() => handleOpenModal()}
-          className="btn-primary flex items-center gap-2"
-        >
-          <Plus className="w-5 h-5" />
-          Create Plan
-        </button>
+        <div className="flex gap-3">
+          <button
+            onClick={handleSyncWithStripe}
+            disabled={syncing}
+            className="btn-secondary flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {syncing ? (
+              <>
+                <Loader2 className="w-5 h-5 animate-spin" />
+                Syncing...
+              </>
+            ) : (
+              <>
+                <RefreshCw className="w-5 h-5" />
+                Sync with Stripe
+              </>
+            )}
+          </button>
+          <button
+            onClick={() => handleOpenModal()}
+            className="btn-primary flex items-center gap-2"
+          >
+            <Plus className="w-5 h-5" />
+            Create Plan
+          </button>
+        </div>
       </div>
 
       {/* Stats */}
@@ -439,7 +568,7 @@ const AdminPlans = () => {
                 {plan.description || 'No description'}
               </p>
 
-              <div className="space-y-2 mb-6">
+              <div className="space-y-2 mb-4">
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-gray-600">Price</span>
                   <span className="font-bold text-navy-900">${plan.price}</span>
@@ -452,15 +581,26 @@ const AdminPlans = () => {
                   <span className="text-gray-600">Validity</span>
                   <span className="font-semibold text-navy-900">{plan.validity_days} days</span>
                 </div>
-                {plan.duration_months && (
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-gray-600">Duration</span>
-                    <span className="font-semibold text-navy-900">
-                      {plan.duration_months} {plan.duration_months === 1 ? 'month' : 'months'}
-                    </span>
-                  </div>
-                )}
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-gray-600">Billing</span>
+                  <span className="font-semibold text-navy-900 capitalize">
+                    {plan.billing_interval || 'month'}ly
+                  </span>
+                </div>
               </div>
+
+              {/* Stripe Integration Badge */}
+              {plan.stripe_product_id && (
+                <div className="mb-4 p-2 bg-purple-50 border border-purple-200 rounded-lg">
+                  <div className="flex items-center gap-1 mb-1">
+                    <Check className="w-3 h-3 text-purple-600" />
+                    <span className="text-xs font-semibold text-purple-900">Stripe Connected</span>
+                  </div>
+                  <p className="text-xs text-purple-700 font-mono truncate" title={plan.stripe_product_id}>
+                    {plan.stripe_product_id}
+                  </p>
+                </div>
+              )}
 
               {/* Actions */}
               <div className="flex gap-2">
@@ -652,6 +792,25 @@ const AdminPlans = () => {
                     </p>
                   )}
                 </div>
+              </div>
+
+              {/* Billing Interval */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Billing Interval *
+                </label>
+                <select
+                  name="billing_interval"
+                  value={formData.billing_interval}
+                  onChange={handleInputChange}
+                  className="input w-full"
+                >
+                  <option value="month">Monthly</option>
+                  <option value="year">Yearly</option>
+                </select>
+                <p className="mt-1 text-xs text-gray-500">
+                  How often customers will be charged
+                </p>
               </div>
 
               {/* Validity Days & Duration Months */}

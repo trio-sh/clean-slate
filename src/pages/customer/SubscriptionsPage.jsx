@@ -11,6 +11,7 @@ import { useAuthStore } from '../../stores';
 import { sendSMS, smsTemplates, sendEmail, notificationService } from '../../lib/utils';
 import toast from 'react-hot-toast';
 import { useLanguage } from '../../i18n/LanguageContext';
+import { subscribeToPlan } from '../../lib/stripe';
 
 const SubscriptionsPage = () => {
   const { isAuthenticated, user } = useAuthStore();
@@ -92,98 +93,15 @@ const SubscriptionsPage = () => {
 
       const subscription = await db.create('customer_subscriptions', subscriptionData);
 
-      // Generate Stripe payment link (mock for now)
-      const stripePaymentLink = `https://checkout.stripe.com/pay/cs_test_${Math.random().toString(36).substr(2, 10)}`;
+      // Redirect to Stripe Checkout
+      await subscribeToPlan(plan, user.id, user.email);
 
-      // Send SMS with full subscription details + payment link
-      if (user.phone) {
-        try {
-          const customerName = `${user.first_name} ${user.last_name}`.trim();
-          const smsMessage = smsTemplates.subscriptionConfirmation(
-            customerName,
-            plan,
-            subscriptionData.start_date,
-            subscriptionData.end_date,
-            stripePaymentLink
-          );
-          const smsResult = await sendSMS(user.phone, smsMessage);
-          if (smsResult.success) {
-            toast.success(t('subscriptions.smsSent'));
-          }
-        } catch (smsError) {
-          console.error('SMS failed:', smsError);
-        }
-      }
-
-      // Send email with payment instructions
-      if (user.email) {
-        try {
-          const emailResult = await sendEmail({
-            to_email: user.email,
-            subject: `Amani's Cleaners - ${t('subscriptions.subscriptionPaymentFor')} ${plan.name}`,
-            template: 'subscription_payment',
-            data: {
-              customer_name: `${user.first_name} ${user.last_name}`,
-              plan_name: plan.name,
-              amount: plan.price,
-              payment_link: stripePaymentLink,
-              pounds_included: plan.pounds_included,
-              validity_days: plan.validity_days
-            }
-          });
-          if (emailResult.success) {
-            toast.success(t('subscriptions.emailSent'));
-          }
-        } catch (emailError) {
-          console.error('Email failed:', emailError);
-        }
-      }
-
-      // Send in-app notification to customer
-      try {
-        await notificationService.sendToUser(user.id, {
-          title: t('subscriptions.subscriptionCreatedTitle'),
-          message: `${t('subscriptions.subscriptionCreatedMessage')} ${plan.name} ${t('subscriptions.checkSMSEmail')}`,
-          type: 'info',
-          link: '/account/subscriptions'
-        });
-      } catch (notifError) {
-        console.error('In-app notification failed:', notifError);
-      }
-
-      // Send SMS sent confirmation notification
-      try {
-        await notificationService.sendToUser(user.id, {
-          title: t('subscriptions.smsSentSuccessfully'),
-          message: `${t('subscriptions.paymentLinkSent')} ${user.phone?.slice(-4)}. ${t('subscriptions.checkMessages')}`,
-          type: 'info'
-        });
-      } catch (smsNotifError) {
-        console.error('SMS confirmation notification failed:', smsNotifError);
-      }
-
-      // Broadcast to admins and staff
-      try {
-        const broadcastNotification = {
-          title: t('subscriptions.newSubscriptionCreated'),
-          message: `${t('subscriptions.customerLabel')} ${user.first_name} ${user.last_name} ${t('subscriptions.subscribedTo')} ${plan.name} ${t('subscriptions.plan')} ($${plan.price}).`,
-          type: 'info',
-          link: '/admin/subscriptions'
-        };
-
-        await notificationService.broadcastToRole('admin', broadcastNotification);
-        await notificationService.broadcastToRole('staff', broadcastNotification);
-      } catch (broadcastError) {
-        console.error('Broadcast failed:', broadcastError);
-      }
-
-      setShowConfirmation(true);
-      toast.success(t('subscriptions.subscriptionCreatedSuccess'));
+      // Note: The subscribeToPlan function will redirect to Stripe,
+      // so the code below will only execute if there's an error
 
     } catch (error) {
       console.error('Subscription failed:', error);
-      toast.error(t('subscriptions.subscriptionCreateFailed'));
-    } finally {
+      toast.error(error.message || t('subscriptions.subscriptionCreateFailed'));
       setIsSubscribing(false);
     }
   };
