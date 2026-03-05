@@ -1,7 +1,7 @@
-// Vercel Serverless Function for Managing Stripe Prices
+// Vercel Serverless Function for Managing Stripe Prices with Connect
 import Stripe from 'stripe';
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+const stripe = new Stripe(process.env.STRIPE_PLATFORM_SECRET_KEY);
 
 export default async function handler(req, res) {
   const { method } = req;

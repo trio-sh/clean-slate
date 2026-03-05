@@ -1,7 +1,7 @@
-// Vercel Serverless Function for Creating Stripe Subscription Checkout Sessions
+// Vercel Serverless Function for Creating Stripe Subscription Checkout Sessions with Connect
 import Stripe from 'stripe';
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+const stripe = new Stripe(process.env.STRIPE_PLATFORM_SECRET_KEY);
 
 export default async function handler(req, res) {
   // Only allow POST requests
@@ -44,13 +44,18 @@ export default async function handler(req, res) {
       product = products.data.find((p) => p.metadata.plan_id === planId);
 
       if (!product) {
-        // Create new product if not found
-        product = await stripe.products.create({
-          name: planName,
-          metadata: {
-            plan_id: planId,
+        // Create new product if not found (on connected account)
+        product = await stripe.products.create(
+          {
+            name: planName,
+            metadata: {
+              plan_id: planId,
+            },
           },
-        });
+          {
+            stripeAccount: process.env.STRIPE_CONNECTED_ACCOUNT_ID,
+          }
+        );
       }
     } catch (error) {
       console.error('Product creation error:', error);
@@ -74,25 +79,33 @@ export default async function handler(req, res) {
       );
 
       if (!stripePrice) {
-        // Create new price if not found
-        stripePrice = await stripe.prices.create({
-          product: product.id,
-          unit_amount: Math.round(price * 100), // Convert to cents
-          currency: 'cad',
-          recurring: {
-            interval: interval,
+        // Create new price if not found (on connected account)
+        stripePrice = await stripe.prices.create(
+          {
+            product: product.id,
+            unit_amount: Math.round(price * 100), // Convert to cents
+            currency: 'cad',
+            recurring: {
+              interval: interval,
+            },
+            metadata: {
+              plan_id: planId,
+            },
           },
-          metadata: {
-            plan_id: planId,
-          },
-        });
+          {
+            stripeAccount: process.env.STRIPE_CONNECTED_ACCOUNT_ID,
+          }
+        );
       }
     } catch (error) {
       console.error('Price creation error:', error);
       throw error;
     }
 
-    // Create checkout session
+    // Calculate platform fee percentage
+    const feePercent = parseFloat(process.env.STRIPE_PLATFORM_FEE_PERCENT) || 0;
+
+    // Create checkout session with Stripe Connect
     const sessionParams = {
       mode: 'subscription',
       line_items: [
@@ -113,6 +126,14 @@ export default async function handler(req, res) {
       metadata: {
         plan_id: planId,
         customer_id: customerId || '',
+        platform_fee_percent: feePercent.toString(),
+      },
+      // Stripe Connect: Take application fee on recurring payments
+      subscription_data: {
+        application_fee_percent: feePercent,
+        metadata: {
+          plan_id: planId,
+        },
       },
     };
 
@@ -121,7 +142,12 @@ export default async function handler(req, res) {
       sessionParams.customer_email = customerEmail;
     }
 
-    const session = await stripe.checkout.sessions.create(sessionParams);
+    const session = await stripe.checkout.sessions.create(
+      sessionParams,
+      {
+        stripeAccount: process.env.STRIPE_CONNECTED_ACCOUNT_ID,
+      }
+    );
 
     return res.status(200).json({
       success: true,

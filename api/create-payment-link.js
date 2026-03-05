@@ -1,7 +1,7 @@
-// Vercel Serverless Function for Creating Stripe Payment Links
+// Vercel Serverless Function for Creating Stripe Payment Links with Connect
 import Stripe from 'stripe';
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+const stripe = new Stripe(process.env.STRIPE_PLATFORM_SECRET_KEY);
 
 export default async function handler(req, res) {
   // Only allow POST requests
@@ -21,7 +21,12 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'Amount must be greater than 0' });
     }
 
-    // Create a Stripe payment link
+    // Calculate platform fee (commission)
+    const feePercent = parseFloat(process.env.STRIPE_PLATFORM_FEE_PERCENT) || 0;
+    const feeFixed = parseFloat(process.env.STRIPE_PLATFORM_FEE_FIXED) || 0;
+    const applicationFeeAmount = Math.round((amount * feePercent / 100 + feeFixed) * 100); // in cents
+
+    // Create a Stripe payment link with Connect
     const paymentLink = await stripe.paymentLinks.create({
       line_items: [
         {
@@ -42,17 +47,21 @@ export default async function handler(req, res) {
         order_id: orderId,
         customer_email: customerEmail || '',
         customer_name: customerName || '',
+        platform_fee: applicationFeeAmount.toString(),
       },
       after_completion: {
         type: 'redirect',
         redirect: {
-          url: `${process.env.VITE_APP_URL || 'https://amaniscleaners.com'}/order-confirmation?order_id=${orderId}`,
+          url: `${process.env.VITE_APP_URL || 'https://amanicleaners.com'}/order-confirmation?order_id=${orderId}`,
         },
       },
       allow_promotion_codes: true,
       billing_address_collection: 'auto',
       customer_creation: 'if_required',
       payment_method_types: ['card'],
+      // Stripe Connect: Charge on connected account with application fee
+      on_behalf_of: process.env.STRIPE_CONNECTED_ACCOUNT_ID,
+      application_fee_amount: applicationFeeAmount,
     });
 
     return res.status(200).json({

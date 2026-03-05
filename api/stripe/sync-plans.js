@@ -1,8 +1,8 @@
-// Vercel Serverless Function for Syncing Stripe Products with Database
+// Vercel Serverless Function for Syncing Stripe Products with Database (Connect)
 import Stripe from 'stripe';
 import { createClient } from '@supabase/supabase-js';
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+const stripe = new Stripe(process.env.STRIPE_PLATFORM_SECRET_KEY);
 const supabase = createClient(
   process.env.VITE_SUPABASE_URL,
   process.env.VITE_SUPABASE_ANON_KEY
