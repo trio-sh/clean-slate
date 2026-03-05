@@ -118,6 +118,7 @@ export default async function handler(req, res) {
     // Create checkout session with Stripe Connect
     const sessionParams = {
       mode: 'subscription',
+      payment_method_types: ['card'], // Explicitly enable card payments for CAD
       line_items: [
         {
           price: stripePrice.id,
