@@ -167,7 +167,7 @@ const ServicesPage = () => {
                   <Filter className="w-5 h-5" />
                   {t('services.categories')}
                 </h3>
-                <div className="space-y-2">
+                <div className="space-y-2 max-h-96 overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 hover:scrollbar-thumb-gray-400">
                   <button
                     onClick={() => setSelectedCategory(null)}
                     className={`w-full text-left px-3 py-2 rounded-lg transition-colors ${
@@ -183,8 +183,8 @@ const ServicesPage = () => {
                       key={category.id}
                       onClick={() => setSelectedCategory(category.id)}
                       className={`w-full text-left px-3 py-2 rounded-lg transition-colors flex items-center gap-2 ${
-                        selectedCategory === category.id 
-                          ? 'bg-amani-100 text-amani-700 font-medium' 
+                        selectedCategory === category.id
+                          ? 'bg-amani-100 text-amani-700 font-medium'
                           : 'text-gray-600 hover:bg-gray-100'
                       }`}
                     >
