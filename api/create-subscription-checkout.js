@@ -37,10 +37,15 @@ export default async function handler(req, res) {
     // Create or retrieve Stripe product
     let product;
     try {
-      // Try to retrieve existing product by metadata
-      const products = await stripe.products.list({
-        limit: 100,
-      });
+      // Try to retrieve existing product by metadata (from connected account)
+      const products = await stripe.products.list(
+        {
+          limit: 100,
+        },
+        {
+          stripeAccount: process.env.STRIPE_CONNECTED_ACCOUNT_ID,
+        }
+      );
       product = products.data.find((p) => p.metadata.plan_id === planId);
 
       if (!product) {
@@ -65,11 +70,16 @@ export default async function handler(req, res) {
     // Create or retrieve price
     let stripePrice;
     try {
-      const prices = await stripe.prices.list({
-        product: product.id,
-        active: true,
-        limit: 100,
-      });
+      const prices = await stripe.prices.list(
+        {
+          product: product.id,
+          active: true,
+          limit: 100,
+        },
+        {
+          stripeAccount: process.env.STRIPE_CONNECTED_ACCOUNT_ID,
+        }
+      );
 
       // Find matching price
       stripePrice = prices.data.find(
