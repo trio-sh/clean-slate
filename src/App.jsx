@@ -70,6 +70,7 @@ import PartnerOrders from './pages/partner/PartnerOrders';
 import PartnerDepotInfo from './pages/partner/PartnerDepotInfo';
 import PartnerServices from './pages/partner/PartnerServices';
 import PartnerInvoices from './pages/partner/PartnerInvoices';
+import PartnerCreateInvoice from './pages/partner/PartnerCreateInvoice';
 
 // Protected Route Component
 const ProtectedRoute = ({ children, allowedRoles }) => {
@@ -224,6 +225,7 @@ function App() {
             <Route path="depot" element={<PartnerDepotInfo />} />
             <Route path="services" element={<PartnerServices />} />
             <Route path="invoices" element={<PartnerInvoices />} />
+            <Route path="invoices/create" element={<PartnerCreateInvoice />} />
           </Route>
 
           {/* Catch all */}

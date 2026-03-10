@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FileText, Send, Check, Download, Eye, X, Search, Filter, MessageSquare, DollarSign } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { FileText, Send, Check, Download, Eye, X, Search, Filter, MessageSquare, DollarSign, Plus } from 'lucide-react';
 import db from '../../lib/db';
 import { useAuthStore } from '../../stores';
 import { sendSMS, smsTemplates, downloadInvoice } from '../../lib/utils';
@@ -9,6 +10,7 @@ import { format } from 'date-fns';
 
 const PartnerInvoices = () => {
   const { user } = useAuthStore();
+  const navigate = useNavigate();
   const [invoices, setInvoices] = useState([]);
   const [filteredInvoices, setFilteredInvoices] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -225,11 +227,22 @@ Thank you for your business!`;
         animate={{ opacity: 1, y: 0 }}
         className="mb-8"
       >
-        <h1 className="text-2xl font-bold text-navy-900 flex items-center gap-3">
-          <FileText className="w-7 h-7 text-amani-500" />
-          Invoices Management
-        </h1>
-        <p className="text-gray-600 mt-1">Manage and send invoices to customers</p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-navy-900 flex items-center gap-3">
+              <FileText className="w-7 h-7 text-amani-500" />
+              Invoices Management
+            </h1>
+            <p className="text-gray-600 mt-1">Manage and send invoices to customers</p>
+          </div>
+          <button
+            onClick={() => navigate('/partner-portal/invoices/create')}
+            className="flex items-center gap-2 px-5 py-3 bg-amani-500 hover:bg-amani-600 text-white rounded-lg transition-colors shadow-lg shadow-amani-500/30"
+          >
+            <Plus className="w-5 h-5" />
+            Create Invoice
+          </button>
+        </div>
       </motion.div>
 
       {/* Filters */}
