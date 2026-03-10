@@ -58,7 +58,7 @@ async function createConnectedAccount() {
     console.log('📋 Add these to your .env file:');
     console.log(`STRIPE_PLATFORM_SECRET_KEY="${PLATFORM_SECRET_KEY}"`);
     console.log(`STRIPE_CONNECTED_ACCOUNT_ID="${account.id}"`);
-    console.log(`STRIPE_PLATFORM_FEE_PERCENT="10"`); // Your commission percentage
+    console.log(`STRIPE_PLATFORM_FEE_PERCENT="1"`); // Your commission percentage
     console.log(`STRIPE_PLATFORM_FEE_FIXED="0"`); // Fixed fee per transaction (in dollars)
 
     console.log('\n✨ Setup complete!');

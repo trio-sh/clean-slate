@@ -78,7 +78,7 @@ async function setup() {
     console.log(`STRIPE_PLATFORM_SECRET_KEY="${PLATFORM_SECRET_KEY}"`);
     console.log(`VITE_STRIPE_PUBLISHABLE_KEY="pk_live_51S5AIW3G7U0M1bp1lsnKvB8AX86PtV5lVwyn1grfAvVmdDx8miCY4WbMEXLS9UoCq7wLyMUiW9MlFZSlVl17zVmL00AQXvW8Oe"`);
     console.log(`STRIPE_CONNECTED_ACCOUNT_ID="${connectedAccount.id}"`);
-    console.log('STRIPE_PLATFORM_FEE_PERCENT="10"');
+    console.log('STRIPE_PLATFORM_FEE_PERCENT="1"');
     console.log('STRIPE_PLATFORM_FEE_FIXED="0"\n');
 
     console.log('📌 Important Notes:');
