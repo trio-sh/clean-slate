@@ -1155,8 +1155,20 @@ export const db = {
   // ============================================
 
   // Create a new service for a partner/depot
-  // Always uses Supabase
   async createPartnerService(service) {
+    if (getMode() === 'demo') {
+      const record = {
+        ...service,
+        id: service.id || generateId(),
+        is_active: service.is_active ?? true,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      };
+      const idb = await initDemoDB();
+      await idb.put('partner_services', record);
+      return record;
+    }
+
     const record = {
       ...service,
       is_active: service.is_active ?? true,
@@ -1174,12 +1186,21 @@ export const db = {
     return data;
   },
 
-  // Always uses Supabase
+  // Update a partner service
   async updatePartnerService(id, updates) {
     const record = {
       ...updates,
       updated_at: new Date().toISOString(),
     };
+
+    if (getMode() === 'demo') {
+      const idb = await initDemoDB();
+      const existing = await idb.get('partner_services', id);
+      if (!existing) throw new Error('Service not found');
+      const updated = { ...existing, ...record };
+      await idb.put('partner_services', updated);
+      return updated;
+    }
 
     const { data, error } = await supabase
       .from('partner_services')
@@ -1191,8 +1212,14 @@ export const db = {
     return data;
   },
 
-  // Always uses Supabase
+  // Delete a partner service
   async deletePartnerService(id) {
+    if (getMode() === 'demo') {
+      const idb = await initDemoDB();
+      await idb.delete('partner_services', id);
+      return true;
+    }
+
     const { error } = await supabase
       .from('partner_services')
       .delete()
@@ -1202,8 +1229,15 @@ export const db = {
   },
 
   // Get all services for a specific depot
-  // Always fetch partner services from Supabase
   async getPartnerServices(depotId) {
+    if (getMode() === 'demo') {
+      const idb = await initDemoDB();
+      const services = await idb.getAll('partner_services');
+      return services
+        .filter(s => s.depot_id === depotId)
+        .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+    }
+
     const { data, error } = await supabase
       .from('partner_services')
       .select('*')
