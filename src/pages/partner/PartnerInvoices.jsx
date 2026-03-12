@@ -136,8 +136,8 @@ Thank you for your business!`;
       const result = await sendSMS(invoice.customer_phone, message);
 
       if (result.success) {
-        // Update invoice in partner_invoices table
-        await db.update('partner_invoices', invoice.id, {
+        // Update invoice in IndexedDB
+        await db.updateInvoice(invoice.id, {
           status: invoice.status === 'draft' ? 'sent' : invoice.status,
           sms_sent: true,
           sms_sent_at: new Date().toISOString(),
@@ -165,11 +165,8 @@ Thank you for your business!`;
       const invoice = invoices.find(inv => inv.id === invoiceId);
       if (!invoice) return;
 
-      // Update invoice status to paid
-      await db.update('partner_invoices', invoiceId, {
-        status: 'paid',
-        paid_date: new Date().toISOString(),
-      });
+      // Update invoice status to paid in IndexedDB
+      await db.updateInvoiceStatus(invoiceId, 'paid', new Date().toISOString());
 
       toast.success('Invoice marked as paid!');
       await loadInvoices();
