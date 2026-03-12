@@ -178,7 +178,28 @@ Thank you for your business!`;
 
   const handleDownloadPDF = async (invoice) => {
     try {
-      await downloadInvoice(invoice.order);
+      const orderForPDF = {
+        id: invoice.id,
+        reference_code: invoice.invoice_number,
+        customer_name: invoice.customer_name,
+        customer_email: invoice.customer_email,
+        customer_phone: invoice.customer_phone,
+        delivery_address: invoice.customer_address,
+        items: invoice.items,
+        subtotal: invoice.subtotal,
+        tax: invoice.tax,
+        total: invoice.total,
+        discount_amount: invoice.discount_amount || 0,
+        status: invoice.status === 'paid' ? 'completed' : 'pending',
+        payment_method: invoice.status === 'paid' ? 'Paid' : 'To be paid',
+        created_at: invoice.issued_date || invoice.created_at,
+        notes: invoice.notes,
+        partner_name: invoice.partner_name,
+        partner_email: invoice.partner_email,
+        partner_phone: invoice.partner_phone,
+      };
+
+      await downloadInvoice(orderForPDF);
       toast.success('Invoice downloaded!');
     } catch (err) {
       console.error('Error downloading invoice:', err);
@@ -441,17 +462,36 @@ Thank you for your business!`;
 
               {/* Modal Content */}
               <div className="p-6 space-y-6">
-                {/* Customer Info */}
-                <div>
-                  <h3 className="text-sm font-semibold text-gray-500 uppercase mb-3">Customer Information</h3>
-                  <div className="bg-gray-50 rounded-lg p-4 space-y-2">
-                    <p className="font-medium text-navy-900">{selectedInvoice.customer_name}</p>
-                    {selectedInvoice.customer_email && (
-                      <p className="text-sm text-gray-600">{selectedInvoice.customer_email}</p>
-                    )}
-                    {selectedInvoice.customer_phone && (
-                      <p className="text-sm text-gray-600">{selectedInvoice.customer_phone}</p>
-                    )}
+                {/* Partner & Customer Info */}
+                <div className="grid grid-cols-2 gap-4">
+                  {/* Partner (From) */}
+                  {selectedInvoice.partner_name && (
+                    <div>
+                      <h3 className="text-sm font-semibold text-gray-500 uppercase mb-3">From (Partner)</h3>
+                      <div className="bg-amani-50 rounded-lg p-4 space-y-2">
+                        <p className="font-medium text-navy-900">{selectedInvoice.partner_name}</p>
+                        {selectedInvoice.partner_email && (
+                          <p className="text-sm text-gray-600">{selectedInvoice.partner_email}</p>
+                        )}
+                        {selectedInvoice.partner_phone && (
+                          <p className="text-sm text-gray-600">{selectedInvoice.partner_phone}</p>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Customer (To) */}
+                  <div>
+                    <h3 className="text-sm font-semibold text-gray-500 uppercase mb-3">Bill To</h3>
+                    <div className="bg-gray-50 rounded-lg p-4 space-y-2">
+                      <p className="font-medium text-navy-900">{selectedInvoice.customer_name}</p>
+                      {selectedInvoice.customer_email && (
+                        <p className="text-sm text-gray-600">{selectedInvoice.customer_email}</p>
+                      )}
+                      {selectedInvoice.customer_phone && (
+                        <p className="text-sm text-gray-600">{selectedInvoice.customer_phone}</p>
+                      )}
+                    </div>
                   </div>
                 </div>
 

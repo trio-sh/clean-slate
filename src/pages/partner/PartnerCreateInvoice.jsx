@@ -177,6 +177,9 @@ const PartnerCreateInvoice = () => {
       const invoiceData = {
         invoice_number: invoiceNumber,
         depot_id: user.depot_id,
+        partner_name: `${user.first_name || ''} ${user.last_name || ''}`.trim() || null,
+        partner_email: user.email || null,
+        partner_phone: user.phone || null,
         customer_name: customerInfo.name,
         customer_email: customerInfo.email || null,
         customer_phone: customerInfo.phone || null,
@@ -242,7 +245,6 @@ const PartnerCreateInvoice = () => {
 
   const handleDownloadPDF = async (invoice) => {
     try {
-      // Create a mock order object for PDF generation
       const orderForPDF = {
         id: invoice.id,
         reference_code: invoice.invoice_number,
@@ -259,6 +261,9 @@ const PartnerCreateInvoice = () => {
         payment_method: 'To be paid',
         created_at: invoice.issued_date || invoice.created_at,
         notes: invoice.notes,
+        partner_name: invoice.partner_name,
+        partner_email: invoice.partner_email,
+        partner_phone: invoice.partner_phone,
       };
 
       await downloadInvoice(orderForPDF);

@@ -580,7 +580,17 @@ export const generateInvoiceHTML = async (order, includeQR = true) => {
     <div class="content">
       <div class="info-grid">
         <div class="info-box">
+          ${order.partner_name ? `
+          <h3>From</h3>
+          <p>
+            <strong>${order.partner_name}</strong><br>
+            ${order.partner_email || ''}<br>
+            ${order.partner_phone || ''}
+          </p>
+          <h3 style="margin-top: 16px;">Bill To</h3>
+          ` : `
           <h3>Bill To</h3>
+          `}
           <p>
             <strong>${order.customer_name || 'Guest Customer'}</strong><br>
             ${order.customer_email || ''}<br>
