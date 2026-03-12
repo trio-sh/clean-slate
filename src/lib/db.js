@@ -1251,40 +1251,20 @@ export const db = {
   // PARTNER INVOICES OPERATIONS
   // ============================================
 
-  // Create a new invoice
+  // Create a new invoice (always uses IndexedDB)
   async createInvoice(invoice) {
-    if (getMode() === 'demo') {
-      const record = {
-        ...invoice,
-        id: invoice.id || generateId(),
-        sms_sent: invoice.sms_sent ?? false,
-        sms_sent_at: invoice.sms_sent_at || null,
-        paid_date: invoice.paid_date || null,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      };
-      const idb = await initDemoDB();
-      await idb.put('partner_invoices', record);
-      return record;
-    }
-
     const record = {
       ...invoice,
+      id: invoice.id || generateId(),
       sms_sent: invoice.sms_sent ?? false,
       sms_sent_at: invoice.sms_sent_at || null,
       paid_date: invoice.paid_date || null,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
     };
-    delete record.id;
-    delete record.created_at;
-    delete record.updated_at;
-
-    const { data, error } = await supabase
-      .from('partner_invoices')
-      .insert(record)
-      .select()
-      .single();
-    if (error) throw error;
-    return data;
+    const idb = await initDemoDB();
+    await idb.put('partner_invoices', record);
+    return record;
   },
 
   // Get all invoices for a specific depot (always uses IndexedDB)

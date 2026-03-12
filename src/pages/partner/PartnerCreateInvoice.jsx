@@ -213,8 +213,8 @@ const PartnerCreateInvoice = () => {
         updated_at: new Date().toISOString(),
       };
 
-      // Create invoice
-      const result = await db.create('partner_invoices', invoiceData);
+      // Create invoice (IndexedDB)
+      const result = await db.createInvoice(invoiceData);
 
       if (action === 'download') {
         // Generate and download PDF
