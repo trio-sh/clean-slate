@@ -42,7 +42,7 @@ const PartnerCreateInvoice = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [showServiceSelector, setShowServiceSelector] = useState(false);
-  const [depotInfo, setDepotInfo] = useState(null);
+
 
   useEffect(() => {
     loadData();
@@ -65,10 +65,6 @@ const PartnerCreateInvoice = () => {
       const activeServices = servicesData.filter(s => s.is_active);
       setAvailableServices(activeServices);
       setFilteredServices(activeServices);
-
-      // Load depot info for invoice header
-      const depot = await db.getById('partner_depots', user.depot_id);
-      setDepotInfo(depot);
     } catch (err) {
       console.error('Error loading data:', err);
       toast.error('Failed to load services');
@@ -167,7 +163,7 @@ const PartnerCreateInvoice = () => {
   const generateInvoiceNumber = () => {
     const timestamp = Date.now();
     const random = Math.floor(Math.random() * 1000);
-    return `INV-${depotInfo?.name.substring(0, 3).toUpperCase() || 'PTR'}-${timestamp}-${random}`;
+    return `INV-PTR-${timestamp}-${random}`;
   };
 
   const handleSaveInvoice = async (action = 'draft') => {
