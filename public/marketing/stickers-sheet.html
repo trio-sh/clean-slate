@@ -8,7 +8,7 @@
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Playfair+Display:wght@700;800;900&display=swap');
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  @page { size: 8.5in 11in; margin: 0.4in; }
+  @page { size: 8.5in 11in; margin: 0.3in; }
 
   body {
     font-family: 'Inter', sans-serif;
@@ -18,18 +18,17 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 0.3in;
+    padding: 0.25in;
   }
 
   .sheet {
     width: 100%;
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 20px;
-    padding: 0.2in;
+    gap: 18px;
+    padding: 0.15in;
   }
 
-  /* Base sticker style */
   .sticker {
     aspect-ratio: 1;
     border-radius: 50%;
@@ -38,145 +37,136 @@
     align-items: center;
     justify-content: center;
     text-align: center;
-    padding: 18px;
+    padding: 16px;
     position: relative;
     overflow: hidden;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
   }
 
-  /* Style 1: Navy brand sticker */
-  .sticker-brand {
-    background: linear-gradient(135deg, #1a2055 0%, #252d6b 100%);
-    color: white;
-    border: 3px solid #ed6d1a;
+  /* Sticker bg image overlay pattern */
+  .sticker-bg {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    z-index: 0;
+    border-radius: 50%;
+    overflow: hidden;
   }
 
-  .sticker-brand img {
-    width: 50px;
-    height: 50px;
-    object-fit: contain;
-    margin-bottom: 6px;
-  }
+  .sticker-bg img { width: 100%; height: 100%; object-fit: cover; }
 
+  .sticker > *:not(.sticker-bg) { position: relative; z-index: 2; }
+
+  /* 1: Navy brand */
+  .sticker-brand { border: 3px solid #ed6d1a; }
+  .sticker-brand .sticker-bg::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: linear-gradient(135deg, rgba(26, 32, 85, 0.92), rgba(37, 45, 107, 0.88));
+  }
+  .sticker-brand .logo { width: 46px; height: 46px; object-fit: contain; margin-bottom: 4px; }
   .sticker-brand .name {
     font-family: 'Playfair Display', serif;
     font-size: 14px;
     font-weight: 800;
     line-height: 1.1;
+    color: white;
   }
-
   .sticker-brand .sub {
     font-size: 7px;
     font-weight: 600;
     letter-spacing: 1.5px;
     text-transform: uppercase;
-    opacity: 0.6;
+    color: rgba(255,255,255,0.6);
     margin-top: 3px;
   }
-
-  .sticker-brand .flag {
-    font-size: 16px;
+  .sticker-brand .flag-img {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    object-fit: cover;
     margin-top: 4px;
   }
 
-  /* Style 2: Orange promo sticker */
-  .sticker-promo {
-    background: linear-gradient(135deg, #ed6d1a 0%, #f18c3f 100%);
-    color: white;
+  /* 2: Orange promo */
+  .sticker-promo .sticker-bg::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: linear-gradient(135deg, rgba(237, 109, 26, 0.93), rgba(241, 140, 63, 0.9));
   }
-
   .sticker-promo .pct {
     font-family: 'Playfair Display', serif;
-    font-size: 42px;
+    font-size: 40px;
     font-weight: 900;
     line-height: 1;
     letter-spacing: -2px;
+    color: white;
   }
-
   .sticker-promo .off {
     font-size: 14px;
     font-weight: 800;
     letter-spacing: 4px;
     text-transform: uppercase;
+    color: white;
     margin-top: -2px;
   }
-
   .sticker-promo .detail {
     font-size: 8px;
     font-weight: 600;
-    opacity: 0.8;
-    margin-top: 6px;
+    color: rgba(255,255,255,0.85);
+    margin-top: 5px;
     text-transform: uppercase;
     letter-spacing: 1px;
   }
 
-  /* Style 3: QR code sticker */
+  /* 3: QR */
   .sticker-qr {
     background: white;
-    color: #1a2055;
     border: 2.5px solid #1a2055;
   }
-
   .sticker-qr .scan-text {
     font-size: 8px;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 2px;
     color: #ed6d1a;
-    margin-bottom: 6px;
+    margin-bottom: 5px;
   }
+  .sticker-qr .qr-img { width: 76px; height: 76px; border-radius: 8px; }
+  .sticker-qr .url { font-size: 8px; font-weight: 700; margin-top: 5px; color: #1a2055; }
 
-  .sticker-qr .qr-img {
-    width: 80px;
-    height: 80px;
-    border-radius: 8px;
+  /* 4: Free pickup */
+  .sticker-free .sticker-bg::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.9), rgba(5, 150, 105, 0.92));
   }
-
-  .sticker-qr .url {
-    font-size: 8px;
-    font-weight: 700;
-    margin-top: 6px;
-    color: #1a2055;
-  }
-
-  /* Style 4: Free pickup sticker */
-  .sticker-free {
-    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-    color: white;
-  }
-
-  .sticker-free .emoji { font-size: 28px; margin-bottom: 4px; }
-
+  .sticker-free .icon-img { width: 36px; height: 36px; border-radius: 8px; object-fit: cover; margin-bottom: 4px; }
   .sticker-free .label {
     font-size: 10px;
     font-weight: 800;
     text-transform: uppercase;
-    letter-spacing: 2px;
+    letter-spacing: 1.5px;
     line-height: 1.3;
+    color: white;
   }
+  .sticker-free .sub { font-size: 8px; color: rgba(255,255,255,0.8); margin-top: 3px; }
 
-  .sticker-free .sub {
-    font-size: 8px;
-    opacity: 0.8;
-    margin-top: 4px;
-  }
-
-  /* Style 5: Rating sticker */
+  /* 5: Rating */
   .sticker-rating {
     background: white;
-    color: #1a2055;
     border: 2.5px solid #fbbf24;
   }
-
-  .sticker-rating .stars { font-size: 18px; margin-bottom: 2px; }
-
+  .sticker-rating .stars-img { width: 80px; height: 16px; object-fit: contain; margin-bottom: 4px; }
   .sticker-rating .score {
     font-family: 'Playfair Display', serif;
-    font-size: 34px;
+    font-size: 32px;
     font-weight: 900;
     line-height: 1;
+    color: #1a2055;
   }
-
   .sticker-rating .src {
     font-size: 8px;
     font-weight: 700;
@@ -186,66 +176,54 @@
     margin-top: 2px;
   }
 
-  /* Style 6: Eco sticker */
-  .sticker-eco {
-    background: linear-gradient(135deg, #065f46 0%, #047857 100%);
-    color: white;
+  /* 6: Eco */
+  .sticker-eco .sticker-bg::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: linear-gradient(135deg, rgba(6, 95, 70, 0.9), rgba(4, 120, 87, 0.88));
   }
-
-  .sticker-eco .emoji { font-size: 28px; margin-bottom: 4px; }
-
+  .sticker-eco .icon-img { width: 36px; height: 36px; border-radius: 8px; object-fit: cover; margin-bottom: 4px; }
   .sticker-eco .label {
     font-size: 10px;
     font-weight: 800;
     text-transform: uppercase;
     letter-spacing: 1.5px;
-  }
-
-  .sticker-eco .sub {
-    font-size: 8px;
-    opacity: 0.8;
-    margin-top: 3px;
-  }
-
-  /* Style 7: Phone sticker */
-  .sticker-phone {
-    background: linear-gradient(135deg, #1a2055 0%, #333dca 100%);
     color: white;
   }
+  .sticker-eco .sub { font-size: 8px; color: rgba(255,255,255,0.8); margin-top: 3px; }
 
-  .sticker-phone .emoji { font-size: 24px; margin-bottom: 4px; }
-
-  .sticker-phone .num {
-    font-size: 13px;
-    font-weight: 800;
-    letter-spacing: 0.5px;
+  /* 7: Phone */
+  .sticker-phone .sticker-bg::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: linear-gradient(135deg, rgba(26, 32, 85, 0.92), rgba(51, 61, 202, 0.88));
   }
-
+  .sticker-phone .icon-img { width: 30px; height: 30px; border-radius: 8px; object-fit: cover; margin-bottom: 4px; }
+  .sticker-phone .num { font-size: 13px; font-weight: 800; letter-spacing: 0.5px; color: white; }
   .sticker-phone .label {
     font-size: 8px;
     font-weight: 600;
-    opacity: 0.7;
+    color: rgba(255,255,255,0.7);
     text-transform: uppercase;
     letter-spacing: 1.5px;
     margin-top: 3px;
   }
 
-  /* Style 8: Since 2013 sticker */
+  /* 8: Since 2013 */
   .sticker-since {
     background: white;
-    color: #1a2055;
     border: 2.5px solid #ed6d1a;
   }
-
-  .sticker-since .maple { font-size: 22px; margin-bottom: 2px; }
-
+  .sticker-since .flag-img { width: 26px; height: 26px; border-radius: 50%; object-fit: cover; margin-bottom: 2px; }
   .sticker-since .year {
     font-family: 'Playfair Display', serif;
-    font-size: 28px;
+    font-size: 26px;
     font-weight: 900;
     line-height: 1;
+    color: #1a2055;
   }
-
   .sticker-since .label {
     font-size: 8px;
     font-weight: 700;
@@ -254,34 +232,25 @@
     color: #ed6d1a;
     margin-top: 2px;
   }
+  .sticker-since .sub { font-size: 8px; color: #888; margin-top: 2px; }
 
-  .sticker-since .sub {
-    font-size: 8px;
-    color: #888;
-    margin-top: 2px;
+  /* 9: Same day */
+  .sticker-sameday .sticker-bg::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: linear-gradient(135deg, rgba(124, 58, 237, 0.9), rgba(91, 33, 182, 0.92));
   }
-
-  /* Style 9: Same day sticker */
-  .sticker-sameday {
-    background: linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%);
-    color: white;
-  }
-
-  .sticker-sameday .emoji { font-size: 28px; margin-bottom: 4px; }
-
+  .sticker-sameday .icon-img { width: 36px; height: 36px; border-radius: 8px; object-fit: cover; margin-bottom: 4px; }
   .sticker-sameday .label {
     font-size: 10px;
     font-weight: 800;
     text-transform: uppercase;
     letter-spacing: 1.5px;
     line-height: 1.3;
+    color: white;
   }
-
-  .sticker-sameday .sub {
-    font-size: 8px;
-    opacity: 0.8;
-    margin-top: 3px;
-  }
+  .sticker-sameday .sub { font-size: 8px; color: rgba(255,255,255,0.8); margin-top: 3px; }
 
   @media print {
     body { -webkit-print-color-adjust: exact; print-color-adjust: exact; background: white; }
@@ -290,68 +259,86 @@
 </head>
 <body>
 <div class="sheet">
-  <!-- 1. Brand logo sticker -->
+  <!-- 1. Brand logo -->
   <div class="sticker sticker-brand">
-    <img src="../logo.png" alt="Amani's Cleaners">
+    <div class="sticker-bg">
+      <img src="https://api.a0.dev/assets/image?text=Clean+pressed+suits+hanging+on+rack+in+professional+dry+cleaner+shop+soft+light&aspect=1:1&seed=901" alt="">
+    </div>
+    <img class="logo" src="../logo.png" alt="">
     <div class="name">Amani's<br/>Cleaners</div>
     <div class="sub">Premium Garment Care</div>
-    <div class="flag">🍁</div>
+    <img class="flag-img" src="https://api.a0.dev/assets/image?text=Canadian+flag+red+maple+leaf+on+white&aspect=1:1&seed=150" alt="">
   </div>
 
-  <!-- 2. 15% off promo sticker -->
+  <!-- 2. 15% off promo -->
   <div class="sticker sticker-promo">
+    <div class="sticker-bg">
+      <img src="https://api.a0.dev/assets/image?text=Colorful+fresh+laundry+clothes+on+hangers+bright+warm+background&aspect=1:1&seed=902" alt="">
+    </div>
     <div class="pct">15%</div>
     <div class="off">OFF</div>
     <div class="detail">First Order</div>
     <div class="detail" style="margin-top:2px;">Code: WELCOME15</div>
   </div>
 
-  <!-- 3. QR code sticker -->
+  <!-- 3. QR code -->
   <div class="sticker sticker-qr">
     <div class="scan-text">Scan Me</div>
     <img class="qr-img" src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https://amanicleaners.com/get-app" alt="QR">
     <div class="url">amanicleaners.com</div>
   </div>
 
-  <!-- 4. Free pickup sticker -->
+  <!-- 4. Free pickup -->
   <div class="sticker sticker-free">
-    <div class="emoji">🚗</div>
+    <div class="sticker-bg">
+      <img src="https://api.a0.dev/assets/image?text=Delivery+van+driving+on+suburban+road+green+trees+sunny+day&aspect=1:1&seed=903" alt="">
+    </div>
+    <img class="icon-img" src="https://api.a0.dev/assets/image?text=White+delivery+van+icon+clean+minimal+flat+design&aspect=1:1&seed=301" alt="">
     <div class="label">Free Pickup<br/>& Delivery</div>
     <div class="sub">Across the GTA</div>
   </div>
 
-  <!-- 5. Rating sticker -->
+  <!-- 5. Rating -->
   <div class="sticker sticker-rating">
-    <div class="stars">⭐⭐⭐⭐⭐</div>
+    <img class="stars-img" src="https://api.a0.dev/assets/image?text=Five+gold+stars+rating+row+on+white+background+shiny&aspect=5:1&seed=904" alt="">
     <div class="score">4.9</div>
     <div class="src">Google Reviews</div>
   </div>
 
-  <!-- 6. Eco-friendly sticker -->
+  <!-- 6. Eco-friendly -->
   <div class="sticker sticker-eco">
-    <div class="emoji">🌿</div>
+    <div class="sticker-bg">
+      <img src="https://api.a0.dev/assets/image?text=Green+leaves+nature+eco+friendly+clean+fresh+background&aspect=1:1&seed=905" alt="">
+    </div>
+    <img class="icon-img" src="https://api.a0.dev/assets/image?text=Green+leaf+eco+icon+clean+minimal+white+background&aspect=1:1&seed=303" alt="">
     <div class="label">Eco-Friendly<br/>Cleaning</div>
     <div class="sub">Green methods</div>
   </div>
 
-  <!-- 7. Phone sticker -->
+  <!-- 7. Phone -->
   <div class="sticker sticker-phone">
-    <div class="emoji">📞</div>
+    <div class="sticker-bg">
+      <img src="https://api.a0.dev/assets/image?text=Modern+phone+customer+service+call+center+professional+blue+tones&aspect=1:1&seed=906" alt="">
+    </div>
+    <img class="icon-img" src="https://api.a0.dev/assets/image?text=Phone+call+icon+white+on+blue+minimal+flat&aspect=1:1&seed=310" alt="">
     <div class="num">437-215-6321</div>
     <div class="label">Call or Text</div>
   </div>
 
-  <!-- 8. Since 2013 sticker -->
+  <!-- 8. Since 2013 -->
   <div class="sticker sticker-since">
-    <div class="maple">🍁</div>
+    <img class="flag-img" src="https://api.a0.dev/assets/image?text=Canadian+maple+leaf+red+on+white+background&aspect=1:1&seed=150" alt="">
     <div class="year">2013</div>
     <div class="label">Proudly Canadian</div>
     <div class="sub">Since 2013</div>
   </div>
 
-  <!-- 9. Same day sticker -->
+  <!-- 9. Same day -->
   <div class="sticker sticker-sameday">
-    <div class="emoji">⚡</div>
+    <div class="sticker-bg">
+      <img src="https://api.a0.dev/assets/image?text=Fast+speed+motion+blur+abstract+purple+dynamic+energy&aspect=1:1&seed=907" alt="">
+    </div>
+    <img class="icon-img" src="https://api.a0.dev/assets/image?text=Lightning+bolt+fast+speed+icon+yellow+on+dark+minimal&aspect=1:1&seed=302" alt="">
     <div class="label">Same Day<br/>Service</div>
     <div class="sub">Available daily</div>
   </div>

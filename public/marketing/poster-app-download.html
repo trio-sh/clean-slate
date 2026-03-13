@@ -8,7 +8,6 @@
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Playfair+Display:wght@700;800;900&display=swap');
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
-
   @page { size: 11in 17in; margin: 0; }
 
   body {
@@ -16,7 +15,6 @@
     width: 11in;
     height: 17in;
     overflow: hidden;
-    background: #1a2055;
     position: relative;
     color: white;
   }
@@ -26,48 +24,48 @@
     height: 100%;
     position: relative;
     overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
   }
 
-  /* Background effects */
-  .glow-1 {
+  /* Full background image */
+  .bg-image {
     position: absolute;
-    width: 600px;
-    height: 600px;
-    background: radial-gradient(circle, rgba(237, 109, 26, 0.15) 0%, transparent 70%);
-    top: -100px;
-    right: -100px;
-    border-radius: 50%;
+    top: 0; left: 0; right: 0; bottom: 0;
+    z-index: 0;
   }
 
-  .glow-2 {
+  .bg-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .bg-image::after {
+    content: '';
     position: absolute;
-    width: 500px;
-    height: 500px;
-    background: radial-gradient(circle, rgba(95, 115, 241, 0.1) 0%, transparent 70%);
-    bottom: -100px;
-    left: -100px;
-    border-radius: 50%;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: linear-gradient(180deg,
+      rgba(26, 32, 85, 0.95) 0%,
+      rgba(26, 32, 85, 0.88) 30%,
+      rgba(26, 32, 85, 0.92) 60%,
+      rgba(26, 32, 85, 0.97) 100%
+    );
   }
 
   .grid-bg {
     position: absolute;
     top: 0; left: 0; right: 0; bottom: 0;
     background-image:
-      linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+      linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px);
     background-size: 40px 40px;
-    z-index: 0;
+    z-index: 1;
   }
 
   .content {
     position: relative;
     z-index: 10;
     text-align: center;
-    padding: 0.8in;
+    padding: 0.7in 0.8in;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -76,41 +74,33 @@
   }
 
   /* Top */
-  .top-section {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
+  .top-section { display: flex; flex-direction: column; align-items: center; }
 
   .logo-container {
-    width: 90px;
-    height: 90px;
+    width: 80px;
+    height: 80px;
     background: rgba(255,255,255,0.1);
-    border-radius: 24px;
+    border-radius: 22px;
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-bottom: 20px;
+    margin-bottom: 16px;
     border: 1px solid rgba(255,255,255,0.15);
     backdrop-filter: blur(10px);
   }
 
-  .logo-container img {
-    width: 65px;
-    height: 65px;
-    object-fit: contain;
-  }
+  .logo-container img { width: 58px; height: 58px; object-fit: contain; }
 
   .brand-name {
     font-family: 'Playfair Display', serif;
-    font-size: 32px;
+    font-size: 30px;
     font-weight: 900;
     letter-spacing: -0.5px;
     margin-bottom: 4px;
   }
 
   .brand-sub {
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 500;
     color: rgba(255,255,255,0.5);
     letter-spacing: 3px;
@@ -118,83 +108,93 @@
   }
 
   /* Middle */
-  .middle-section {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+  .middle-section { display: flex; flex-direction: column; align-items: center; }
+
+  /* Phone mockup area */
+  .phone-mockup {
+    width: 180px;
+    height: 320px;
+    background: #111;
+    border-radius: 28px;
+    padding: 8px;
+    margin-bottom: 40px;
+    box-shadow: 0 30px 80px rgba(0,0,0,0.4);
+    border: 2px solid rgba(255,255,255,0.1);
+    overflow: hidden;
+  }
+
+  .phone-mockup img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 20px;
   }
 
   .headline {
     font-family: 'Playfair Display', serif;
-    font-size: 72px;
+    font-size: 68px;
     font-weight: 900;
     line-height: 1;
     letter-spacing: -2px;
-    margin-bottom: 20px;
+    margin-bottom: 18px;
   }
 
   .headline .orange { color: #f18c3f; }
 
   .subtitle {
-    font-size: 20px;
+    font-size: 18px;
     font-weight: 400;
     color: rgba(255,255,255,0.7);
     max-width: 6in;
     line-height: 1.5;
-    margin-bottom: 50px;
+    margin-bottom: 45px;
   }
 
   /* QR Section */
   .qr-section {
     display: flex;
     align-items: center;
-    gap: 50px;
+    gap: 45px;
     background: rgba(255,255,255,0.05);
     border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 28px;
-    padding: 40px 55px;
+    border-radius: 24px;
+    padding: 36px 50px;
     backdrop-filter: blur(10px);
   }
 
   .qr-frame {
-    width: 200px;
-    height: 200px;
+    width: 180px;
+    height: 180px;
     background: white;
-    border-radius: 20px;
-    padding: 14px;
+    border-radius: 18px;
+    padding: 12px;
     box-shadow: 0 20px 60px rgba(0,0,0,0.3);
   }
 
-  .qr-frame img {
-    width: 100%;
-    height: 100%;
-    border-radius: 8px;
-  }
+  .qr-frame img { width: 100%; height: 100%; border-radius: 8px; }
 
-  .qr-text {
-    text-align: left;
-  }
+  .qr-text { text-align: left; }
 
   .qr-text .scan-label {
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 700;
     color: #f18c3f;
     text-transform: uppercase;
     letter-spacing: 3px;
-    margin-bottom: 12px;
+    margin-bottom: 10px;
   }
 
   .qr-text h3 {
     font-family: 'Playfair Display', serif;
-    font-size: 36px;
+    font-size: 34px;
     font-weight: 800;
     line-height: 1.1;
-    margin-bottom: 12px;
+    margin-bottom: 10px;
     letter-spacing: -0.5px;
   }
 
   .qr-text p {
-    font-size: 15px;
+    font-size: 14px;
     color: rgba(255,255,255,0.6);
     line-height: 1.5;
     max-width: 3.5in;
@@ -206,38 +206,40 @@
     gap: 8px;
     background: rgba(237, 109, 26, 0.15);
     border: 1px solid rgba(237, 109, 26, 0.3);
-    padding: 10px 22px;
+    padding: 10px 20px;
     border-radius: 50px;
-    margin-top: 16px;
-    font-size: 16px;
+    margin-top: 14px;
+    font-size: 15px;
     font-weight: 700;
     color: #f6b576;
-    letter-spacing: 0.3px;
   }
 
   /* Features Row */
   .features-row {
     display: flex;
-    gap: 30px;
+    gap: 24px;
     margin-top: 10px;
   }
 
   .feat {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 10px;
     background: rgba(255,255,255,0.05);
     border: 1px solid rgba(255,255,255,0.08);
-    padding: 14px 22px;
-    border-radius: 14px;
+    padding: 12px 18px;
+    border-radius: 12px;
   }
 
-  .feat-icon {
-    font-size: 22px;
+  .feat-img {
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    object-fit: cover;
   }
 
   .feat span {
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 600;
     color: rgba(255,255,255,0.8);
   }
@@ -252,24 +254,25 @@
 
   .contact-info {
     display: flex;
-    gap: 30px;
-    font-size: 14px;
+    gap: 28px;
+    font-size: 13px;
     color: rgba(255,255,255,0.5);
-  }
-
-  .contact-info span {
-    display: flex;
-    align-items: center;
-    gap: 6px;
   }
 
   .canadian-badge {
     display: flex;
     align-items: center;
     gap: 8px;
-    font-size: 12px;
+    font-size: 11px;
     color: rgba(255,255,255,0.4);
     font-weight: 500;
+  }
+
+  .canadian-badge img {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    object-fit: cover;
   }
 
   @media print {
@@ -279,8 +282,9 @@
 </head>
 <body>
 <div class="page">
-  <div class="glow-1"></div>
-  <div class="glow-2"></div>
+  <div class="bg-image">
+    <img src="https://api.a0.dev/assets/image?text=Modern+laundry+service+interior+with+clean+clothes+on+hangers+soft+blue+lighting+professional+dry+cleaning+shop&aspect=9:16&seed=600" alt="">
+  </div>
   <div class="grid-bg"></div>
 
   <div class="content">
@@ -295,6 +299,10 @@
 
     <!-- Middle -->
     <div class="middle-section">
+      <div class="phone-mockup">
+        <img src="https://api.a0.dev/assets/image?text=Mobile+app+screenshot+laundry+booking+service+clean+modern+UI+schedule+pickup+orange+and+navy+blue+theme&aspect=9:16&seed=650" alt="App Preview">
+      </div>
+
       <div class="headline">
         Get The<br/><span class="orange">App.</span>
       </div>
@@ -311,26 +319,26 @@
           <div class="scan-label">Scan to install</div>
           <h3>Point Your<br/>Camera Here</h3>
           <p>Works on iPhone, Android, and any device with a browser. Installs instantly.</p>
-          <div class="url-pill">🌐 amanicleaners.com/get-app</div>
+          <div class="url-pill">amanicleaners.com/get-app</div>
         </div>
       </div>
 
       <!-- Features -->
       <div class="features-row">
         <div class="feat">
-          <span class="feat-icon">🚗</span>
+          <img class="feat-img" src="https://api.a0.dev/assets/image?text=White+delivery+van+icon+on+dark+background+minimal+flat&aspect=1:1&seed=701" alt="">
           <span>Free Pickup & Delivery</span>
         </div>
         <div class="feat">
-          <span class="feat-icon">⚡</span>
+          <img class="feat-img" src="https://api.a0.dev/assets/image?text=Clock+timer+fast+speed+icon+on+dark+background+minimal&aspect=1:1&seed=702" alt="">
           <span>48-Hour Turnaround</span>
         </div>
         <div class="feat">
-          <span class="feat-icon">📍</span>
+          <img class="feat-img" src="https://api.a0.dev/assets/image?text=GPS+location+pin+tracking+icon+on+dark+background+minimal&aspect=1:1&seed=703" alt="">
           <span>Real-Time Tracking</span>
         </div>
         <div class="feat">
-          <span class="feat-icon">🌿</span>
+          <img class="feat-img" src="https://api.a0.dev/assets/image?text=Green+leaf+eco+friendly+icon+on+dark+background+minimal&aspect=1:1&seed=704" alt="">
           <span>Eco-Friendly</span>
         </div>
       </div>
@@ -339,11 +347,14 @@
     <!-- Bottom -->
     <div class="bottom-section">
       <div class="contact-info">
-        <span>📞 437-215-6321</span>
-        <span>🌐 amanicleaners.com</span>
-        <span>📧 amaniscleaners@gmail.com</span>
+        <span>437-215-6321</span>
+        <span>amanicleaners.com</span>
+        <span>amaniscleaners@gmail.com</span>
       </div>
-      <div class="canadian-badge">🍁 Proudly Canadian Since 2013</div>
+      <div class="canadian-badge">
+        <img src="https://api.a0.dev/assets/image?text=Canadian+flag+maple+leaf+red+white&aspect=1:1&seed=150" alt="">
+        Proudly Canadian Since 2013
+      </div>
     </div>
   </div>
 </div>

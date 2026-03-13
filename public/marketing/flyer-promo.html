@@ -22,23 +22,36 @@
 
   .page { width: 100%; height: 100%; position: relative; overflow: hidden; }
 
-  /* Orange top banner */
+  /* Top banner with image bg */
   .top-banner {
     background: linear-gradient(135deg, #ed6d1a 0%, #f18c3f 100%);
     color: white;
-    padding: 14px 0.7in;
+    padding: 12px 0.65in;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    font-size: 11px;
+    font-size: 10px;
     font-weight: 600;
     letter-spacing: 1.5px;
     text-transform: uppercase;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .top-banner > * { position: relative; z-index: 2; }
+
+  .top-banner .flag-icon {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    object-fit: cover;
+    vertical-align: middle;
+    margin-right: 4px;
   }
 
   .content {
-    padding: 0.5in 0.7in 0.4in;
-    height: calc(100% - 42px);
+    padding: 0.4in 0.65in 0.35in;
+    height: calc(100% - 38px);
     display: flex;
     flex-direction: column;
   }
@@ -48,18 +61,14 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 0.3in;
+    margin-bottom: 0.25in;
   }
 
-  .logo-area {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
+  .logo-area { display: flex; align-items: center; gap: 12px; }
 
   .logo-circle {
-    width: 50px;
-    height: 50px;
+    width: 46px;
+    height: 46px;
     background: linear-gradient(135deg, #1a2055, #252d6b);
     border-radius: 14px;
     display: flex;
@@ -67,22 +76,18 @@
     justify-content: center;
   }
 
-  .logo-circle img {
-    width: 36px;
-    height: 36px;
-    object-fit: contain;
-  }
+  .logo-circle img { width: 32px; height: 32px; object-fit: contain; }
 
   .logo-text h1 {
     font-family: 'Playfair Display', serif;
-    font-size: 24px;
+    font-size: 22px;
     font-weight: 900;
     color: #1a2055;
     line-height: 1;
   }
 
   .logo-text span {
-    font-size: 10px;
+    font-size: 9px;
     color: #888;
     font-weight: 500;
     letter-spacing: 1.5px;
@@ -92,103 +97,93 @@
   .phone-badge {
     background: #1a2055;
     color: white;
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 700;
-    padding: 10px 20px;
+    padding: 9px 18px;
     border-radius: 50px;
     display: flex;
     align-items: center;
     gap: 8px;
   }
 
+  .phone-badge img {
+    width: 16px;
+    height: 16px;
+    border-radius: 4px;
+    object-fit: cover;
+  }
+
   /* Promo banner */
   .promo-banner {
-    background: linear-gradient(135deg, #1a2055 0%, #252d6b 100%);
-    border-radius: 20px;
-    padding: 32px 36px;
+    border-radius: 18px;
+    padding: 28px 32px;
     color: white;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 0.3in;
+    margin-bottom: 0.25in;
     position: relative;
     overflow: hidden;
   }
 
-  .promo-banner::after {
-    content: '';
+  .promo-banner-bg {
     position: absolute;
-    right: 0;
-    top: 0;
-    width: 40%;
-    height: 100%;
-    background: linear-gradient(135deg, transparent 0%, rgba(237, 109, 26, 0.1) 100%);
-    border-radius: 0 20px 20px 0;
+    top: 0; left: 0; right: 0; bottom: 0;
+    z-index: 0;
   }
 
-  .promo-left {
-    position: relative;
-    z-index: 2;
+  .promo-banner-bg img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
   }
+
+  .promo-banner-bg::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: linear-gradient(135deg, rgba(26, 32, 85, 0.93) 0%, rgba(37, 45, 107, 0.88) 100%);
+  }
+
+  .promo-left, .promo-right { position: relative; z-index: 2; }
 
   .promo-left .discount {
     font-family: 'Playfair Display', serif;
-    font-size: 60px;
+    font-size: 56px;
     font-weight: 900;
     line-height: 1;
     letter-spacing: -2px;
   }
 
-  .promo-left .discount .pct {
-    color: #f18c3f;
-  }
+  .promo-left .discount .pct { color: #f18c3f; }
 
-  .promo-left .promo-sub {
-    font-size: 16px;
-    font-weight: 600;
-    margin-top: 4px;
-    opacity: 0.9;
-  }
+  .promo-left .promo-sub { font-size: 15px; font-weight: 600; margin-top: 4px; opacity: 0.9; }
+  .promo-left .promo-detail { font-size: 10px; opacity: 0.6; margin-top: 5px; }
 
-  .promo-left .promo-detail {
-    font-size: 11px;
-    opacity: 0.6;
-    margin-top: 6px;
-  }
-
-  .promo-right {
-    position: relative;
-    z-index: 2;
-    text-align: right;
-  }
+  .promo-right { text-align: right; }
 
   .promo-code {
     background: rgba(237, 109, 26, 0.2);
     border: 2px dashed rgba(237, 109, 26, 0.5);
-    padding: 12px 28px;
+    padding: 10px 24px;
     border-radius: 12px;
-    font-size: 20px;
+    font-size: 18px;
     font-weight: 800;
     letter-spacing: 3px;
     color: #f6b576;
-    margin-bottom: 8px;
+    margin-bottom: 6px;
   }
 
-  .promo-valid {
-    font-size: 10px;
-    opacity: 0.5;
-  }
+  .promo-valid { font-size: 9px; opacity: 0.5; }
 
   /* Pricing grid */
-  .pricing-section {
-    margin-bottom: 0.25in;
-  }
+  .pricing-section { margin-bottom: 0.2in; }
 
   .section-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 14px;
+    margin-bottom: 12px;
   }
 
   .section-title {
@@ -199,10 +194,7 @@
     letter-spacing: 2.5px;
   }
 
-  .section-note {
-    font-size: 9px;
-    color: #999;
-  }
+  .section-note { font-size: 9px; color: #999; }
 
   .pricing-grid {
     display: grid;
@@ -213,9 +205,10 @@
   .price-card {
     border: 1.5px solid #eef0f6;
     border-radius: 14px;
-    padding: 16px;
+    padding: 14px;
     text-align: center;
     position: relative;
+    overflow: hidden;
   }
 
   .price-card.featured {
@@ -238,46 +231,52 @@
     letter-spacing: 1px;
   }
 
-  .price-card .emoji { font-size: 26px; margin-bottom: 6px; }
-  .price-card h4 { font-size: 13px; font-weight: 700; color: #1a2055; margin-bottom: 4px; }
-  .price-card .price { font-size: 22px; font-weight: 800; color: #ed6d1a; }
+  .price-card .card-img {
+    width: 48px;
+    height: 48px;
+    border-radius: 10px;
+    object-fit: cover;
+    margin: 0 auto 6px;
+    display: block;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+  }
+
+  .price-card h4 { font-size: 12px; font-weight: 700; color: #1a2055; margin-bottom: 3px; }
+  .price-card .price { font-size: 20px; font-weight: 800; color: #ed6d1a; }
   .price-card .price-unit { font-size: 10px; color: #999; font-weight: 400; }
   .price-card .price-note { font-size: 9px; color: #999; margin-top: 2px; }
 
   /* How it works */
-  .how-section { margin-bottom: 0.25in; }
+  .how-section { margin-bottom: 0.2in; }
 
-  .steps {
-    display: flex;
-    gap: 16px;
-  }
+  .steps { display: flex; gap: 12px; }
 
   .step {
     flex: 1;
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 10px;
     background: #f8f9fc;
-    padding: 14px 16px;
+    padding: 12px 14px;
     border-radius: 12px;
   }
 
   .step-num {
-    width: 32px;
-    height: 32px;
+    width: 30px;
+    height: 30px;
     background: linear-gradient(135deg, #ed6d1a, #f18c3f);
     color: white;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 800;
     flex-shrink: 0;
   }
 
-  .step h4 { font-size: 11px; font-weight: 700; color: #1a2055; }
-  .step p { font-size: 9px; color: #666; margin-top: 1px; }
+  .step h4 { font-size: 10px; font-weight: 700; color: #1a2055; }
+  .step p { font-size: 8px; color: #666; margin-top: 1px; }
 
   /* Bottom CTA */
   .bottom-cta {
@@ -287,46 +286,39 @@
     justify-content: space-between;
     background: #f8f9fc;
     border: 1.5px solid #eef0f6;
-    border-radius: 18px;
-    padding: 22px 28px;
+    border-radius: 16px;
+    padding: 18px 24px;
   }
 
-  .cta-left {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-  }
+  .cta-left { display: flex; align-items: center; gap: 14px; }
 
   .qr-small {
-    width: 70px;
-    height: 70px;
+    width: 66px;
+    height: 66px;
     background: white;
     border-radius: 12px;
-    padding: 5px;
+    padding: 4px;
     border: 1.5px solid #eee;
   }
 
   .qr-small img { width: 100%; height: 100%; border-radius: 6px; }
 
-  .cta-text h4 { font-size: 14px; font-weight: 700; color: #1a2055; margin-bottom: 2px; }
-  .cta-text p { font-size: 11px; color: #666; }
-  .cta-text .url { font-size: 13px; font-weight: 800; color: #ed6d1a; margin-top: 4px; }
+  .cta-text h4 { font-size: 13px; font-weight: 700; color: #1a2055; margin-bottom: 2px; }
+  .cta-text p { font-size: 10px; color: #666; }
+  .cta-text .url { font-size: 12px; font-weight: 800; color: #ed6d1a; margin-top: 3px; }
 
-  .cta-right-badges {
-    display: flex;
-    gap: 12px;
-  }
+  .cta-right-badges { display: flex; gap: 10px; }
 
   .badge {
     text-align: center;
-    padding: 10px 16px;
+    padding: 10px 14px;
     background: white;
     border-radius: 12px;
     border: 1.5px solid #eef0f6;
   }
 
-  .badge .val { font-size: 18px; font-weight: 800; color: #1a2055; }
-  .badge .lbl { font-size: 8px; color: #999; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }
+  .badge .val { font-size: 16px; font-weight: 800; color: #1a2055; }
+  .badge .lbl { font-size: 7px; color: #999; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }
 
   @media print {
     body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
@@ -337,7 +329,7 @@
 <div class="page">
   <!-- Top banner -->
   <div class="top-banner">
-    <span>🍁 Proudly Canadian Since 2013</span>
+    <span><img class="flag-icon" src="https://api.a0.dev/assets/image?text=Canadian+flag+red+maple+leaf+on+white&aspect=1:1&seed=150" alt=""> Proudly Canadian Since 2013</span>
     <span>Free Pickup & Delivery Across the GTA</span>
   </div>
 
@@ -353,11 +345,17 @@
           <span>Premium Garment Care</span>
         </div>
       </div>
-      <div class="phone-badge">📞 437-215-6321</div>
+      <div class="phone-badge">
+        <img src="https://api.a0.dev/assets/image?text=Phone+icon+white+on+dark+blue+minimal+flat&aspect=1:1&seed=310" alt="">
+        437-215-6321
+      </div>
     </div>
 
     <!-- Promo Banner -->
     <div class="promo-banner">
+      <div class="promo-banner-bg">
+        <img src="https://api.a0.dev/assets/image?text=Luxury+laundry+room+with+washing+machines+bright+clean+modern+interior&aspect=3:1&seed=400" alt="">
+      </div>
       <div class="promo-left">
         <div class="discount">15<span class="pct">%</span> OFF</div>
         <div class="promo-sub">Your First Order</div>
@@ -365,7 +363,7 @@
       </div>
       <div class="promo-right">
         <div class="promo-code">WELCOME15</div>
-        <div class="promo-valid">Use at checkout • No minimum order</div>
+        <div class="promo-valid">Use at checkout | No minimum order</div>
       </div>
     </div>
 
@@ -377,20 +375,20 @@
       </div>
       <div class="pricing-grid">
         <div class="price-card">
-          <div class="emoji">👔</div>
+          <img class="card-img" src="https://api.a0.dev/assets/image?text=Crisp+pressed+white+dress+shirt+on+wooden+hanger+clean+professional&aspect=1:1&seed=501" alt="">
           <h4>Dress Shirts</h4>
           <div class="price">$3.99</div>
           <div class="price-note">Laundered & pressed</div>
         </div>
         <div class="price-card featured">
           <div class="popular-tag">Most Popular</div>
-          <div class="emoji">👕</div>
+          <img class="card-img" src="https://api.a0.dev/assets/image?text=Neatly+folded+stack+of+colorful+fresh+laundry+on+white+surface+clean&aspect=1:1&seed=502" alt="">
           <h4>Wash & Fold</h4>
           <div class="price">$1.99<span class="price-unit">/lb</span></div>
           <div class="price-note">Washed, dried & folded</div>
         </div>
         <div class="price-card">
-          <div class="emoji">👗</div>
+          <img class="card-img" src="https://api.a0.dev/assets/image?text=Elegant+business+suit+on+hanger+dry+cleaned+professional+wrapped&aspect=1:1&seed=503" alt="">
           <h4>Dry Cleaning</h4>
           <div class="price">$8.99</div>
           <div class="price-note">Suits, dresses & more</div>
@@ -408,7 +406,7 @@
           <div class="step-num">1</div>
           <div>
             <h4>Book Online</h4>
-            <p>Schedule your pickup time</p>
+            <p>Schedule your pickup</p>
           </div>
         </div>
         <div class="step">
@@ -453,7 +451,7 @@
           <div class="lbl">Years</div>
         </div>
         <div class="badge">
-          <div class="val">4.9★</div>
+          <div class="val">4.9</div>
           <div class="lbl">Google</div>
         </div>
         <div class="badge">
