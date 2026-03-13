@@ -300,12 +300,17 @@ const CustomerLayout = () => {
                           </Link>
                           {user?.role !== 'customer' && (
                             <Link
-                              to={`/${user?.role}`}
+                              to={user?.role === 'partner' ? '/partner-portal' : `/${user?.role}`}
                               onClick={() => setShowUserMenu(false)}
                               className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
                             >
                               <User className="w-4 h-4 flex-shrink-0" />
-                              <span className="truncate">{user?.role === 'admin' ? t('userMenu.adminPanel') : user?.role === 'driver' ? t('userMenu.driverDashboard') : t('userMenu.staffDashboard')}</span>
+                              <span className="truncate">{
+                                user?.role === 'admin' ? t('userMenu.adminPanel') :
+                                user?.role === 'driver' ? t('userMenu.driverDashboard') :
+                                user?.role === 'partner' ? 'Partner Portal' :
+                                t('userMenu.staffDashboard')
+                              }</span>
                             </Link>
                           )}
                           <button
