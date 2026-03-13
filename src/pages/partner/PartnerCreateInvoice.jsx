@@ -38,6 +38,9 @@ const PartnerCreateInvoice = () => {
     discountPercent: 0,
   });
 
+  // Depot info
+  const [depot, setDepot] = useState(null);
+
   // UI state
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -59,6 +62,10 @@ const PartnerCreateInvoice = () => {
         setLoading(false);
         return;
       }
+
+      // Load depot info for letterhead
+      const depotData = await db.getById('depots', user.depot_id);
+      setDepot(depotData);
 
       // Load partner's services
       const servicesData = await db.getPartnerServices(user.depot_id);
@@ -178,6 +185,13 @@ const PartnerCreateInvoice = () => {
       const invoiceData = {
         invoice_number: invoiceNumber,
         depot_id: user.depot_id,
+        // Depot/company info for letterhead
+        depot_name: depot?.name || null,
+        depot_code: depot?.code || null,
+        depot_address: depot?.address || null,
+        depot_city: depot?.city || null,
+        depot_postal_code: depot?.postal_code || null,
+        depot_phone: depot?.phone || null,
         partner_name: `${user.first_name || ''} ${user.last_name || ''}`.trim() || null,
         partner_email: user.email || null,
         partner_phone: user.phone || null,
@@ -265,6 +279,12 @@ const PartnerCreateInvoice = () => {
         partner_name: invoice.partner_name,
         partner_email: invoice.partner_email,
         partner_phone: invoice.partner_phone,
+        depot_name: invoice.depot_name,
+        depot_code: invoice.depot_code,
+        depot_address: invoice.depot_address,
+        depot_city: invoice.depot_city,
+        depot_postal_code: invoice.depot_postal_code,
+        depot_phone: invoice.depot_phone,
       };
 
       await downloadInvoice(orderForPDF);

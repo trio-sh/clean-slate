@@ -567,8 +567,13 @@ export const generateInvoiceHTML = async (order, includeQR = true) => {
       <div class="logo" style="display: flex; align-items: center; gap: 15px;">
         <img src="${window.location.origin}/logo.png" alt="Amani's Cleaners" style="height: 50px; width: auto; border-radius: 8px;">
         <div>
+          ${order.depot_name ? `
+          <span style="font-size: 22px; font-weight: bold;">${order.depot_name}</span>
+          <div style="font-size: 11px; opacity: 0.75; margin-top: 2px;">Amani's Cleaners Partner Network 🍁</div>
+          ` : `
           <span style="font-size: 24px; font-weight: bold;">Amani's Cleaners</span>
           <span style="font-size: 16px; opacity: 0.9;">🍁</span>
+          `}
         </div>
       </div>
       <div class="invoice-title">
@@ -576,16 +581,19 @@ export const generateInvoiceHTML = async (order, includeQR = true) => {
         <p>#${order.reference_code}</p>
       </div>
     </div>
-    
+
     <div class="content">
       <div class="info-grid">
         <div class="info-box">
-          ${order.partner_name ? `
+          ${order.depot_name || order.partner_name ? `
           <h3>From</h3>
           <p>
-            <strong>${order.partner_name}</strong><br>
-            ${order.partner_email || ''}<br>
-            ${order.partner_phone || ''}
+            ${order.depot_name ? `<strong>${order.depot_name}</strong>${order.depot_code ? ` <span style="color:#999;font-size:11px;">(${order.depot_code})</span>` : ''}<br>` : ''}
+            ${order.partner_name ? `${order.partner_name}<br>` : ''}
+            ${order.depot_address ? `${order.depot_address}<br>` : ''}
+            ${order.depot_city || order.depot_postal_code ? `${order.depot_city || ''}${order.depot_city && order.depot_postal_code ? ', ' : ''}${order.depot_postal_code || ''}<br>` : ''}
+            ${order.depot_phone || order.partner_phone ? `${order.depot_phone || order.partner_phone}<br>` : ''}
+            ${order.partner_email || ''}
           </p>
           <h3 style="margin-top: 16px;">Bill To</h3>
           ` : `
@@ -662,8 +670,13 @@ export const generateInvoiceHTML = async (order, includeQR = true) => {
     </div>
     
     <div class="footer">
+      ${order.depot_name ? `
+      <p><strong>${order.depot_name}</strong> — An Amani's Cleaners Partner</p>
+      <p>${order.depot_phone || order.partner_phone || ''} | ${order.partner_email || ''}</p>
+      ` : `
       <p><strong>Amani's Cleaners</strong> - Proudly Canadian Since 2013</p>
       <p>${config.business.phone} | ${config.business.email} | ${config.business.website}</p>
+      `}
       <p style="margin-top: 10px; font-size: 12px;">${config.business.taxNumber}</p>
     </div>
   </div>

@@ -21,6 +21,7 @@ const PartnerInvoices = () => {
   const [showSMSConfirm, setShowSMSConfirm] = useState(false);
   const [invoiceToSend, setInvoiceToSend] = useState(null);
   const [sendingSMS, setSendingSMS] = useState(false);
+  const [depot, setDepot] = useState(null);
 
   useEffect(() => {
     loadInvoices();
@@ -36,6 +37,10 @@ const PartnerInvoices = () => {
         setLoading(false);
         return;
       }
+
+      // Load depot info for letterhead
+      const depotData = await db.getById('depots', user.depot_id);
+      setDepot(depotData);
 
       // Get all invoices from partner_invoices table
       const invoicesData = await db.getInvoicesByDepot(user.depot_id);
@@ -197,6 +202,12 @@ Thank you for your business!`;
         partner_name: invoice.partner_name,
         partner_email: invoice.partner_email,
         partner_phone: invoice.partner_phone,
+        depot_name: invoice.depot_name || depot?.name || null,
+        depot_code: invoice.depot_code || depot?.code || null,
+        depot_address: invoice.depot_address || depot?.address || null,
+        depot_city: invoice.depot_city || depot?.city || null,
+        depot_postal_code: invoice.depot_postal_code || depot?.postal_code || null,
+        depot_phone: invoice.depot_phone || depot?.phone || null,
       };
 
       await downloadInvoice(orderForPDF);
