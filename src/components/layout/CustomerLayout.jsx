@@ -675,8 +675,13 @@ const CustomerLayout = () => {
                 }`}
               >
                 {isOrder ? (
-                  <div className="w-12 h-12 -mt-5 bg-gradient-to-br from-amani-500 to-amani-600 rounded-full flex items-center justify-center shadow-lg shadow-amani-500/30">
+                  <div className="relative w-12 h-12 -mt-5 bg-gradient-to-br from-amani-500 to-amani-600 rounded-full flex items-center justify-center shadow-lg shadow-amani-500/30">
                     <Icon className="w-6 h-6 text-white" />
+                    {getItemCount() > 0 && (
+                      <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center ring-2 ring-white">
+                        {getItemCount()}
+                      </span>
+                    )}
                   </div>
                 ) : (
                   <Icon className={`w-5 h-5 ${active ? 'text-amani-600' : ''}`} />
