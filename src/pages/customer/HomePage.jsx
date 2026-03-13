@@ -867,8 +867,8 @@ const HomePage = () => {
         </div>
       </section>
 
-      {/* App Section */}
-      <section className="app-section">
+      {/* App Section - hidden on mobile for app-like feel */}
+      <section className="app-section hidden md:block">
         <div className="app-container">
           <div className="app-glow"></div>
           
