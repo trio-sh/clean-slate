@@ -275,8 +275,8 @@ const HomePage = () => {
         </div>
       </section>
 
-      {/* Stats Bar */}
-      <section className="bg-amani-500">
+      {/* Stats Bar - hidden on mobile for app-like feel */}
+      <section className="hidden md:block bg-amani-500">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             {stats.map((stat, i) => (
@@ -296,8 +296,8 @@ const HomePage = () => {
         </div>
       </section>
 
-      {/* Features Section */}
-      <section className="py-20 bg-gray-50">
+      {/* Features Section - hidden on mobile for app-like feel */}
+      <section className="hidden md:block py-20 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
