@@ -5,7 +5,8 @@ import { useLanguage } from '../../i18n/LanguageContext';
 import {
   Truck, Clock, Shield, Star, Sparkles, ArrowRight,
   Shirt, MapPin, Phone, CheckCircle2, Award, Users,
-  Zap, Heart, Leaf, Package, Building2, MessageSquare, Receipt
+  Zap, Heart, Leaf, Package, Building2, MessageSquare, Receipt,
+  Download, QrCode, Smartphone
 } from 'lucide-react';
 
 const HomePage = () => {
@@ -892,20 +893,20 @@ const HomePage = () => {
             </div>
 
             <div className="app-buttons">
-              <a href="#" className="app-btn">
-                <span className="app-btn-icon"></span>
+              <Link to="/get-app" className="app-btn">
+                <span className="app-btn-icon"><Download size={20} /></span>
                 <div className="app-btn-text">
-                  <span>{t('app.appStore')}</span>
-                  <strong>{t('app.appStoreBold')}</strong>
+                  <span>{t('app.installNow')}</span>
+                  <strong>{t('app.getTheApp')}</strong>
                 </div>
-              </a>
-              <a href="#" className="app-btn">
-                <span className="app-btn-icon">▶</span>
+              </Link>
+              <Link to="/get-app" className="app-btn">
+                <span className="app-btn-icon"><QrCode size={20} /></span>
                 <div className="app-btn-text">
-                  <span>{t('app.googlePlay')}</span>
-                  <strong>{t('app.googlePlayBold')}</strong>
+                  <span>{t('app.scanQR')}</span>
+                  <strong>{t('app.qrCode')}</strong>
                 </div>
-              </a>
+              </Link>
             </div>
           </div>
 
