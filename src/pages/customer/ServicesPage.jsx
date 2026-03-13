@@ -166,20 +166,20 @@ const ServicesPage = () => {
               <div className="card p-4">
                 <button
                   onClick={() => setCategoriesOpen(!categoriesOpen)}
-                  className="w-full font-semibold text-navy-900 flex items-center justify-between gap-2 lg:pointer-events-none"
+                  className="w-full font-semibold text-navy-900 flex items-center justify-between gap-2"
                 >
                   <span className="flex items-center gap-2">
                     <Filter className="w-5 h-5" />
                     {t('services.categories')}
                     {selectedCategory && (
-                      <span className="text-xs bg-amani-100 text-amani-700 px-2 py-0.5 rounded-full lg:hidden">
+                      <span className="text-xs bg-amani-100 text-amani-700 px-2 py-0.5 rounded-full">
                         {categories.find(c => c.id === selectedCategory)?.name}
                       </span>
                     )}
                   </span>
-                  <ChevronDown className={`w-4 h-4 transition-transform lg:hidden ${categoriesOpen ? 'rotate-180' : ''}`} />
+                  <ChevronDown className={`w-4 h-4 transition-transform ${categoriesOpen ? 'rotate-180' : ''}`} />
                 </button>
-                <div className={`space-y-2 max-h-96 overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 hover:scrollbar-thumb-gray-400 transition-all duration-200 ${categoriesOpen ? 'mt-4' : 'mt-4 hidden lg:block'}`}>
+                <div className={`space-y-2 max-h-96 overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 hover:scrollbar-thumb-gray-400 transition-all duration-200 ${categoriesOpen ? 'mt-4' : 'mt-4 hidden'}`}>
                   <button
                     onClick={() => setSelectedCategory(null)}
                     className={`w-full text-left px-3 py-2 rounded-lg transition-colors ${
