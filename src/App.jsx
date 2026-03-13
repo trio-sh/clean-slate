@@ -28,6 +28,7 @@ import ServicesPage from './pages/customer/ServicesPage';
 import PricingPage from './pages/customer/PricingPage';
 import OrderPage from './pages/customer/OrderPage';
 import TrackOrderPage from './pages/customer/TrackOrderPage';
+import GetAppPage from './pages/customer/GetAppPage';
 import AccountPage from './pages/customer/AccountPage';
 import SubscriptionsPage from './pages/customer/SubscriptionsPage';
 import DriveWithUsPage from './pages/customer/DriveWithUsPage';
@@ -158,6 +159,7 @@ function App() {
             <Route path="partner" element={<PartnerApplicationPage />} />
             <Route path="driver" element={<DriverApplicationPage />} />
             <Route path="careers" element={<CareerApplicationPage />} />
+            <Route path="get-app" element={<GetAppPage />} />
             <Route path="account" element={
               <ProtectedRoute allowedRoles={['customer']}>
                 <AccountPage />
