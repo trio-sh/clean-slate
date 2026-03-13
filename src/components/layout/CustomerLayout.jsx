@@ -90,7 +90,7 @@ const CustomerLayout = () => {
     { name: t('navigation.services'), href: '/services', icon: Shirt },
     { name: t('navigation.orderNow'), href: '/order', icon: Package },
     { name: t('navigation.trackOrder'), href: '/track', icon: Search },
-    { name: isAuthenticated ? 'My Account' : 'Sign In', href: isAuthenticated ? '/account' : '/login', icon: User },
+    { name: isAuthenticated ? t('userMenu.myAccount') : t('auth.signIn'), href: isAuthenticated ? '/account' : '/login', icon: User },
   ];
 
   const isActive = (href) => location.pathname === href;
@@ -324,14 +324,14 @@ const CustomerLayout = () => {
                 <div className="flex items-center gap-1.5 sm:gap-2">
                   <Link to="/login" className="hidden md:flex btn-ghost text-sm">{t('auth.signIn')}</Link>
                   <Link to="/login" className="md:hidden text-xs font-medium text-navy-700 px-2.5 py-1.5 rounded-lg hover:bg-gray-100 transition-colors">
-                    Login
+                    {t('navigation.login')}
                   </Link>
                   <Link to="/order" className="hidden md:flex btn-primary text-sm">
                     <Sparkles className="w-4 h-4" />
                     {t('navigation.orderNow')}
                   </Link>
                   <Link to="/order" className="md:hidden text-xs font-semibold text-white bg-amani-500 hover:bg-amani-600 px-3 py-1.5 rounded-lg transition-colors">
-                    Order
+                    {t('navigation.orderNow')}
                   </Link>
                 </div>
               )}
@@ -394,7 +394,7 @@ const CustomerLayout = () => {
                       className="flex items-center gap-2.5 px-4 py-3 bg-white text-sm font-medium text-navy-700 active:bg-gray-50 transition-colors"
                     >
                       <Briefcase className="w-4 h-4 flex-shrink-0 text-gray-400" />
-                      <span>Partner</span>
+                      <span>{t('footer.becomePartner')}</span>
                     </Link>
                     <Link
                       to="/careers"
@@ -402,7 +402,7 @@ const CustomerLayout = () => {
                       className="flex items-center gap-2.5 px-4 py-3 bg-white text-sm font-medium text-navy-700 active:bg-gray-50 transition-colors"
                     >
                       <Star className="w-4 h-4 flex-shrink-0 text-gray-400" />
-                      <span>Careers</span>
+                      <span>{t('navigation.careers')}</span>
                     </Link>
                   </div>
 
@@ -417,7 +417,7 @@ const CustomerLayout = () => {
                           className="flex items-center gap-1.5 text-xs font-medium text-navy-700 px-2.5 py-1.5 rounded-lg bg-white border border-gray-200"
                         >
                           <User className="w-3.5 h-3.5" />
-                          Account
+                          {t('userMenu.myAccount')}
                         </Link>
                         <button
                           onClick={() => { logout(); setMobileMenuOpen(false); }}
@@ -433,14 +433,14 @@ const CustomerLayout = () => {
                           onClick={() => setMobileMenuOpen(false)}
                           className="text-xs font-medium text-navy-700 px-2.5 py-1.5 rounded-lg bg-white border border-gray-200"
                         >
-                          Login
+                          {t('navigation.login')}
                         </Link>
                         <Link
                           to="/order"
                           onClick={() => setMobileMenuOpen(false)}
                           className="text-xs font-semibold text-white bg-amani-500 px-3 py-1.5 rounded-lg"
                         >
-                          Order
+                          {t('navigation.orderNow')}
                         </Link>
                       </div>
                     )}
