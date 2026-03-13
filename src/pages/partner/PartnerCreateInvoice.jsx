@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import {
-  FileText, Plus, Minus, Trash2, Search, Save, Download, Send,
+  FileText, Plus, Trash2, Search, Save, Download, Send,
   User, Mail, Phone, MapPin, DollarSign, Calendar, Package,
   AlertCircle, Check, X, Percent
 } from 'lucide-react';
@@ -113,10 +113,11 @@ const PartnerCreateInvoice = () => {
     setSearchQuery('');
   };
 
-  const handleUpdateQuantity = (serviceId, delta) => {
+  const handleUpdateQuantity = (serviceId, value) => {
     setSelectedServices(selectedServices.map(service => {
       if (service.id === serviceId) {
-        const newQuantity = Math.max(0.25, service.quantity + delta);
+        const parsed = parseFloat(value);
+        const newQuantity = isNaN(parsed) || parsed <= 0 ? '' : parsed;
         return { ...service, quantity: newQuantity };
       }
       return service;
@@ -444,21 +445,18 @@ const PartnerCreateInvoice = () => {
                     <div className="flex items-center gap-3">
                       {/* Quantity Controls */}
                       <div className="flex items-center gap-2 bg-white rounded-lg border border-gray-200 px-2 py-1">
-                        <button
-                          onClick={() => handleUpdateQuantity(service.id, -0.25)}
-                          className="p-1 hover:bg-gray-100 rounded transition-colors"
-                        >
-                          <Minus className="w-4 h-4 text-gray-600" />
-                        </button>
-                        <span className="w-16 text-center font-medium text-navy-900">
-                          {service.quantity}
-                        </span>
-                        <button
-                          onClick={() => handleUpdateQuantity(service.id, 0.25)}
-                          className="p-1 hover:bg-gray-100 rounded transition-colors"
-                        >
-                          <Plus className="w-4 h-4 text-gray-600" />
-                        </button>
+                        <input
+                          type="number"
+                          min="0.01"
+                          step="any"
+                          value={service.quantity}
+                          onChange={(e) => handleUpdateQuantity(service.id, e.target.value)}
+                          onBlur={(e) => {
+                            const val = parseFloat(e.target.value);
+                            if (isNaN(val) || val <= 0) handleUpdateQuantity(service.id, '1');
+                          }}
+                          className="w-20 text-center font-medium text-navy-900 border border-gray-300 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-amani-500"
+                        />
                       </div>
 
                       {/* Line Total */}
