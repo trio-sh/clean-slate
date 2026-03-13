@@ -4,7 +4,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   Menu, X, ShoppingCart, User, MapPin, Phone, Mail,
   Facebook, Instagram, Twitter, ChevronDown, Sparkles,
-  Shirt, Clock, Truck, Star, Leaf, Bell, CheckCircle, Trash2, LogOut
+  Shirt, Clock, Truck, Star, Leaf, Bell, CheckCircle, Trash2, LogOut,
+  Home, Tag, Package, Search, CreditCard, Car, Briefcase
 } from 'lucide-react';
 import { useAuthStore, useCartStore, useAppStore, useNotificationStore } from '../../stores';
 import { format } from 'date-fns';
@@ -75,12 +76,21 @@ const CustomerLayout = () => {
   };
 
   const navigation = [
-    { name: t('navigation.home'), href: '/' },
-    { name: t('navigation.services'), href: '/services' },
-    { name: t('navigation.pricing'), href: '/pricing' },
-    { name: t('navigation.subscriptions'), href: '/subscriptions' },
-    { name: t('navigation.trackOrder'), href: '/track' },
-    { name: t('navigation.driveWithUs'), href: '/drive-with-us' },
+    { name: t('navigation.home'), href: '/', icon: Home },
+    { name: t('navigation.services'), href: '/services', icon: Shirt },
+    { name: t('navigation.pricing'), href: '/pricing', icon: Tag },
+    { name: t('navigation.subscriptions'), href: '/subscriptions', icon: CreditCard },
+    { name: t('navigation.trackOrder'), href: '/track', icon: Search },
+    { name: t('navigation.driveWithUs'), href: '/drive-with-us', icon: Car },
+  ];
+
+  // Bottom bar items for mobile (compact subset)
+  const mobileBottomNav = [
+    { name: t('navigation.home'), href: '/', icon: Home },
+    { name: t('navigation.services'), href: '/services', icon: Shirt },
+    { name: t('navigation.orderNow'), href: '/order', icon: Package },
+    { name: t('navigation.trackOrder'), href: '/track', icon: Search },
+    { name: isAuthenticated ? t('userMenu.myAccount') : t('auth.signIn'), href: isAuthenticated ? '/account' : '/login', icon: User },
   ];
 
   const isActive = (href) => location.pathname === href;
@@ -331,38 +341,145 @@ const CustomerLayout = () => {
           </div>
         </div>
 
-        {/* Mobile Navigation */}
+        {/* Mobile Navigation - Slide-over sheet */}
         <AnimatePresence>
           {mobileMenuOpen && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-              className="md:hidden border-t border-gray-100"
-            >
-              <div className="px-4 py-4 space-y-1">
-                {navigation.map((item) => (
-                  <Link
-                    key={item.name}
-                    to={item.href}
+            <>
+              {/* Backdrop */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={() => setMobileMenuOpen(false)}
+                className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40 md:hidden"
+              />
+              {/* Sheet */}
+              <motion.div
+                initial={{ x: '100%' }}
+                animate={{ x: 0 }}
+                exit={{ x: '100%' }}
+                transition={{ type: 'spring', damping: 30, stiffness: 300 }}
+                className="fixed top-0 right-0 bottom-0 w-72 bg-white z-50 md:hidden flex flex-col shadow-2xl"
+              >
+                {/* Sheet header */}
+                <div className="p-4 border-b border-gray-100 flex items-center justify-between">
+                  <div className="flex items-center gap-2.5">
+                    <img src="/logo.png" alt="Amani's" className="w-8 h-8 rounded-lg object-contain" />
+                    <span className="font-bold text-navy-900 font-display">Amani's</span>
+                  </div>
+                  <button
                     onClick={() => setMobileMenuOpen(false)}
-                    className={`block px-4 py-3 rounded-xl font-medium ${
-                      isActive(item.href)
-                        ? 'text-amani-600 bg-amani-50'
-                        : 'text-navy-700 hover:bg-gray-50'
-                    }`}
+                    className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
                   >
-                    {item.name}
-                  </Link>
-                ))}
-              </div>
-            </motion.div>
+                    <X className="w-5 h-5 text-gray-500" />
+                  </button>
+                </div>
+
+                {/* User info (if logged in) */}
+                {isAuthenticated && (
+                  <div className="px-4 py-3 border-b border-gray-100">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-gradient-to-br from-amani-500 to-amani-600 rounded-full flex items-center justify-center text-white font-semibold text-sm">
+                        {user?.first_name?.[0]}{user?.last_name?.[0]}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium text-navy-900 text-sm truncate">{user?.first_name} {user?.last_name}</p>
+                        <p className="text-xs text-gray-500 truncate">{user?.email}</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Nav items */}
+                <nav className="flex-1 overflow-y-auto p-3 space-y-0.5">
+                  {navigation.map((item) => {
+                    const Icon = item.icon;
+                    return (
+                      <Link
+                        key={item.name}
+                        to={item.href}
+                        onClick={() => setMobileMenuOpen(false)}
+                        className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${
+                          isActive(item.href)
+                            ? 'text-amani-600 bg-amani-50'
+                            : 'text-navy-700 hover:bg-gray-50'
+                        }`}
+                      >
+                        <Icon className="w-5 h-5 flex-shrink-0" />
+                        <span>{item.name}</span>
+                      </Link>
+                    );
+                  })}
+
+                  {/* Extra links */}
+                  <div className="pt-2 mt-2 border-t border-gray-100 space-y-0.5">
+                    <Link
+                      to="/partner"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-navy-700 hover:bg-gray-50 transition-all"
+                    >
+                      <Briefcase className="w-5 h-5 flex-shrink-0" />
+                      <span>{t('footer.becomePartner')}</span>
+                    </Link>
+                    <Link
+                      to="/careers"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-navy-700 hover:bg-gray-50 transition-all"
+                    >
+                      <Star className="w-5 h-5 flex-shrink-0" />
+                      <span>{t('navigation.careers')}</span>
+                    </Link>
+                  </div>
+                </nav>
+
+                {/* Bottom actions */}
+                <div className="p-3 border-t border-gray-100 space-y-2">
+                  <LanguageSwitcher variant="button" />
+                  {isAuthenticated ? (
+                    <div className="flex gap-2">
+                      <Link
+                        to="/account"
+                        onClick={() => setMobileMenuOpen(false)}
+                        className="flex-1 flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl text-sm font-medium text-navy-700 bg-gray-50 hover:bg-gray-100 transition-colors"
+                      >
+                        <User className="w-4 h-4" />
+                        Account
+                      </Link>
+                      <button
+                        onClick={() => { logout(); setMobileMenuOpen(false); }}
+                        className="flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl text-sm font-medium text-red-600 bg-red-50 hover:bg-red-100 transition-colors"
+                      >
+                        <LogOut className="w-4 h-4" />
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="flex gap-2">
+                      <Link
+                        to="/login"
+                        onClick={() => setMobileMenuOpen(false)}
+                        className="flex-1 flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl text-sm font-medium text-navy-700 border border-gray-200 hover:bg-gray-50 transition-colors"
+                      >
+                        {t('auth.signIn')}
+                      </Link>
+                      <Link
+                        to="/order"
+                        onClick={() => setMobileMenuOpen(false)}
+                        className="flex-1 flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl text-sm font-medium text-white bg-gradient-to-r from-amani-500 to-amani-600 shadow-lg shadow-amani-500/25 transition-colors"
+                      >
+                        <Sparkles className="w-4 h-4" />
+                        {t('navigation.orderNow')}
+                      </Link>
+                    </div>
+                  )}
+                </div>
+              </motion.div>
+            </>
           )}
         </AnimatePresence>
       </header>
 
       {/* Main Content */}
-      <main className="flex-1">
+      <main className="flex-1 pb-16 md:pb-0">
         <Outlet />
       </main>
 
@@ -535,6 +652,47 @@ const CustomerLayout = () => {
           </div>
         </div>
       </footer>
+
+      {/* Mobile Bottom Navigation Bar */}
+      <nav className="fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-lg border-t border-gray-200 md:hidden" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
+        <div className="flex items-center justify-around px-1 h-16">
+          {mobileBottomNav.map((item) => {
+            const Icon = item.icon;
+            const active = isActive(item.href);
+            const isOrder = item.href === '/order';
+            return (
+              <Link
+                key={item.href}
+                to={item.href}
+                className={`flex flex-col items-center justify-center flex-1 py-1 transition-colors relative ${
+                  isOrder
+                    ? ''
+                    : active
+                      ? 'text-amani-600'
+                      : 'text-gray-400 hover:text-gray-600'
+                }`}
+              >
+                {isOrder ? (
+                  <div className="w-12 h-12 -mt-5 bg-gradient-to-br from-amani-500 to-amani-600 rounded-full flex items-center justify-center shadow-lg shadow-amani-500/30">
+                    <Icon className="w-6 h-6 text-white" />
+                  </div>
+                ) : (
+                  <Icon className={`w-5 h-5 ${active ? 'text-amani-600' : ''}`} />
+                )}
+                <span className={`text-[10px] mt-0.5 font-medium ${isOrder ? 'text-amani-600' : ''}`}>
+                  {item.name}
+                </span>
+                {active && !isOrder && (
+                  <motion.div
+                    layoutId="bottomNavIndicator"
+                    className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-0.5 bg-amani-500 rounded-full"
+                  />
+                )}
+              </Link>
+            );
+          })}
+        </div>
+      </nav>
     </div>
   );
 };

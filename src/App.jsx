@@ -16,6 +16,12 @@ import DashboardLayout from './components/layout/DashboardLayout';
 // Components
 import WhatsAppButton from './components/WhatsAppButton';
 
+// PWA Components
+import { usePWA } from './components/pwa/usePWA';
+import PWAInstallPrompt from './components/pwa/PWAInstallPrompt';
+import PWAUpdatePrompt from './components/pwa/PWAUpdatePrompt';
+import PWAOnboarding from './components/pwa/PWAOnboarding';
+
 // Customer Pages
 import HomePage from './pages/customer/HomePage';
 import ServicesPage from './pages/customer/ServicesPage';
@@ -90,6 +96,7 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
 function App() {
   const { mode, demoEnabled, loadAppModeSettings, settingsLoaded } = useAppStore();
   const { fetchServices } = useServicesStore();
+  const pwa = usePWA();
 
   useEffect(() => {
     // Initialize database, load settings, and fetch services
@@ -234,6 +241,20 @@ function App() {
 
         {/* WhatsApp Floating Button */}
         <WhatsAppButton />
+
+        {/* PWA Components */}
+        <PWAOnboarding />
+        <PWAInstallPrompt
+          canInstall={pwa.canInstall}
+          isIOS={pwa.isIOS}
+          isInstalled={pwa.isInstalled}
+          onInstall={pwa.promptInstall}
+        />
+        <PWAUpdatePrompt
+          needRefresh={pwa.needRefresh}
+          onUpdate={pwa.updateServiceWorker}
+          onDismiss={pwa.dismissUpdate}
+        />
       </BrowserRouter>
     </LanguageProvider>
   );

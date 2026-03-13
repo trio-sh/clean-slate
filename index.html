@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
 
     <!-- Favicon & App Icons -->
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
@@ -16,26 +16,36 @@
     <meta name="keywords" content="dry cleaning, laundry service, garment care, pickup delivery, Toronto, Amani's Cleaners" />
     <meta name="author" content="Amani's Cleaners" />
 
-    <!-- Theme Color -->
+    <!-- PWA Meta Tags -->
     <meta name="theme-color" content="#0c4a6e" />
     <meta name="msapplication-TileColor" content="#0c4a6e" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Amani's" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="application-name" content="Amani's Cleaners" />
+    <meta name="format-detection" content="telephone=no" />
 
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
-    
-    
     <meta property="og:image" content="/logo.png">
+    <meta property="og:title" content="Amani&#39;s Cleaners — Premium Dry Cleaning &amp; Laundry Service">
+    <meta property="og:description" content="Toronto&#39;s trusted dry cleaning and laundry service. Professional garment care, free pickup &amp; delivery, 48-hour turnaround. Order online or call today!">
 
     <!-- Twitter -->
     <meta name="twitter:card" content="summary" />
-    
-    
     <meta name="twitter:image" content="/logo.png">
-    <meta property="og:title" content="Amani&#39;s Cleaners — Premium Dry Cleaning &amp; Laundry Service">
-  <meta name="twitter:title" content="Amani&#39;s Cleaners — Premium Dry Cleaning &amp; Laundry Service">
-  <meta property="og:description" content="Toronto&#39;s trusted dry cleaning and laundry service. Professional garment care, free pickup &amp; delivery, 48-hour turnaround. Order online or call today!">
-  <meta name="twitter:description" content="Toronto&#39;s trusted dry cleaning and laundry service. Professional garment care, free pickup &amp; delivery, 48-hour turnaround. Order online or call today!">
-</head>
+    <meta name="twitter:title" content="Amani&#39;s Cleaners — Premium Dry Cleaning &amp; Laundry Service">
+    <meta name="twitter:description" content="Toronto&#39;s trusted dry cleaning and laundry service. Professional garment care, free pickup &amp; delivery, 48-hour turnaround. Order online or call today!">
+
+    <!-- Splash screens for iOS -->
+    <style>
+      /* Prevent overscroll bounce on iOS standalone */
+      html, body { overscroll-behavior: none; }
+      /* Safe area padding for notched devices */
+      body { padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left); }
+    </style>
+  </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
