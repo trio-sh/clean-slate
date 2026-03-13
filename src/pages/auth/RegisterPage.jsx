@@ -146,13 +146,15 @@ const RegisterPage = () => {
             transition={{ duration: 0.6 }}
           >
             <div className="flex items-center gap-4 mb-8">
-              <div className="w-16 h-16 bg-gradient-to-br from-amani-500 to-maple-500 rounded-2xl flex items-center justify-center shadow-2xl">
-                <Shirt className="w-9 h-9 text-white" />
-              </div>
-              <div>
-                <h1 className="text-3xl font-display font-bold text-white">Amani's</h1>
-                <p className="text-amani-400">{t('auth.premiumCleaners')}</p>
-              </div>
+              <Link to="/" className="flex items-center gap-4">
+                <div className="bg-white p-2 rounded-2xl shadow-2xl">
+                  <img src="/logo.png" alt="Amani's Cleaners" className="h-12 w-auto object-contain" />
+                </div>
+                <div>
+                  <h1 className="text-3xl font-display font-bold text-white">Amani's</h1>
+                  <p className="text-amani-400">{t('auth.premiumCleaners')}</p>
+                </div>
+              </Link>
             </div>
 
             <h2 className="text-4xl xl:text-5xl font-display font-bold text-white mb-6 leading-tight">
@@ -199,14 +201,14 @@ const RegisterPage = () => {
           className="w-full max-w-md"
         >
           {/* Mobile Logo */}
-          <div className="lg:hidden flex items-center justify-center gap-3 mb-8">
-            <div className="w-12 h-12 bg-gradient-to-br from-amani-500 to-maple-500 rounded-xl flex items-center justify-center">
-              <Shirt className="w-7 h-7 text-white" />
-            </div>
-            <div>
-              <h1 className="text-xl font-display font-bold text-white">Amani's</h1>
-              <p className="text-xs text-gray-400">{t('auth.premiumCleaners')}</p>
-            </div>
+          <div className="lg:hidden flex flex-col items-center gap-3 mb-8">
+            <Link to="/" className="flex items-center gap-3">
+              <img src="/logo.png" alt="Amani's Cleaners" className="h-14 w-auto object-contain" />
+            </Link>
+            <Link to="/" className="text-xs text-gray-400 hover:text-amani-400 transition-colors flex items-center gap-1">
+              <ArrowLeft className="w-3 h-3" />
+              {t('navigation.home')}
+            </Link>
           </div>
 
           <div className="bg-white/5 backdrop-blur-xl rounded-3xl p-8 border border-white/10">

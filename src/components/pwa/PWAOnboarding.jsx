@@ -96,8 +96,11 @@ const PWAOnboarding = () => {
         exit={{ opacity: 0 }}
         className="fixed inset-0 z-[80] bg-white flex flex-col"
       >
-        {/* Skip button */}
-        <div className="flex justify-end p-4 pb-0">
+        {/* Top bar with logo + skip */}
+        <div className="flex items-center justify-between p-4 pb-0">
+          <div className="flex items-center gap-2">
+            <img src="/logo.png" alt="Amani's Cleaners" className="h-8 w-auto object-contain" />
+          </div>
           <button
             onClick={handleComplete}
             className="text-gray-400 text-sm font-medium px-3 py-1.5 rounded-lg hover:bg-gray-100 transition-colors"

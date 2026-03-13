@@ -5,7 +5,7 @@ import {
   Menu, X, ShoppingCart, User, MapPin, Phone, Mail,
   Facebook, Instagram, Twitter, ChevronDown, Sparkles,
   Shirt, Clock, Truck, Star, Leaf, Bell, CheckCircle, Trash2, LogOut,
-  Home, Tag, Package, Search, CreditCard, Car, Briefcase
+  Home, Tag, Package, Search, CreditCard, Car, Briefcase, Info
 } from 'lucide-react';
 import { useAuthStore, useCartStore, useAppStore, useNotificationStore } from '../../stores';
 import { format } from 'date-fns';
@@ -397,6 +397,14 @@ const CustomerLayout = () => {
                       <span>{t('footer.becomePartner')}</span>
                     </Link>
                     <Link
+                      to="/driver"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="flex items-center gap-2.5 px-4 py-3 bg-white text-sm font-medium text-navy-700 active:bg-gray-50 transition-colors"
+                    >
+                      <Truck className="w-4 h-4 flex-shrink-0 text-gray-400" />
+                      <span>{t('footer.becomeDriver')}</span>
+                    </Link>
+                    <Link
                       to="/careers"
                       onClick={() => setMobileMenuOpen(false)}
                       className="flex items-center gap-2.5 px-4 py-3 bg-white text-sm font-medium text-navy-700 active:bg-gray-50 transition-colors"
@@ -404,11 +412,26 @@ const CustomerLayout = () => {
                       <Star className="w-4 h-4 flex-shrink-0 text-gray-400" />
                       <span>{t('navigation.careers')}</span>
                     </Link>
+                    <a
+                      href="tel:437-215-6321"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="flex items-center gap-2.5 px-4 py-3 bg-white text-sm font-medium text-navy-700 active:bg-gray-50 transition-colors"
+                    >
+                      <Phone className="w-4 h-4 flex-shrink-0 text-gray-400" />
+                      <span>437-215-6321</span>
+                    </a>
+                    <a
+                      href="mailto:amaniscleaners@gmail.com"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="flex items-center gap-2.5 px-4 py-3 bg-white text-sm font-medium text-navy-700 active:bg-gray-50 transition-colors"
+                    >
+                      <Mail className="w-4 h-4 flex-shrink-0 text-gray-400" />
+                      <span>{t('footer.contactUs')}</span>
+                    </a>
                   </div>
 
-                  {/* Auth + language row */}
-                  <div className="flex items-center justify-between px-4 py-3 border-t border-gray-100 bg-gray-50/50">
-                    <LanguageSwitcher variant="button" />
+                  {/* Auth row */}
+                  <div className="flex items-center justify-end px-4 py-3 border-t border-gray-100 bg-gray-50/50">
                     {isAuthenticated ? (
                       <div className="flex items-center gap-2">
                         <Link
@@ -457,8 +480,8 @@ const CustomerLayout = () => {
         <Outlet />
       </main>
 
-      {/* Footer */}
-      <footer className="bg-navy-900 text-white">
+      {/* Footer - hidden on mobile PWA, shown on desktop */}
+      <footer className="hidden md:block bg-navy-900 text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8">
             {/* Brand */}

@@ -89,8 +89,8 @@ const ServicesPage = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <section className="relative bg-gradient-to-br from-navy-900 to-amani-900 py-28 overflow-hidden">
+      {/* Header - hidden on mobile for app-like feel */}
+      <section className="relative hidden md:block bg-gradient-to-br from-navy-900 to-amani-900 py-28 overflow-hidden">
         <div className="absolute inset-0">
           <img
             src="https://api.a0.dev/assets/image?text=professional dry cleaning laundry service, rows of clean pressed garments on hangers, bright organized premium clothing care facility&aspect=16:9&seed=601"

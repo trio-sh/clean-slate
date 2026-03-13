@@ -47,8 +47,8 @@ const HomePage = () => {
 
   return (
     <div className="overflow-hidden">
-      {/* Hero Section */}
-      <section className="relative min-h-[90vh] flex items-center bg-gradient-to-br from-navy-900 via-navy-800 to-amani-900 overflow-hidden">
+      {/* Hero Section - hidden on mobile for app-like feel */}
+      <section className="relative min-h-[90vh] hidden md:flex items-center bg-gradient-to-br from-navy-900 via-navy-800 to-amani-900 overflow-hidden">
         {/* Hero background photo */}
         <div className="absolute inset-0">
           <img

@@ -173,8 +173,8 @@ const SubscriptionsPage = () => {
         </div>
       )}
 
-      {/* Hero Section */}
-      <div className="relative bg-gradient-to-br from-navy-900 via-navy-800 to-navy-900 py-24 px-4 overflow-hidden">
+      {/* Hero Section - hidden on mobile for app-like feel */}
+      <div className="relative hidden md:block bg-gradient-to-br from-navy-900 via-navy-800 to-navy-900 py-24 px-4 overflow-hidden">
         <div className="absolute inset-0">
           <img
             src="https://api.a0.dev/assets/image?text=happy customer receiving freshly cleaned laundry subscription delivery at door, premium lifestyle, clean bright home, Canadian suburb&aspect=16:9&seed=701"
