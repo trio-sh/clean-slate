@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Amani's Cleaners - Get The App Poster</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Playfair+Display:wght@700;800;900&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  @page { size: 11in 17in; margin: 0; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    width: 11in;
+    height: 17in;
+    overflow: hidden;
+    background: #1a2055;
+    position: relative;
+    color: white;
+  }
+
+  .page {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Background effects */
+  .glow-1 {
+    position: absolute;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(237, 109, 26, 0.15) 0%, transparent 70%);
+    top: -100px;
+    right: -100px;
+    border-radius: 50%;
+  }
+
+  .glow-2 {
+    position: absolute;
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(circle, rgba(95, 115, 241, 0.1) 0%, transparent 70%);
+    bottom: -100px;
+    left: -100px;
+    border-radius: 50%;
+  }
+
+  .grid-bg {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+    background-size: 40px 40px;
+    z-index: 0;
+  }
+
+  .content {
+    position: relative;
+    z-index: 10;
+    text-align: center;
+    padding: 0.8in;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100%;
+    justify-content: space-between;
+  }
+
+  /* Top */
+  .top-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .logo-container {
+    width: 90px;
+    height: 90px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+    border: 1px solid rgba(255,255,255,0.15);
+    backdrop-filter: blur(10px);
+  }
+
+  .logo-container img {
+    width: 65px;
+    height: 65px;
+    object-fit: contain;
+  }
+
+  .brand-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 32px;
+    font-weight: 900;
+    letter-spacing: -0.5px;
+    margin-bottom: 4px;
+  }
+
+  .brand-sub {
+    font-size: 12px;
+    font-weight: 500;
+    color: rgba(255,255,255,0.5);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+  }
+
+  /* Middle */
+  .middle-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .headline {
+    font-family: 'Playfair Display', serif;
+    font-size: 72px;
+    font-weight: 900;
+    line-height: 1;
+    letter-spacing: -2px;
+    margin-bottom: 20px;
+  }
+
+  .headline .orange { color: #f18c3f; }
+
+  .subtitle {
+    font-size: 20px;
+    font-weight: 400;
+    color: rgba(255,255,255,0.7);
+    max-width: 6in;
+    line-height: 1.5;
+    margin-bottom: 50px;
+  }
+
+  /* QR Section */
+  .qr-section {
+    display: flex;
+    align-items: center;
+    gap: 50px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 28px;
+    padding: 40px 55px;
+    backdrop-filter: blur(10px);
+  }
+
+  .qr-frame {
+    width: 200px;
+    height: 200px;
+    background: white;
+    border-radius: 20px;
+    padding: 14px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+  }
+
+  .qr-frame img {
+    width: 100%;
+    height: 100%;
+    border-radius: 8px;
+  }
+
+  .qr-text {
+    text-align: left;
+  }
+
+  .qr-text .scan-label {
+    font-size: 14px;
+    font-weight: 700;
+    color: #f18c3f;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    margin-bottom: 12px;
+  }
+
+  .qr-text h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 36px;
+    font-weight: 800;
+    line-height: 1.1;
+    margin-bottom: 12px;
+    letter-spacing: -0.5px;
+  }
+
+  .qr-text p {
+    font-size: 15px;
+    color: rgba(255,255,255,0.6);
+    line-height: 1.5;
+    max-width: 3.5in;
+  }
+
+  .url-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(237, 109, 26, 0.15);
+    border: 1px solid rgba(237, 109, 26, 0.3);
+    padding: 10px 22px;
+    border-radius: 50px;
+    margin-top: 16px;
+    font-size: 16px;
+    font-weight: 700;
+    color: #f6b576;
+    letter-spacing: 0.3px;
+  }
+
+  /* Features Row */
+  .features-row {
+    display: flex;
+    gap: 30px;
+    margin-top: 10px;
+  }
+
+  .feat {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.08);
+    padding: 14px 22px;
+    border-radius: 14px;
+  }
+
+  .feat-icon {
+    font-size: 22px;
+  }
+
+  .feat span {
+    font-size: 13px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.8);
+  }
+
+  /* Bottom */
+  .bottom-section {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  .contact-info {
+    display: flex;
+    gap: 30px;
+    font-size: 14px;
+    color: rgba(255,255,255,0.5);
+  }
+
+  .contact-info span {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .canadian-badge {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: rgba(255,255,255,0.4);
+    font-weight: 500;
+  }
+
+  @media print {
+    body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="glow-1"></div>
+  <div class="glow-2"></div>
+  <div class="grid-bg"></div>
+
+  <div class="content">
+    <!-- Top -->
+    <div class="top-section">
+      <div class="logo-container">
+        <img src="../logo.png" alt="Amani's Cleaners">
+      </div>
+      <div class="brand-name">Amani's Cleaners</div>
+      <div class="brand-sub">Premium Laundry & Dry Cleaning</div>
+    </div>
+
+    <!-- Middle -->
+    <div class="middle-section">
+      <div class="headline">
+        Get The<br/><span class="orange">App.</span>
+      </div>
+      <p class="subtitle">
+        Order laundry pickup, track your garments in real-time, and manage everything from your phone. No app store needed — install in one tap.
+      </p>
+
+      <!-- QR Code -->
+      <div class="qr-section">
+        <div class="qr-frame">
+          <img src="https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=https://amanicleaners.com/get-app" alt="QR Code">
+        </div>
+        <div class="qr-text">
+          <div class="scan-label">Scan to install</div>
+          <h3>Point Your<br/>Camera Here</h3>
+          <p>Works on iPhone, Android, and any device with a browser. Installs instantly.</p>
+          <div class="url-pill">🌐 amanicleaners.com/get-app</div>
+        </div>
+      </div>
+
+      <!-- Features -->
+      <div class="features-row">
+        <div class="feat">
+          <span class="feat-icon">🚗</span>
+          <span>Free Pickup & Delivery</span>
+        </div>
+        <div class="feat">
+          <span class="feat-icon">⚡</span>
+          <span>48-Hour Turnaround</span>
+        </div>
+        <div class="feat">
+          <span class="feat-icon">📍</span>
+          <span>Real-Time Tracking</span>
+        </div>
+        <div class="feat">
+          <span class="feat-icon">🌿</span>
+          <span>Eco-Friendly</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom -->
+    <div class="bottom-section">
+      <div class="contact-info">
+        <span>📞 437-215-6321</span>
+        <span>🌐 amanicleaners.com</span>
+        <span>📧 amaniscleaners@gmail.com</span>
+      </div>
+      <div class="canadian-badge">🍁 Proudly Canadian Since 2013</div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

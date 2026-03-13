@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Amani's Cleaners - Partner With Us</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Playfair+Display:wght@700;800;900&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  @page { size: 8.5in 11in; margin: 0; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    width: 8.5in;
+    height: 11in;
+    overflow: hidden;
+    background: #fff;
+    position: relative;
+    color: #1a2055;
+  }
+
+  .page { width: 100%; height: 100%; position: relative; overflow: hidden; }
+
+  .bg-left {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 3.2in;
+    height: 100%;
+    background: linear-gradient(180deg, #1a2055 0%, #252d6b 100%);
+    z-index: 0;
+  }
+
+  .bg-left::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: -60px;
+    width: 120px;
+    height: 100%;
+    background: linear-gradient(180deg, #1a2055 0%, #252d6b 100%);
+    clip-path: polygon(100% 0, 0 0, 0 100%, 100% 100%, 60% 50%);
+  }
+
+  .content {
+    position: relative;
+    z-index: 10;
+    display: flex;
+    height: 100%;
+  }
+
+  /* Left panel */
+  .left-panel {
+    width: 3.2in;
+    padding: 0.6in 0.5in;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  .left-top { }
+
+  .logo-area {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 40px;
+  }
+
+  .logo-box {
+    width: 42px;
+    height: 42px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+
+  .logo-box img {
+    width: 30px;
+    height: 30px;
+    object-fit: contain;
+  }
+
+  .logo-text {
+    font-family: 'Playfair Display', serif;
+    font-size: 16px;
+    font-weight: 800;
+  }
+
+  .left-headline {
+    font-family: 'Playfair Display', serif;
+    font-size: 36px;
+    font-weight: 900;
+    line-height: 1.05;
+    letter-spacing: -1px;
+    margin-bottom: 16px;
+  }
+
+  .left-headline .accent { color: #f18c3f; }
+
+  .left-desc {
+    font-size: 12px;
+    line-height: 1.6;
+    opacity: 0.7;
+  }
+
+  .left-bottom {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .stat-row {
+    display: flex;
+    gap: 16px;
+  }
+
+  .stat {
+    flex: 1;
+    background: rgba(255,255,255,0.08);
+    border-radius: 12px;
+    padding: 12px;
+    text-align: center;
+    border: 1px solid rgba(255,255,255,0.08);
+  }
+
+  .stat .val {
+    font-size: 22px;
+    font-weight: 800;
+    color: #f18c3f;
+  }
+
+  .stat .lbl {
+    font-size: 8px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    opacity: 0.6;
+    margin-top: 2px;
+  }
+
+  .qr-area {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 12px;
+    padding: 12px;
+    border: 1px solid rgba(255,255,255,0.08);
+  }
+
+  .qr-mini {
+    width: 56px;
+    height: 56px;
+    background: white;
+    border-radius: 10px;
+    padding: 4px;
+    flex-shrink: 0;
+  }
+
+  .qr-mini img { width: 100%; height: 100%; border-radius: 6px; }
+
+  .qr-label .title { font-size: 10px; font-weight: 700; }
+  .qr-label .url { font-size: 9px; color: #f6b576; font-weight: 600; margin-top: 2px; }
+
+  /* Right panel */
+  .right-panel {
+    flex: 1;
+    padding: 0.6in 0.6in 0.6in 0.8in;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .right-label {
+    font-size: 10px;
+    font-weight: 700;
+    color: #ed6d1a;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    margin-bottom: 20px;
+  }
+
+  .right-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 28px;
+    font-weight: 900;
+    color: #1a2055;
+    line-height: 1.15;
+    margin-bottom: 24px;
+    letter-spacing: -0.5px;
+  }
+
+  .benefits {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-bottom: 30px;
+  }
+
+  .benefit {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+  }
+
+  .benefit-icon {
+    width: 40px;
+    height: 40px;
+    background: #fef7f0;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+    border: 1px solid #fdebd6;
+  }
+
+  .benefit h4 {
+    font-size: 13px;
+    font-weight: 700;
+    color: #1a2055;
+    margin-bottom: 2px;
+  }
+
+  .benefit p {
+    font-size: 11px;
+    color: #666;
+    line-height: 1.4;
+  }
+
+  .apply-box {
+    background: linear-gradient(135deg, #ed6d1a 0%, #de5310 100%);
+    border-radius: 16px;
+    padding: 22px 24px;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .apply-box h4 {
+    font-size: 16px;
+    font-weight: 800;
+    margin-bottom: 3px;
+  }
+
+  .apply-box p {
+    font-size: 11px;
+    opacity: 0.9;
+  }
+
+  .apply-box .arrow {
+    font-size: 28px;
+    font-weight: 300;
+  }
+
+  .contact-row {
+    display: flex;
+    gap: 20px;
+    margin-top: 20px;
+    font-size: 11px;
+    color: #888;
+  }
+
+  .contact-row span {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  @media print {
+    body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="bg-left"></div>
+
+  <div class="content">
+    <!-- Left -->
+    <div class="left-panel">
+      <div class="left-top">
+        <div class="logo-area">
+          <div class="logo-box">
+            <img src="../logo.png" alt="Amani's Cleaners">
+          </div>
+          <div class="logo-text">Amani's Cleaners</div>
+        </div>
+
+        <div class="left-headline">
+          Grow Your<br/>Laundry<br/>Business<br/><span class="accent">With Us.</span>
+        </div>
+
+        <p class="left-desc">
+          Join the Amani partner network and get access to technology, customers, and operational support that will transform your laundry business.
+        </p>
+      </div>
+
+      <div class="left-bottom">
+        <div class="stat-row">
+          <div class="stat">
+            <div class="val">50+</div>
+            <div class="lbl">Partners</div>
+          </div>
+          <div class="stat">
+            <div class="val">10+</div>
+            <div class="lbl">Cities</div>
+          </div>
+        </div>
+        <div class="qr-area">
+          <div class="qr-mini">
+            <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://amanicleaners.com/partner" alt="QR">
+          </div>
+          <div class="qr-label">
+            <div class="title">Apply Online</div>
+            <div class="url">amanicleaners.com/partner</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right -->
+    <div class="right-panel">
+      <div class="right-label">Partner Benefits</div>
+      <div class="right-title">Everything You Need<br/>To Scale Your Business</div>
+
+      <div class="benefits">
+        <div class="benefit">
+          <div class="benefit-icon">💻</div>
+          <div>
+            <h4>Full Partner Portal</h4>
+            <p>Manage orders, invoicing, and customers with our professional dashboard</p>
+          </div>
+        </div>
+        <div class="benefit">
+          <div class="benefit-icon">📱</div>
+          <div>
+            <h4>Your Own Branded App</h4>
+            <p>Customers order through the Amani app — routed directly to your depot</p>
+          </div>
+        </div>
+        <div class="benefit">
+          <div class="benefit-icon">🚗</div>
+          <div>
+            <h4>Driver Network</h4>
+            <p>Access our fleet of drivers for pickup and delivery across your area</p>
+          </div>
+        </div>
+        <div class="benefit">
+          <div class="benefit-icon">📊</div>
+          <div>
+            <h4>Analytics & Reporting</h4>
+            <p>Real-time insights into your revenue, orders, and customer trends</p>
+          </div>
+        </div>
+        <div class="benefit">
+          <div class="benefit-icon">💰</div>
+          <div>
+            <h4>Flexible Revenue Model</h4>
+            <p>Set your own prices, manage your own invoicing, keep more of your earnings</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="apply-box">
+        <div>
+          <h4>Ready to Get Started?</h4>
+          <p>Apply online at amanicleaners.com/partner</p>
+        </div>
+        <div class="arrow">→</div>
+      </div>
+
+      <div class="contact-row">
+        <span>📞 437-215-6321</span>
+        <span>📧 amaniscleaners@gmail.com</span>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Amani's Cleaners - Promotional Flyer</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Playfair+Display:wght@700;800;900&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  @page { size: 8.5in 11in; margin: 0; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    width: 8.5in;
+    height: 11in;
+    overflow: hidden;
+    background: white;
+    position: relative;
+    color: #1a2055;
+  }
+
+  .page { width: 100%; height: 100%; position: relative; overflow: hidden; }
+
+  /* Orange top banner */
+  .top-banner {
+    background: linear-gradient(135deg, #ed6d1a 0%, #f18c3f 100%);
+    color: white;
+    padding: 14px 0.7in;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+  }
+
+  .content {
+    padding: 0.5in 0.7in 0.4in;
+    height: calc(100% - 42px);
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Header row */
+  .header-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.3in;
+  }
+
+  .logo-area {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .logo-circle {
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(135deg, #1a2055, #252d6b);
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .logo-circle img {
+    width: 36px;
+    height: 36px;
+    object-fit: contain;
+  }
+
+  .logo-text h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 24px;
+    font-weight: 900;
+    color: #1a2055;
+    line-height: 1;
+  }
+
+  .logo-text span {
+    font-size: 10px;
+    color: #888;
+    font-weight: 500;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+  }
+
+  .phone-badge {
+    background: #1a2055;
+    color: white;
+    font-size: 13px;
+    font-weight: 700;
+    padding: 10px 20px;
+    border-radius: 50px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  /* Promo banner */
+  .promo-banner {
+    background: linear-gradient(135deg, #1a2055 0%, #252d6b 100%);
+    border-radius: 20px;
+    padding: 32px 36px;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.3in;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .promo-banner::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 40%;
+    height: 100%;
+    background: linear-gradient(135deg, transparent 0%, rgba(237, 109, 26, 0.1) 100%);
+    border-radius: 0 20px 20px 0;
+  }
+
+  .promo-left {
+    position: relative;
+    z-index: 2;
+  }
+
+  .promo-left .discount {
+    font-family: 'Playfair Display', serif;
+    font-size: 60px;
+    font-weight: 900;
+    line-height: 1;
+    letter-spacing: -2px;
+  }
+
+  .promo-left .discount .pct {
+    color: #f18c3f;
+  }
+
+  .promo-left .promo-sub {
+    font-size: 16px;
+    font-weight: 600;
+    margin-top: 4px;
+    opacity: 0.9;
+  }
+
+  .promo-left .promo-detail {
+    font-size: 11px;
+    opacity: 0.6;
+    margin-top: 6px;
+  }
+
+  .promo-right {
+    position: relative;
+    z-index: 2;
+    text-align: right;
+  }
+
+  .promo-code {
+    background: rgba(237, 109, 26, 0.2);
+    border: 2px dashed rgba(237, 109, 26, 0.5);
+    padding: 12px 28px;
+    border-radius: 12px;
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: 3px;
+    color: #f6b576;
+    margin-bottom: 8px;
+  }
+
+  .promo-valid {
+    font-size: 10px;
+    opacity: 0.5;
+  }
+
+  /* Pricing grid */
+  .pricing-section {
+    margin-bottom: 0.25in;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+  }
+
+  .section-title {
+    font-size: 10px;
+    font-weight: 700;
+    color: #ed6d1a;
+    text-transform: uppercase;
+    letter-spacing: 2.5px;
+  }
+
+  .section-note {
+    font-size: 9px;
+    color: #999;
+  }
+
+  .pricing-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+  }
+
+  .price-card {
+    border: 1.5px solid #eef0f6;
+    border-radius: 14px;
+    padding: 16px;
+    text-align: center;
+    position: relative;
+  }
+
+  .price-card.featured {
+    border-color: #ed6d1a;
+    background: #fef7f0;
+  }
+
+  .price-card .popular-tag {
+    position: absolute;
+    top: -8px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #ed6d1a;
+    color: white;
+    font-size: 8px;
+    font-weight: 700;
+    padding: 3px 12px;
+    border-radius: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .price-card .emoji { font-size: 26px; margin-bottom: 6px; }
+  .price-card h4 { font-size: 13px; font-weight: 700; color: #1a2055; margin-bottom: 4px; }
+  .price-card .price { font-size: 22px; font-weight: 800; color: #ed6d1a; }
+  .price-card .price-unit { font-size: 10px; color: #999; font-weight: 400; }
+  .price-card .price-note { font-size: 9px; color: #999; margin-top: 2px; }
+
+  /* How it works */
+  .how-section { margin-bottom: 0.25in; }
+
+  .steps {
+    display: flex;
+    gap: 16px;
+  }
+
+  .step {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: #f8f9fc;
+    padding: 14px 16px;
+    border-radius: 12px;
+  }
+
+  .step-num {
+    width: 32px;
+    height: 32px;
+    background: linear-gradient(135deg, #ed6d1a, #f18c3f);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 800;
+    flex-shrink: 0;
+  }
+
+  .step h4 { font-size: 11px; font-weight: 700; color: #1a2055; }
+  .step p { font-size: 9px; color: #666; margin-top: 1px; }
+
+  /* Bottom CTA */
+  .bottom-cta {
+    margin-top: auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #f8f9fc;
+    border: 1.5px solid #eef0f6;
+    border-radius: 18px;
+    padding: 22px 28px;
+  }
+
+  .cta-left {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .qr-small {
+    width: 70px;
+    height: 70px;
+    background: white;
+    border-radius: 12px;
+    padding: 5px;
+    border: 1.5px solid #eee;
+  }
+
+  .qr-small img { width: 100%; height: 100%; border-radius: 6px; }
+
+  .cta-text h4 { font-size: 14px; font-weight: 700; color: #1a2055; margin-bottom: 2px; }
+  .cta-text p { font-size: 11px; color: #666; }
+  .cta-text .url { font-size: 13px; font-weight: 800; color: #ed6d1a; margin-top: 4px; }
+
+  .cta-right-badges {
+    display: flex;
+    gap: 12px;
+  }
+
+  .badge {
+    text-align: center;
+    padding: 10px 16px;
+    background: white;
+    border-radius: 12px;
+    border: 1.5px solid #eef0f6;
+  }
+
+  .badge .val { font-size: 18px; font-weight: 800; color: #1a2055; }
+  .badge .lbl { font-size: 8px; color: #999; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }
+
+  @media print {
+    body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+  <!-- Top banner -->
+  <div class="top-banner">
+    <span>🍁 Proudly Canadian Since 2013</span>
+    <span>Free Pickup & Delivery Across the GTA</span>
+  </div>
+
+  <div class="content">
+    <!-- Header -->
+    <div class="header-row">
+      <div class="logo-area">
+        <div class="logo-circle">
+          <img src="../logo.png" alt="Amani's Cleaners">
+        </div>
+        <div class="logo-text">
+          <h1>Amani's Cleaners</h1>
+          <span>Premium Garment Care</span>
+        </div>
+      </div>
+      <div class="phone-badge">📞 437-215-6321</div>
+    </div>
+
+    <!-- Promo Banner -->
+    <div class="promo-banner">
+      <div class="promo-left">
+        <div class="discount">15<span class="pct">%</span> OFF</div>
+        <div class="promo-sub">Your First Order</div>
+        <div class="promo-detail">Valid for new customers. Free pickup & delivery included.</div>
+      </div>
+      <div class="promo-right">
+        <div class="promo-code">WELCOME15</div>
+        <div class="promo-valid">Use at checkout • No minimum order</div>
+      </div>
+    </div>
+
+    <!-- Pricing -->
+    <div class="pricing-section">
+      <div class="section-header">
+        <div class="section-title">Starting Prices</div>
+        <div class="section-note">All prices in CAD</div>
+      </div>
+      <div class="pricing-grid">
+        <div class="price-card">
+          <div class="emoji">👔</div>
+          <h4>Dress Shirts</h4>
+          <div class="price">$3.99</div>
+          <div class="price-note">Laundered & pressed</div>
+        </div>
+        <div class="price-card featured">
+          <div class="popular-tag">Most Popular</div>
+          <div class="emoji">👕</div>
+          <h4>Wash & Fold</h4>
+          <div class="price">$1.99<span class="price-unit">/lb</span></div>
+          <div class="price-note">Washed, dried & folded</div>
+        </div>
+        <div class="price-card">
+          <div class="emoji">👗</div>
+          <h4>Dry Cleaning</h4>
+          <div class="price">$8.99</div>
+          <div class="price-note">Suits, dresses & more</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- How It Works -->
+    <div class="how-section">
+      <div class="section-header">
+        <div class="section-title">How It Works</div>
+      </div>
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div>
+            <h4>Book Online</h4>
+            <p>Schedule your pickup time</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div>
+            <h4>We Pick Up</h4>
+            <p>Free doorstep collection</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div>
+            <h4>Expert Care</h4>
+            <p>Professional cleaning</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">4</div>
+          <div>
+            <h4>We Deliver</h4>
+            <p>Fresh garments returned</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom -->
+    <div class="bottom-cta">
+      <div class="cta-left">
+        <div class="qr-small">
+          <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https://amanicleaners.com/get-app" alt="QR">
+        </div>
+        <div class="cta-text">
+          <h4>Scan & Order in Seconds</h4>
+          <p>Install our free app — no app store needed</p>
+          <div class="url">amanicleaners.com</div>
+        </div>
+      </div>
+      <div class="cta-right-badges">
+        <div class="badge">
+          <div class="val">10+</div>
+          <div class="lbl">Years</div>
+        </div>
+        <div class="badge">
+          <div class="val">4.9★</div>
+          <div class="lbl">Google</div>
+        </div>
+        <div class="badge">
+          <div class="val">5000+</div>
+          <div class="lbl">Customers</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>
