@@ -578,7 +578,7 @@ const OrderPage = () => {
         }
         
         setOrderReference(result.order.reference_code);
-        setCompletedOrder(result.order);
+        setCompletedOrder({ ...result.order, items: orderData.items });
         setOrderComplete(true);
         clearCart();
         
