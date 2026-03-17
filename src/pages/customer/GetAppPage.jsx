@@ -15,6 +15,7 @@ const GetAppPage = () => {
   const [canInstall, setCanInstall] = useState(false);
   const [installPrompt, setInstallPrompt] = useState(null);
   const [isInstalled, setIsInstalled] = useState(false);
+  const [showPlayStoreHelp, setShowPlayStoreHelp] = useState(false);
 
   const appUrl = window.location.origin + '/get-app';
   const shareUrl = window.location.origin;
@@ -26,6 +27,11 @@ const GetAppPage = () => {
     const isAndroid = /Android/.test(ua);
     const isMac = /Macintosh/.test(ua) && !isIOS;
     const isWindows = /Windows/.test(ua);
+
+    // Auto-show Play Store help on Android
+    if (isAndroid) {
+      setShowPlayStoreHelp(true);
+    }
 
     if (isIOS) setPlatform('ios');
     else if (isAndroid) setPlatform('android');
@@ -325,6 +331,94 @@ const GetAppPage = () => {
                 </div>
               </div>
             </div>
+
+            {/* Play Store Protect Warning Help */}
+            {platform === 'android' && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="bg-white rounded-2xl p-6 shadow-xl"
+              >
+                <div className="flex items-start gap-3 mb-4">
+                  <div className="w-10 h-10 bg-orange-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                    <Shield className="w-5 h-5 text-orange-600" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-navy-900">
+                      Play Store Protect Warning?
+                    </h3>
+                    <p className="text-sm text-gray-500">
+                      Here's how to resolve it
+                    </p>
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <p className="text-sm text-gray-700">
+                    If you see a warning from Play Store Protect during installation, don't worry! 
+                    This is a standard security message for apps not from the Play Store. Our app is safe.
+                  </p>
+                  
+                  <div className="bg-orange-50 border border-orange-200 rounded-xl p-4">
+                    <p className="text-sm font-semibold text-orange-900 mb-3">
+                      To continue installation:
+                    </p>
+                    <ol className="space-y-2 text-sm text-orange-800">
+                      <li className="flex gap-2">
+                        <span className="font-bold">1.</span>
+                        <span>When you see the Play Store Protect warning, tap <strong>"Install anyway"</strong></span>
+                      </li>
+                      <li className="flex gap-2">
+                        <span className="font-bold">2.</span>
+                        <span>If prompted, confirm by tapping <strong>"OK"</strong> or <strong>"Continue"</strong></span>
+                      </li>
+                      <li className="flex gap-2">
+                        <span className="font-bold">3.</span>
+                        <span>The app will then install normally</span>
+                      </li>
+                    </ol>
+                  </div>
+
+                  {/* Toggle to show screenshots */}
+                  <button
+                    onClick={() => setShowPlayStoreHelp(!showPlayStoreHelp)}
+                    className="w-full text-sm text-amani-600 hover:text-amani-700 font-medium flex items-center justify-center gap-2 py-2"
+                  >
+                    {showPlayStoreHelp ? 'Hide' : 'Show'} Visual Guide
+                    <svg
+                      className={`w-4 h-4 transition-transform ${showPlayStoreHelp ? 'rotate-180' : ''}`}
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </button>
+
+                  {/* Screenshots */}
+                  {showPlayStoreHelp && (
+                    <div className="grid grid-cols-2 gap-4 mt-4">
+                      <div className="space-y-2">
+                        <img
+                          src="/install-error.jpeg"
+                          alt="Play Store Protect warning screenshot"
+                          className="w-full rounded-xl border-2 border-gray-200 shadow-md"
+                        />
+                        <p className="text-xs text-gray-500 text-center">Warning screen</p>
+                      </div>
+                      <div className="space-y-2">
+                        <img
+                          src="/fixinstallerror.jpeg"
+                          alt="Install anyway button screenshot"
+                          className="w-full rounded-xl border-2 border-gray-200 shadow-md"
+                        />
+                        <p className="text-xs text-gray-500 text-center">Click Install Anyway</p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </motion.div>
+            )}
 
             {/* App Features */}
             <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/10">
