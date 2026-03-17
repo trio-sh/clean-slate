@@ -16,6 +16,7 @@ const GetAppPage = () => {
   const [installPrompt, setInstallPrompt] = useState(null);
   const [isInstalled, setIsInstalled] = useState(false);
   const [showPlayStoreHelp, setShowPlayStoreHelp] = useState(false);
+  const [isAndroidDevice, setIsAndroidDevice] = useState(false);
 
   const appUrl = window.location.origin + '/get-app';
   const shareUrl = window.location.origin;
@@ -31,6 +32,7 @@ const GetAppPage = () => {
     // Auto-show Play Store help on Android
     if (isAndroid) {
       setShowPlayStoreHelp(true);
+      setIsAndroidDevice(true);
     }
 
     if (isIOS) setPlatform('ios');
@@ -43,7 +45,7 @@ const GetAppPage = () => {
     const isStandalone = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone;
     setIsInstalled(!!isStandalone);
 
-    // Generate QR code
+    // Generate QR code - always use the main website URL
     generateQRCode(shareUrl, 280).then(setQrCodeUrl);
 
     // Listen for install prompt
@@ -217,6 +219,15 @@ const GetAppPage = () => {
               )}
               <p className="text-xs text-gray-400 mt-4">{shareUrl}</p>
 
+              {/* Android-specific QR note */}
+              {isAndroidDevice && (
+                <div className="mt-4 bg-amani-50 border border-amani-200 rounded-xl p-3">
+                  <p className="text-xs text-amani-800 text-center">
+                    <strong>Android users:</strong> After scanning, tap the 3-dot menu (⋮) and select "Install app" to add to your home screen
+                  </p>
+                </div>
+              )}
+
               {/* Download QR button */}
               <button
                 onClick={handleDownloadQR}
@@ -265,21 +276,48 @@ const GetAppPage = () => {
             className="space-y-6"
           >
             {/* Quick Install (if browser supports it) */}
-            {canInstall && !isInstalled && (
+            {!isInstalled && (
               <div className="bg-gradient-to-r from-amani-500 to-amani-600 rounded-2xl p-6 shadow-xl">
                 <h3 className="text-white font-bold text-lg mb-2 flex items-center gap-2">
                   <Download className="w-5 h-5" />
                   Quick Install
                 </h3>
-                <p className="text-white/80 text-sm mb-4">
-                  Your browser supports instant installation!
-                </p>
-                <button
-                  onClick={handleInstall}
-                  className="w-full bg-white text-amani-600 py-3 rounded-xl font-bold text-lg hover:bg-gray-50 transition-colors shadow-lg"
-                >
-                  Install Now
-                </button>
+                {canInstall ? (
+                  <>
+                    <p className="text-white/80 text-sm mb-4">
+                      Your browser supports instant installation!
+                    </p>
+                    <button
+                      onClick={handleInstall}
+                      className="w-full bg-white text-amani-600 py-3 rounded-xl font-bold text-lg hover:bg-gray-50 transition-colors shadow-lg"
+                    >
+                      Install Now
+                    </button>
+                  </>
+                ) : isAndroidDevice ? (
+                  <>
+                    <p className="text-white/80 text-sm mb-4">
+                      Install the app directly from your browser menu
+                    </p>
+                    <div className="bg-white/20 backdrop-blur-sm rounded-xl p-4 mb-4">
+                      <p className="text-white text-sm font-medium mb-2">Or try this:</p>
+                      <ol className="text-white/80 text-sm space-y-1">
+                        <li>1. Tap the 3-dot menu (⋮) in Chrome</li>
+                        <li>2. Tap "Install app" or "Add to Home Screen"</li>
+                      </ol>
+                    </div>
+                    <button
+                      onClick={() => window.location.reload()}
+                      className="w-full bg-white text-amani-600 py-3 rounded-xl font-bold text-lg hover:bg-gray-50 transition-colors shadow-lg"
+                    >
+                      Refresh & Try Install
+                    </button>
+                  </>
+                ) : (
+                  <p className="text-white/80 text-sm">
+                    Follow the manual installation steps below
+                  </p>
+                )}
               </div>
             )}
 
