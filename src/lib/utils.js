@@ -34,7 +34,7 @@ const config = {
     phone: "437-215-6321",
     email: "amaniscleaners@gmail.com",
     website: "amanicleaners.com",
-    taxNumber: "HST #123456789",
+    taxNumber: "HST #779685304",
   }
 };
 
