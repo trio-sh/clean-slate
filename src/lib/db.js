@@ -1838,14 +1838,14 @@ async function seedDemoData(idb) {
   ];
 
   for (const area of serviceAreas) {
-    await idb.put('service_areas', { ...area, min_order_amount: 64.01, created_at: new Date().toISOString() });
+    await idb.put('service_areas', { ...area, min_order_amount: 64, created_at: new Date().toISOString() });
   }
 
   // Settings
   const settings = [
     { key: 'business_info', value: { name: "Amani's Cleaners", slogan: 'Proudly Canadian Owned since 2013', phone: ['437-215-6321', '647-764-5658'], email: 'amaniscleaners@gmail.com', website: 'amanicleaners.com' } },
     { key: 'operating_hours', value: { pickup: ['7:00 AM - 11:00 AM', '6:00 PM - 10:00 PM'], delivery: ['7:00 AM - 11:00 AM', '6:00 PM - 10:00 PM'] } },
-    { key: 'pricing_rules', value: { min_order_weight: 23, min_order_amount: 64.01, same_day_fee_range: [20, 35], tax_rate: 0.13 } },
+    { key: 'pricing_rules', value: { min_order_weight: 23, min_order_amount: 64, same_day_fee_range: [20, 35], tax_rate: 0.13 } },
     { key: 'app_mode', value: { mode: 'live', demo_enabled: false } },
   ];
 

@@ -113,7 +113,7 @@ const OrderPage = () => {
 
   const laundryRate = 2.45;
   const minimumLaundry = 23;
-  const flatRate = 64.01;
+  const flatRate = 64;
   const sameDayFee = 25;
 
   // Promo codes available
@@ -304,8 +304,15 @@ const OrderPage = () => {
     return '';
   };
 
+  const minimumOrderAmount = 64;
+
   const handleSubmit = async () => {
     if (!validateStep(step)) return;
+
+    if (subtotal < minimumOrderAmount) {
+      setErrors({ submit: t('order.minimumOrderError', { amount: minimumOrderAmount }) });
+      return;
+    }
 
     try {
       // Build customer notes with add-on info
@@ -1744,10 +1751,16 @@ const OrderPage = () => {
                       )}
                     </div>
 
+                    {errors.submit && (
+                      <div className="mb-3 p-3 bg-red-50 border border-red-200 rounded-xl text-red-700 text-sm text-center">
+                        {errors.submit}
+                      </div>
+                    )}
+
                     <button
                       onClick={handleSubmit}
-                      disabled={loading}
-                      className="w-full btn-primary py-4 text-lg"
+                      disabled={loading || subtotal < minimumOrderAmount}
+                      className="w-full btn-primary py-4 text-lg disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       {loading ? (
                         <span className="flex items-center justify-center gap-2">

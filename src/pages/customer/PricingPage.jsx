@@ -84,7 +84,7 @@ const PricingPage = () => {
     regular: washFoldRegular?.base_price || washFoldRegular?.price || 2.45,
     commercial: washFoldCommercial?.base_price || washFoldCommercial?.price || 2.29,
     minimum: 23,
-    flatRate: 64.01
+    flatRate: 64
   };
 
   // Build pricing categories from database
