@@ -293,7 +293,17 @@ const ServicesPage = () => {
                               >
                                 <Minus className="w-4 h-4" />
                               </button>
-                              <span className="w-10 text-center font-medium">{qty}</span>
+                              <input
+                                type="number"
+                                inputMode="decimal"
+                                step="0.1"
+                                min="0"
+                                value={qty || ''}
+                                onChange={(e) => setQuantities(prev => ({ ...prev, [service.id]: Math.max(0, parseFloat(e.target.value) || 0) }))}
+                                onKeyDown={(e) => { if (e.key === 'Enter') e.currentTarget.blur(); }}
+                                placeholder="0"
+                                className="w-12 text-center font-medium bg-transparent outline-none focus:ring-2 focus:ring-amani-300 rounded [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                              />
                               <button
                                 onClick={() => updateQuantity(service.id, 1)}
                                 className="p-2 hover:bg-gray-100 rounded-r-lg transition-colors"
