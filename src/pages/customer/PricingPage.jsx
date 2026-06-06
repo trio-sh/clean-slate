@@ -375,10 +375,12 @@ const PricingPage = () => {
                     <label className="block text-sm text-gray-600 mb-1">{t('pricing.weightLbs')}</label>
                     <input
                       type="number"
+                      inputMode="decimal"
+                      step="0.1"
                       value={calculator.weight}
-                      onChange={(e) => setCalculator(prev => ({ ...prev, weight: Number(e.target.value) }))}
-                      className="input w-32"
-                      min="1"
+                      onChange={(e) => setCalculator(prev => ({ ...prev, weight: Math.max(0, parseFloat(e.target.value) || 0) }))}
+                      className="input w-32 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                      min="0"
                     />
                   </div>
                   <div>
