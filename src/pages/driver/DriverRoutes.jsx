@@ -682,10 +682,17 @@ const DriverRoutes = () => {
                 <p className="text-2xl font-bold text-amani-600">${(selectedStop.total || 0).toFixed(2)}</p>
               </div>
 
+              {selectedStop.reference_notes && (
+                <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
+                  <h3 className="font-semibold text-blue-800 mb-1">Reference Notes</h3>
+                  <p className="text-sm text-blue-700 whitespace-pre-line">{selectedStop.reference_notes}</p>
+                </div>
+              )}
+
               {selectedStop.customer_notes && (
                 <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
                   <h3 className="font-semibold text-amber-800 mb-1">Customer Notes</h3>
-                  <p className="text-sm text-amber-700">{selectedStop.customer_notes}</p>
+                  <p className="text-sm text-amber-700 whitespace-pre-line">{selectedStop.customer_notes}</p>
                 </div>
               )}
             </div>

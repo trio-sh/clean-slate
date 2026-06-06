@@ -40,6 +40,29 @@ const OrderPage = () => {
   // Starch quantity (per item pricing)
   const [starchQuantity, setStarchQuantity] = useState(0);
 
+  // Draft values for manually-typed quantity inputs (keyed by item id), so a
+  // user can type freely (including decimals / a temporarily empty field)
+  // without the value being committed/removed on every keystroke.
+  const [qtyDrafts, setQtyDrafts] = useState({});
+
+  // Commit a manually-typed item quantity. Accepts decimals (e.g. weighted
+  // items). An empty/invalid/<=0 entry reverts to the current quantity rather
+  // than silently removing the line item (the trash button handles removal).
+  const commitItemQuantity = (itemId, currentQty) => {
+    setQtyDrafts((prev) => {
+      const raw = prev[itemId];
+      const next = { ...prev };
+      delete next[itemId];
+      if (raw !== undefined && raw !== '') {
+        const parsed = parseFloat(raw);
+        if (!Number.isNaN(parsed) && parsed > 0) {
+          updateQuantity(itemId, parsed);
+        }
+      }
+      return next;
+    });
+  };
+
   // Add-on prices
   const addonPrices = {
     lowHeatDry: 5.00,
@@ -111,7 +134,7 @@ const OrderPage = () => {
     { value: 'evening', label: t('order.eveningSlot') },
   ];
 
-  const laundryRate = 2.45;
+  const laundryRate = 2.29;
   const minimumLaundry = 23;
   const flatRate = 64;
   const sameDayFee = 25;
@@ -894,7 +917,17 @@ const OrderPage = () => {
                                     >
                                       <Minus className="w-4 h-4" />
                                     </button>
-                                    <span className="w-8 text-center font-medium">{item.quantity}</span>
+                                    <input
+                                      type="number"
+                                      inputMode="decimal"
+                                      step="0.1"
+                                      min="0"
+                                      value={qtyDrafts[item.id] ?? item.quantity}
+                                      onChange={(e) => setQtyDrafts(prev => ({ ...prev, [item.id]: e.target.value }))}
+                                      onBlur={() => commitItemQuantity(item.id, item.quantity)}
+                                      onKeyDown={(e) => { if (e.key === 'Enter') e.currentTarget.blur(); }}
+                                      className="w-12 text-center font-medium bg-transparent rounded outline-none focus:ring-2 focus:ring-amani-300 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                    />
                                     <button
                                       onClick={() => updateQuantity(item.id, item.quantity + 1)}
                                       className="w-8 h-8 rounded flex items-center justify-center hover:bg-gray-200 active:bg-gray-300 transition-colors"
@@ -931,9 +964,11 @@ const OrderPage = () => {
                         <div className="flex items-center gap-2 sm:flex-shrink-0">
                           <input
                             type="number"
+                            inputMode="decimal"
+                            step="0.1"
                             value={laundryWeight || ''}
-                            onChange={(e) => setLaundryWeight(Math.max(0, parseInt(e.target.value) || 0))}
-                            className="w-20 input text-center"
+                            onChange={(e) => setLaundryWeight(Math.max(0, parseFloat(e.target.value) || 0))}
+                            className="w-20 input text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                             placeholder="0"
                             min="0"
                           />
@@ -962,9 +997,11 @@ const OrderPage = () => {
                         <div className="flex items-center gap-2 sm:flex-shrink-0">
                           <input
                             type="number"
+                            inputMode="decimal"
+                            step="0.1"
                             value={commercialLaundryWeight || ''}
-                            onChange={(e) => setCommercialLaundryWeight(Math.max(0, parseInt(e.target.value) || 0))}
-                            className="w-20 input text-center"
+                            onChange={(e) => setCommercialLaundryWeight(Math.max(0, parseFloat(e.target.value) || 0))}
+                            className="w-20 input text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                             placeholder="0"
                             min="0"
                           />
@@ -1106,7 +1143,20 @@ const OrderPage = () => {
                                   >
                                     <Minus className="w-4 h-4" />
                                   </button>
-                                  <span className="w-12 text-center font-medium">{starchQuantity}</span>
+                                  <input
+                                    type="number"
+                                    inputMode="decimal"
+                                    step="1"
+                                    min="0"
+                                    value={starchQuantity || ''}
+                                    onChange={(e) => {
+                                      const val = Math.max(0, parseFloat(e.target.value) || 0);
+                                      setStarchQuantity(val);
+                                      setSelectedAddons(prev => ({ ...prev, starch: val > 0 }));
+                                    }}
+                                    onKeyDown={(e) => { if (e.key === 'Enter') e.currentTarget.blur(); }}
+                                    className="w-12 text-center font-medium bg-transparent rounded outline-none focus:ring-2 focus:ring-amani-300 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                  />
                                   <button
                                     type="button"
                                     onClick={(e) => {

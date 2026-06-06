@@ -379,10 +379,17 @@ const PartnerOrders = () => {
                   </div>
                 )}
 
+                {selectedOrder.reference_notes && (
+                  <div className="bg-blue-50 border border-blue-200 rounded-xl p-3 text-sm text-blue-800">
+                    <p className="font-medium mb-1">Reference Notes</p>
+                    <p className="whitespace-pre-line">{selectedOrder.reference_notes}</p>
+                  </div>
+                )}
+
                 {selectedOrder.customer_notes && (
                   <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 text-sm text-amber-800">
                     <p className="font-medium mb-1">Customer Notes</p>
-                    <p>{selectedOrder.customer_notes}</p>
+                    <p className="whitespace-pre-line">{selectedOrder.customer_notes}</p>
                   </div>
                 )}
 

@@ -4,7 +4,7 @@ import {
   Droplets, Package, CheckCircle, Clock, RefreshCw,
   Shirt, AlertTriangle, Timer, ChevronRight, X,
   PlayCircle, PauseCircle, CheckCircle2, Eye,
-  Tag, MessageSquare, Camera, Printer
+  Tag, MessageSquare, Camera, Printer, FileText
 } from 'lucide-react';
 import { useAuthStore } from '../../stores';
 import db from '../../lib/db';
@@ -445,6 +445,19 @@ const StaffProcessing = () => {
                   />
                 </div>
 
+                {/* Reference Notes */}
+                {selectedOrder.reference_notes && (
+                  <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
+                    <div className="flex items-start gap-2">
+                      <FileText className="w-5 h-5 text-blue-600 flex-shrink-0" />
+                      <div>
+                        <p className="font-medium text-blue-800">Reference Notes</p>
+                        <p className="text-sm text-blue-700 mt-1 whitespace-pre-line">{selectedOrder.reference_notes}</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
                 {/* Customer Notes */}
                 {selectedOrder.customer_notes && (
                   <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
@@ -452,7 +465,7 @@ const StaffProcessing = () => {
                       <AlertTriangle className="w-5 h-5 text-amber-600 flex-shrink-0" />
                       <div>
                         <p className="font-medium text-amber-800">Customer Notes</p>
-                        <p className="text-sm text-amber-700 mt-1">{selectedOrder.customer_notes}</p>
+                        <p className="text-sm text-amber-700 mt-1 whitespace-pre-line">{selectedOrder.customer_notes}</p>
                       </div>
                     </div>
                   </div>
