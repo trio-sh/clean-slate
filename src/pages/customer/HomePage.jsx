@@ -27,9 +27,9 @@ const HomePage = () => {
   ];
 
   const services = [
-    { name: t('services.washAndFold'), price: '$2.45/lb', icon: Package, color: 'bg-blue-500',
+    { name: t('services.washAndFold'), price: '$2.29/lb', icon: Package, color: 'bg-blue-500',
       image: 'https://api.a0.dev/assets/image?text=neatly folded fresh clean laundry, white towels and clothes stacked, professional laundry service bright background&aspect=16:9&seed=201' },
-    { name: t('services.dryCleaning'), price: 'From $6.50', icon: Shirt, color: 'bg-purple-500',
+    { name: t('services.dryCleaning'), price: 'From $4.99', icon: Shirt, color: 'bg-purple-500',
       image: 'https://api.a0.dev/assets/image?text=professional dry cleaning service, elegant suits and dress shirts hanging on rack, pressed formal wear boutique&aspect=16:9&seed=202' },
     { name: t('services.weddingGowns'), price: 'From $210', icon: Heart, color: 'bg-pink-500',
       image: 'https://api.a0.dev/assets/image?text=beautiful white wedding dress bridal gown cleaning preservation service, delicate fabric care, white background&aspect=16:9&seed=203' },

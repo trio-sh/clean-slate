@@ -562,6 +562,30 @@ const AdminOrders = () => {
                   </div>
                 </div>
 
+                {/* Notes & Reference */}
+                {(selectedOrder.reference_notes || selectedOrder.customer_notes || selectedOrder.delivery_instructions) && (
+                  <div className="space-y-3">
+                    {selectedOrder.reference_notes && (
+                      <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
+                        <h3 className="font-semibold text-blue-900 mb-1">Reference Notes</h3>
+                        <p className="text-sm text-blue-800 whitespace-pre-line">{selectedOrder.reference_notes}</p>
+                      </div>
+                    )}
+                    {selectedOrder.customer_notes && (
+                      <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
+                        <h3 className="font-semibold text-amber-800 mb-1">Customer Notes</h3>
+                        <p className="text-sm text-amber-700 whitespace-pre-line">{selectedOrder.customer_notes}</p>
+                      </div>
+                    )}
+                    {selectedOrder.delivery_instructions && (
+                      <div className="bg-gray-50 border border-gray-200 rounded-xl p-4">
+                        <h3 className="font-semibold text-navy-900 mb-1">Delivery Instructions</h3>
+                        <p className="text-sm text-gray-700 whitespace-pre-line">{selectedOrder.delivery_instructions}</p>
+                      </div>
+                    )}
+                  </div>
+                )}
+
                 {/* Order Timeline */}
                 <div>
                   <h3 className="font-semibold text-navy-900 mb-3">Timeline</h3>
