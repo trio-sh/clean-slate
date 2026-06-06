@@ -59,12 +59,32 @@ When creating orders, the following fields are **required**:
 3. **Configure Environment Variables** (for live mode):
    - `VITE_SUPABASE_URL` - Your Supabase project URL
    - `VITE_SUPABASE_ANON_KEY` - Your Supabase anon key
+   - `STRIPE_PLATFORM_SECRET_KEY` - Stripe platform secret key (Connect enabled)
+   - `VITE_STRIPE_PUBLISHABLE_KEY` - Stripe publishable key
+   - `STRIPE_CONNECTED_ACCOUNT_ID` - Connected account that funds are charged on
+   - `STRIPE_PLATFORM_FEE_PERCENT` / `STRIPE_PLATFORM_FEE_FIXED` - Commission config
 4. **Deploy**: Click Deploy
+
+## 💳 Payments (Stripe Connect)
+
+Online payments use **Stripe Checkout** through **Stripe Connect**. Payment links
+are created as **direct charges** on the connected account (`STRIPE_CONNECTED_ACCOUNT_ID`)
+via the `/api/create-payment-link` serverless function, with the platform
+collecting commission through `application_fee_amount`.
+
+> **Note:** `STRIPE_CONNECTED_ACCOUNT_ID` must point at a connected account that
+> has completed onboarding (`card_payments` capability active). A direct charge
+> does **not** require the `transfers` capability — that is only needed for
+> destination charges, which is why an un-onboarded account fails with a
+> "destination account needs the transfers capability" error.
 
 ## 📱 Features
 
 ### Customer Portal
-- Browse services with real-time pricing
+- Browse services with real-time pricing — **Wash & Fold $2.29/lb**, **Dry Cleaning from $4.99**
+- **Wash & Fold by weight** - Decimal weights supported (scale-accurate); $64 minimum order before tax
+- **Reference Notes** - Optional customer reference field, visible to staff/admin/drivers on the order
+- **Online payments** - Secure Stripe Checkout payment links (Stripe Connect)
 - **Guest ordering** - Place orders without signing up
 - Track orders by reference code with **QR codes**
 - Download **invoices and receipts** (PDF) with company logo
