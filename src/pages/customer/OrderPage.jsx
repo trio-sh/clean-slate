@@ -134,9 +134,8 @@ const OrderPage = () => {
     { value: 'evening', label: t('order.eveningSlot') },
   ];
 
-  const laundryRate = 2.29;
-  const minimumLaundry = 23;
-  const flatRate = 64;
+  const regularLaundryRate = 2.45;     // Regular Wash & Fold per lb
+  const commercialLaundryRate = 2.29;  // Commercial Wash & Fold per lb
   const sameDayFee = 25;
 
   // Promo codes available
@@ -148,12 +147,10 @@ const OrderPage = () => {
 
   // Calculate totals
   const itemsTotal = items.reduce((sum, item) => sum + ((item.price || 0) * item.quantity), 0);
-  const laundryTotal = laundryWeight > 0
-    ? (laundryWeight >= minimumLaundry ? laundryWeight * laundryRate : flatRate)
-    : 0;
-  const commercialLaundryTotal = commercialLaundryWeight > 0
-    ? (commercialLaundryWeight >= minimumLaundry ? commercialLaundryWeight * laundryRate : flatRate)
-    : 0;
+  // Laundry is charged purely by weight. The $64 minimum applies to the whole
+  // order bill (enforced at checkout), not to laundry on its own.
+  const laundryTotal = laundryWeight > 0 ? laundryWeight * regularLaundryRate : 0;
+  const commercialLaundryTotal = commercialLaundryWeight > 0 ? commercialLaundryWeight * commercialLaundryRate : 0;
   const subtotal = itemsTotal + laundryTotal + commercialLaundryTotal + addonsTotal;
   
   // Apply promo discount
@@ -443,7 +440,7 @@ const OrderPage = () => {
             service_name: 'Wash & Fold (Regular)',
             name: 'Wash & Fold (Regular)',
             quantity: laundryWeight,
-            unit_price: laundryRate,
+            unit_price: regularLaundryRate,
             total_price: laundryTotal
           }] : []),
           ...(commercialLaundryWeight > 0 ? [{
@@ -451,7 +448,7 @@ const OrderPage = () => {
             service_name: 'Wash & Fold (Commercial)',
             name: 'Wash & Fold (Commercial)',
             quantity: commercialLaundryWeight,
-            unit_price: laundryRate,
+            unit_price: commercialLaundryRate,
             total_price: commercialLaundryTotal
           }] : []),
           // Add-ons
@@ -958,7 +955,7 @@ const OrderPage = () => {
                         <div className="flex-1">
                           <h3 className="font-medium text-navy-900">{t('order.laundryRegular')}</h3>
                           <p className="text-sm text-gray-500 mt-1">
-                            {t('order.laundryRegularDesc')} — ${laundryRate}/{t('order.perLb')} ({t('order.minOrder')} {minimumLaundry} {t('order.lbs')} or ${flatRate.toFixed(2)} {t('order.flatRate')})
+                            {t('order.laundryRegularDesc')} — ${regularLaundryRate.toFixed(2)}{t('order.perLb')}
                           </p>
                         </div>
                         <div className="flex items-center gap-2 sm:flex-shrink-0">
@@ -978,9 +975,6 @@ const OrderPage = () => {
                       {laundryWeight > 0 && (
                         <div className="text-right text-sm text-gray-600">
                           {t('order.laundryRegular')}: <span className="font-medium text-navy-900">${laundryTotal.toFixed(2)}</span>
-                          {laundryWeight < minimumLaundry && (
-                            <span className="text-orange-600 ml-2">({t('order.flatRate')})</span>
-                          )}
                         </div>
                       )}
                     </div>
@@ -991,7 +985,7 @@ const OrderPage = () => {
                         <div className="flex-1">
                           <h3 className="font-medium text-navy-900">{t('order.laundryCommercial')}</h3>
                           <p className="text-sm text-gray-500 mt-1">
-                            {t('order.laundryCommercialDesc')} — ${laundryRate}/{t('order.perLb')} ({t('order.minOrder')} {minimumLaundry} {t('order.lbs')} or ${flatRate.toFixed(2)} {t('order.flatRate')})
+                            {t('order.laundryCommercialDesc')} — ${commercialLaundryRate.toFixed(2)}{t('order.perLb')}
                           </p>
                         </div>
                         <div className="flex items-center gap-2 sm:flex-shrink-0">
@@ -1011,9 +1005,6 @@ const OrderPage = () => {
                       {commercialLaundryWeight > 0 && (
                         <div className="text-right text-sm text-gray-600">
                           {t('order.commercialLaundryTotal')}: <span className="font-medium text-navy-900">${commercialLaundryTotal.toFixed(2)}</span>
-                          {commercialLaundryWeight < minimumLaundry && (
-                            <span className="text-orange-600 ml-2">({t('order.flatRate')})</span>
-                          )}
                         </div>
                       )}
                     </div>

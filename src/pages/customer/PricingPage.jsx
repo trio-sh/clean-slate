@@ -81,7 +81,7 @@ const PricingPage = () => {
   const washFoldCommercial = services.find(s => s.slug === 'wash-fold-commercial' || (s.name.toLowerCase().includes('commercial') && s.name.toLowerCase().includes('laundry')));
 
   const laundryPricing = {
-    regular: washFoldRegular?.base_price || washFoldRegular?.price || 2.29,
+    regular: washFoldRegular?.base_price || washFoldRegular?.price || 2.45,
     commercial: washFoldCommercial?.base_price || washFoldCommercial?.price || 2.29,
     minimum: 23,
     flatRate: 64
@@ -340,7 +340,7 @@ const PricingPage = () => {
                 <div className="text-center p-6 bg-gray-50 rounded-2xl">
                   <h3 className="font-semibold text-navy-900 mb-2">{t('pricing.regular')}</h3>
                   <p className="text-4xl font-display font-bold text-amani-600">
-                    $2.29<span className="text-lg font-normal text-gray-500">/lb</span>
+                    $2.45<span className="text-lg font-normal text-gray-500">/lb</span>
                   </p>
                   <p className="text-sm text-gray-500 mt-2">{t('pricing.forHouseholdLaundry')}</p>
                 </div>

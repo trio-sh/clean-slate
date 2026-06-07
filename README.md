@@ -81,8 +81,8 @@ collecting commission through `application_fee_amount`.
 ## 📱 Features
 
 ### Customer Portal
-- Browse services with real-time pricing — **Wash & Fold $2.29/lb**, **Dry Cleaning from $4.99**
-- **Wash & Fold by weight** - Decimal weights supported (scale-accurate); $64 minimum order before tax
+- Browse services with real-time pricing — **Wash & Fold $2.45/lb** (commercial $2.29/lb), **Dry Cleaning from $4.99**
+- **Wash & Fold by weight** - Decimal weights supported (scale-accurate); **$64 minimum on the combined order total** (before tax)
 - **Reference Notes** - Optional customer reference field, visible to staff/admin/drivers on the order
 - **Online payments** - Secure Stripe Checkout payment links (Stripe Connect)
 - **Guest ordering** - Place orders without signing up
