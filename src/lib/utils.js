@@ -402,13 +402,40 @@ const sendEmailJS = async (to, subject, htmlBody, templateParams = {}) => {
   }
 };
 
+// Server-side SMTP (Gmail by default) via the /api/send-email serverless function
+const sendSMTPEmail = async (to, subject, htmlBody, replyTo) => {
+  try {
+    const response = await fetch('/api/send-email', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ to, subject, html: htmlBody, replyTo }),
+    });
+
+    const data = await response.json().catch(() => ({}));
+    if (response.ok && data.success) {
+      return { success: true, messageId: data.messageId };
+    }
+    console.error('SMTP email failed:', data.error || data.message || response.status);
+    return { success: false, error: data.error || data.message || 'SMTP send failed' };
+  } catch (error) {
+    console.error('Email Error:', error);
+    return { success: false, error: error.message };
+  }
+};
+
 export const sendEmail = async (to, subject, htmlBody, templateParams = {}) => {
   const mode = localStorage.getItem('amani_mode') || 'demo';
-  
+
   if (mode === 'demo') {
     return sendDemoEmail(to, subject, htmlBody);
   }
-  
+
+  // Primary: server-side Gmail SMTP. Fall back to EmailJS if it isn't configured.
+  const smtpResult = await sendSMTPEmail(to, subject, htmlBody, templateParams.replyTo);
+  if (smtpResult.success) {
+    return smtpResult;
+  }
+
   return sendEmailJS(to, subject, htmlBody, templateParams);
 };
 

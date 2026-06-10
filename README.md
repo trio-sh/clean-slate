@@ -63,6 +63,9 @@ When creating orders, the following fields are **required**:
    - `VITE_STRIPE_PUBLISHABLE_KEY` - Stripe publishable key
    - `STRIPE_CONNECTED_ACCOUNT_ID` - Connected account that funds are charged on
    - `STRIPE_PLATFORM_FEE_PERCENT` / `STRIPE_PLATFORM_FEE_FIXED` - Commission config
+   - `SMTP_HOST` / `SMTP_PORT` / `SMTP_USER` - Email server (Gmail: smtp.gmail.com / 587)
+   - `SMTP_PASSWORD` - Gmail App Password (secret)
+   - `SMTP_FROM_NAME` / `SMTP_FROM_EMAIL` / `SMTP_REPLY_TO` - Sender identity
 4. **Deploy**: Click Deploy
 
 ## 💳 Payments (Stripe Connect)
@@ -143,10 +146,19 @@ collecting commission through `application_fee_amount`.
 - Custom staff messages
 - Quick sign-in links
 
-### Email (EmailJS)
+### Email (SMTP — Gmail by default)
+Sent server-side via the `/api/send-email` function (nodemailer). Configure the
+`SMTP_*` environment variables (see `.env.example`); `SMTP_PASSWORD` is a Gmail
+**App Password** and must be set as a secret, never committed. EmailJS remains as
+an optional client-side fallback.
+
 - Order confirmations with tracking link
 - Invoice attachments
 - Login credentials
+
+> To send "From" `info@amanicleaners.com` while authenticating as a Gmail account,
+> add that address as a verified **Send mail as** alias in the Gmail account;
+> otherwise Gmail rewrites the From header to the authenticated address.
 
 See `docs/SMS_EMAIL_SETUP.md` for setup instructions.
 
@@ -187,7 +199,7 @@ pending_pickup → picked_up → processing → ready → out_for_delivery → d
 - **Icons**: Lucide React
 - **QR Codes**: QR Server API
 - **SMS**: Infobip (optional)
-- **Email**: EmailJS (optional)
+- **Email**: SMTP via nodemailer (Gmail) — `/api/send-email`; EmailJS optional fallback
 
 ## 📁 Project Structure
 
