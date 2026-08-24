@@ -29,6 +29,10 @@ import PricingPage from './pages/customer/PricingPage';
 import OrderPage from './pages/customer/OrderPage';
 import TrackOrderPage from './pages/customer/TrackOrderPage';
 import GetAppPage from './pages/customer/GetAppPage';
+import PrivacyPage from './pages/legal/PrivacyPage';
+import TermsPage from './pages/legal/TermsPage';
+import RefundPage from './pages/legal/RefundPage';
+import DeleteAccountPage from './pages/legal/DeleteAccountPage';
 import AccountPage from './pages/customer/AccountPage';
 import SubscriptionsPage from './pages/customer/SubscriptionsPage';
 import DriveWithUsPage from './pages/customer/DriveWithUsPage';
@@ -160,6 +164,10 @@ function App() {
             <Route path="driver" element={<DriverApplicationPage />} />
             <Route path="careers" element={<CareerApplicationPage />} />
             <Route path="get-app" element={<GetAppPage />} />
+            <Route path="privacy" element={<PrivacyPage />} />
+            <Route path="terms" element={<TermsPage />} />
+            <Route path="refund" element={<RefundPage />} />
+            <Route path="delete-account" element={<DeleteAccountPage />} />
             <Route path="account" element={
               <ProtectedRoute allowedRoles={['customer']}>
                 <AccountPage />

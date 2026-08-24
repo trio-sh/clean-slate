@@ -599,8 +599,16 @@ const CustomerLayout = () => {
             </div>
           </div>
 
+          {/* Legal links */}
+          <div className="mt-12 pt-8 border-t border-white/10 flex flex-wrap justify-center gap-x-6 gap-y-2 text-sm text-gray-400">
+            <Link to="/privacy" className="hover:text-white transition-colors">Privacy Policy</Link>
+            <Link to="/terms" className="hover:text-white transition-colors">Terms of Service</Link>
+            <Link to="/refund" className="hover:text-white transition-colors">Refund Policy</Link>
+            <Link to="/delete-account" className="hover:text-white transition-colors">Delete Account</Link>
+          </div>
+
           {/* Bottom */}
-          <div className="mt-12 pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-4">
+          <div className="mt-6 pt-6 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-4">
             <p className="text-gray-500 text-sm">
               {t('footer.copyright', { year: new Date().getFullYear() })}
             </p>
