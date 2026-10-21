@@ -12,6 +12,7 @@ export const LANGUAGES = {
   he: { label: 'עברית', dir: 'rtl' },
   ru: { label: 'Русский', dir: 'ltr' },
   ig: { label: 'Igbo', dir: 'ltr' },
+  hi: { label: 'हिन्दी', dir: 'ltr' },
 };
 
 export const DEFAULT_LANGUAGE = 'en';
@@ -25,4 +26,5 @@ export const localeLoaders = {
   he: () => import('./he.json'),
   ru: () => import('./ru.json'),
   ig: () => import('./ig.json'),
+  hi: () => import('./hi.json'),
 };

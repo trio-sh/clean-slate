@@ -101,7 +101,7 @@ collecting commission through `application_fee_amount`.
 - **Password Change** - Update password from account settings
 - **Notification Preferences** - Control SMS/email notifications
 - Account management & order history
-- **Languages** - English, French, Persian, Spanish, Chinese, Italian, **Hebrew** (right-to-left), **Russian** and **Igbo**
+- **Languages** - English, French, Persian, Spanish, Chinese, Italian, **Hebrew** (right-to-left), **Russian**, **Igbo** and **Hindi** (languages load on demand, so only the one you pick is downloaded)
 - **Floating WhatsApp chat button** on every screen - tap to chat, drag it anywhere (position is remembered)
 - Subscription plans for regular customers
 
