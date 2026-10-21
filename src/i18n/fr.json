@@ -1359,5 +1359,9 @@
       "phoneText": "Ou appelez-nous au 437-215-6321",
       "processingTime": "Candidatures traitées dans les 24-48 heures"
     }
+  },
+  "whatsapp": {
+    "hint": "Une question ?",
+    "prefill": "Bonjour ! J’ai une question sur vos services de blanchisserie."
   }
 }

@@ -5,6 +5,8 @@ import fa from './fa.json';
 import es from './es.json';
 import zh from './zh.json';
 import it from './it.json';
+import he from './he.json';
+import ru from './ru.json';
 
 const translations = {
   en,
@@ -13,6 +15,8 @@ const translations = {
   es,
   zh,
   it,
+  he,
+  ru,
 };
 
 const defaultLanguage = 'en';
@@ -104,6 +108,8 @@ export const LanguageProvider = ({ children }) => {
       es: translations.es.meta.language,
       zh: translations.zh.meta.language,
       it: translations.it.meta.language,
+      he: translations.he.meta.language,
+      ru: translations.ru.meta.language,
     },
   };
 

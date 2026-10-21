@@ -1240,5 +1240,9 @@
       "continueBrowsing": "继续浏览",
       "viewAccount": "查看帐户"
     }
+  },
+  "whatsapp": {
+    "hint": "有问题吗？",
+    "prefill": "你好！我想咨询一下你们的洗衣服务。"
   }
 }

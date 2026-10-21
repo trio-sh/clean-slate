@@ -368,7 +368,8 @@ export const db = {
       const record = {
         ...data,
         id: data.id || generateId(),
-        created_at: new Date().toISOString(),
+        // Orders may carry an explicit created_at (back-dated invoices)
+        created_at: (table === 'orders' && data.created_at) || new Date().toISOString(),
         updated_at: new Date().toISOString(),
       };
 
@@ -385,8 +386,10 @@ export const db = {
     const record = { ...data };
     
     // Remove fields that Supabase auto-generates
+    // (orders may keep an explicit created_at for back-dated invoices)
+    const keepCreatedAt = table === 'orders' && data.created_at;
     delete record.id;
-    delete record.created_at;
+    if (!keepCreatedAt) delete record.created_at;
     delete record.updated_at;
     
     // Remove empty strings for nullable unique fields (phone)
@@ -499,8 +502,8 @@ export const db = {
     return this.create('orders', {
       ...orderDataWithoutItems,
       reference_code: generateReferenceCode(),
-      status: 'pending_pickup',
-      payment_status: 'pending',
+      status: orderData.status || 'pending_pickup',
+      payment_status: orderData.payment_status || 'pending',
     });
   },
 

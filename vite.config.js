@@ -55,6 +55,7 @@ export default defineConfig({
         ],
       },
       workbox: {
+        maximumFileSizeToCacheInBytes: 6 * 1024 * 1024, // main bundle is ~2 MiB (all locales are bundled); default 2 MiB limit fails the build
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2,woff}'],
         runtimeCaching: [
           {
