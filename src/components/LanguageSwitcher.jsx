@@ -18,6 +18,7 @@ const LanguageSwitcher = ({ variant = 'button' }) => {
     { code: 'he', label: 'עברית', flag: '🇮🇱', rtl: true },
     { code: 'ru', label: 'Русский', flag: '🇷🇺' },
     { code: 'ig', label: 'Igbo', flag: '🇳🇬' },
+    { code: 'hi', label: 'हिन्दी', flag: '🇮🇳' },
   ];
 
   const currentLanguage = languageOptions.find(lang => lang.code === language);
