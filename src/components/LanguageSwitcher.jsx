@@ -17,6 +17,7 @@ const LanguageSwitcher = ({ variant = 'button' }) => {
     { code: 'it', label: 'Italiano', flag: '🇮🇹' },
     { code: 'he', label: 'עברית', flag: '🇮🇱', rtl: true },
     { code: 'ru', label: 'Русский', flag: '🇷🇺' },
+    { code: 'ig', label: 'Igbo', flag: '🇳🇬' },
   ];
 
   const currentLanguage = languageOptions.find(lang => lang.code === language);
