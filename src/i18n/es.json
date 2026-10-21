@@ -1240,5 +1240,9 @@
       "continueBrowsing": "Continuar Navegando",
       "viewAccount": "Ver Cuenta"
     }
+  },
+  "whatsapp": {
+    "hint": "¿Tienes una pregunta?",
+    "prefill": "¡Hola! Tengo una pregunta sobre sus servicios de lavandería."
   }
 }

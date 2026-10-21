@@ -62,6 +62,7 @@ import StaffApplications from './pages/staff/StaffApplications';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminOrders from './pages/admin/AdminOrders';
 import AdminCustomers from './pages/admin/AdminCustomers';
+import AdminCustomerLookup from './pages/admin/AdminCustomerLookup';
 import AdminDrivers from './pages/admin/AdminDrivers';
 import AdminStaff from './pages/admin/AdminStaff';
 import AdminServices from './pages/admin/AdminServices';
@@ -208,6 +209,7 @@ function App() {
             <Route index element={<AdminDashboard />} />
             <Route path="orders" element={<AdminOrders />} />
             <Route path="customers" element={<AdminCustomers />} />
+            <Route path="lookup" element={<AdminCustomerLookup />} />
             <Route path="drivers" element={<AdminDrivers />} />
             <Route path="staff" element={<AdminStaff />} />
             <Route path="checkins" element={<AdminCheckins />} />

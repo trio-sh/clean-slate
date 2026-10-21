@@ -101,6 +101,8 @@ collecting commission through `application_fee_amount`.
 - **Password Change** - Update password from account settings
 - **Notification Preferences** - Control SMS/email notifications
 - Account management & order history
+- **Languages** - English, French, Persian, Spanish, Chinese, Italian, **Hebrew** (right-to-left) and **Russian**
+- **Floating WhatsApp chat button** on every screen - tap to chat, drag it anywhere (position is remembered)
 - Subscription plans for regular customers
 
 ### Driver Portal (/driver)
@@ -127,6 +129,8 @@ collecting commission through `application_fee_amount`.
 - **In-app notifications** - Bell icon with notification panel
 - Order management with **Order Editing** (price adjustments with notes)
 - Customer/Driver/Staff management with **password creation**
+- **Customer look-up & promotions** (`/admin/lookup`) - instantly find any customer (registered or guest) by name, email, phone or invoice #, review their new and old invoices, and send promos by email, text or WhatsApp (opt-out wording added automatically)
+- **Back-dated invoices** - create an invoice for a customer with a past calendar date & time (Orders -> New Invoice); customers are auto-suggested as you type
 - **Check-in tracking** - Monitor staff & driver attendance
 - **Send login credentials** via SMS/Email (one-click button)
 - **Export to CSV** - Export drivers, customers, staff lists

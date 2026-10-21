@@ -1527,5 +1527,9 @@
       "phoneText": "Or call us at 437-215-6321",
       "processingTime": "Applications processed within 24-48 hours"
     }
+  },
+  "whatsapp": {
+    "hint": "Have a question?",
+    "prefill": "Hi! I have a question about your laundry services."
   }
 }

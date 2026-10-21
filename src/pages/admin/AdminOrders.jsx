@@ -9,6 +9,7 @@ import {
 import { useOrderStore, useAppStore } from '../../stores';
 import { formatAddress } from '../../lib/utils';
 import OrderEditModal from '../../components/OrderEditModal';
+import CreateInvoiceModal from '../../components/CreateInvoiceModal';
 import db from '../../lib/db';
 import toast from 'react-hot-toast';
 import { createPaymentLink } from '../../lib/stripe';
@@ -19,6 +20,7 @@ const AdminOrders = () => {
   const [dateFilter, setDateFilter] = useState('all');
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [editingOrder, setEditingOrder] = useState(null);
+  const [showNewInvoice, setShowNewInvoice] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(null);
   const [depots, setDepots] = useState([]);
@@ -195,6 +197,10 @@ const AdminOrders = () => {
           <p className="text-gray-600">Manage and track all customer orders</p>
         </div>
         <div className="flex items-center gap-3">
+          <button onClick={() => setShowNewInvoice(true)} className="btn-primary">
+            <Plus className="w-4 h-4" />
+            New Invoice
+          </button>
           <button onClick={exportOrders} className="btn-secondary">
             <Download className="w-4 h-4" />
             Export
@@ -665,6 +671,13 @@ const AdminOrders = () => {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* New / Back-dated Invoice Modal */}
+      <CreateInvoiceModal
+        isOpen={showNewInvoice}
+        onClose={() => setShowNewInvoice(false)}
+        onCreated={() => fetchOrders()}
+      />
 
       {/* Order Edit Modal */}
       <AnimatePresence>
